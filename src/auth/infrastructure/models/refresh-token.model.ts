@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('refresh_tokens')
-export class RefreshToken {
+export class RefreshTokenModel {
   @PrimaryColumn('uuid')
   userId: string;
   @Column('text')

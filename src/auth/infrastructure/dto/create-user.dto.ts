@@ -25,5 +25,5 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(6)
   @MaxLength(50)
-  role: string;
+  roleId: string;
 }

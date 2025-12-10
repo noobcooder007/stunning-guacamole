@@ -1,5 +1,4 @@
 import {
-  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -9,23 +8,21 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { LoginUserDto } from '@/auth/infrastructure/dto/login-user.dto';
 import { CreateUserDto } from '@/auth/infrastructure/dto/create-user.dto';
-import { UserRepository } from '@/auth/domain/repositories/user.repository';
 import { RoleService } from '@/auth/domain/services/role.service';
 import { JwtPayload } from '@/auth/domain/value-objects/jwt-payload.vo';
-import { PermitService } from '@/auth/domain/services/permit.service';
+import { PermissionService } from '@/auth/domain/services/permission.service';
 import type { PairToken } from '@/auth/infrastructure/dto/pair-token.dto';
-import { UserModel } from '@/auth/infrastructure/models/user.model';
-import { RefreshTokenRepository } from '@/auth/domain/repositories/refresh-token.repository';
+import { UserService } from '@/auth/domain/services/user.service';
+import { User } from '@/auth/domain/aggregates/user.aggregate';
+import { RefreshTokenService } from '@/auth/domain/services/refresh-token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(UserRepository)
-    private readonly userRepository: UserRepository,
+    private readonly userService: UserService,
     private readonly roleService: RoleService,
-    private readonly permitService: PermitService,
-    @Inject(RefreshTokenRepository)
-    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly permissionService: PermissionService,
+    private readonly refreshTokenService: RefreshTokenService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -49,30 +46,30 @@ export class AuthService {
   }
 
   public async register(createUserDto: CreateUserDto) {
-    const { username, password, role } = createUserDto;
-    const roleModel = await this.roleService.findById(role);
-    if (!roleModel || !roleModel.isActive) {
+    const { username, password, roleId } = createUserDto;
+    const role = await this.roleService.findById(roleId);
+    if (!role || !role.isActive) {
       throw new NotFoundException('El rol no existe o ya no esta activo');
     }
-    const user = this.userRepository.create({
+    const user = this.userService.create({
       username,
-      role: roleModel,
+      role: role,
       password: bcrypt.hashSync(password, bcrypt.genSaltSync()),
     });
-    await this.userRepository.save(user);
+    await this.userService.save(user);
   }
 
   private getJwtToken(payload: JwtPayload): string {
     return this.jwtService.sign(payload);
   }
 
-  private async getUserById(id: string): Promise<UserModel> {
-    const user = await this.userRepository.findOneById(id);
+  private async getUserById(id: string): Promise<User> {
+    const user = await this.userService.findById(id);
     return user;
   }
 
-  private async getUserByUsername(username: string): Promise<UserModel> {
-    const user = await this.userRepository.findOneByUsername(username);
+  private async getUserByUsername(username: string): Promise<User> {
+    const user = await this.userService.findByUsername(username);
     if (!user || !user.isActive)
       throw new UnauthorizedException('Credenciales inválidas');
     if (!user.role || user.role.isActive === false)
@@ -89,12 +86,12 @@ export class AuthService {
   }
 
   private async getPermitionsByRoleId(roleId: string) {
-    const permitions = await this.permitService.findByRoleId(roleId);
+    const permitions = await this.permissionService.findByRoleId(roleId);
     return permitions.filter((permit) => permit.isActive);
   }
 
   private updateLastLogin(userId: string): void {
-    this.userRepository.updateLastLogin(userId);
+    this.userService.updateLastLogin(userId);
   }
 
   public async refreshToken(refreshToken: string): Promise<PairToken> {
@@ -106,15 +103,11 @@ export class AuthService {
       throw new UnauthorizedException('Usuario desactivado o no existe');
     const hashedRefreshToken = this.hashToken(refreshToken);
     const currentRefreshToken =
-      await this.refreshTokenRepository.findOneByUserIdAndHashedRefreshToken(
+      await this.refreshTokenService.findOneByUserIdAndHashedRefreshToken(
         id,
         hashedRefreshToken,
       );
-    if (!currentRefreshToken)
-      throw new UnauthorizedException(
-        'Token inválido (tal vez fue usado o expirado)',
-      );
-    this.refreshTokenRepository.delete(
+    this.refreshTokenService.delete(
       currentRefreshToken.userId,
       currentRefreshToken.hashedRefreshToken,
     );
@@ -134,12 +127,12 @@ export class AuthService {
     const hashedRefreshToken = this.hashToken(rawRefreshToken);
     const expiryMs = 15 * 60 * 1000;
     const expiresAt = new Date(Date.now() + expiryMs).getTime().toString();
-    const newRefreshToken = this.refreshTokenRepository.create({
+    const newRefreshToken = this.refreshTokenService.create({
       userId,
       hashedRefreshToken,
       expiresAt,
     });
-    this.refreshTokenRepository.save(newRefreshToken);
+    this.refreshTokenService.save(newRefreshToken);
   }
 
   private hashToken(token: string): string {

@@ -8,7 +8,7 @@ import {
   Timestamp,
 } from 'typeorm';
 import { UserModel } from './user.model';
-import { PermitModel } from './permit.model';
+import { PermissionModel } from './permission.model';
 
 @Entity('roles')
 export class RoleModel {
@@ -30,7 +30,7 @@ export class RoleModel {
   isActive: boolean;
   @OneToMany(() => UserModel, (user) => user.role)
   users: UserModel;
-  @ManyToMany(() => PermitModel, (permit) => permit.roles)
-  @JoinTable({ name: 'role_permitions' })
-  permitions: PermitModel[];
+  @ManyToMany(() => PermissionModel, (permit) => permit.roles)
+  @JoinTable({ name: 'role_permissions' })
+  permissions: PermissionModel[];
 }

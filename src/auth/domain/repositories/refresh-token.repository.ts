@@ -1,4 +1,4 @@
-import { RefreshToken } from '@/auth/infrastructure/models/refresh-token.model';
+import { RefreshTokenModel } from '@/auth/infrastructure/models/refresh-token.model';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -6,8 +6,8 @@ export abstract class RefreshTokenRepository {
   abstract findOneByUserIdAndHashedRefreshToken(
     userId: string,
     token: string,
-  ): Promise<RefreshToken | null>;
-  abstract create(refreshToken: Partial<RefreshToken>): RefreshToken;
-  abstract save(refreshToken: RefreshToken): Promise<RefreshToken>;
+  ): Promise<RefreshTokenModel | null>;
+  abstract create(refreshToken: Partial<RefreshTokenModel>): RefreshTokenModel;
+  abstract save(refreshToken: RefreshTokenModel): Promise<RefreshTokenModel>;
   abstract delete(userId: string, token: string): void;
 }

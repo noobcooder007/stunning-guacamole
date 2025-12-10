@@ -5,10 +5,10 @@ import {
   PrimaryGeneratedColumn,
   Timestamp,
 } from 'typeorm';
-import { RoleModel } from './rol.model';
+import { RoleModel } from '@/auth/infrastructure/models/rol.model';
 
-@Entity('permitions')
-export class PermitModel {
+@Entity('permissions')
+export class PermissionModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column('text')
@@ -23,6 +23,6 @@ export class PermitModel {
     default: true,
   })
   isActive: boolean;
-  @ManyToMany(() => RoleModel, (role) => role.permitions)
+  @ManyToMany(() => RoleModel, (role) => role.permissions)
   roles: RoleModel[];
 }

@@ -2,18 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RefreshTokenRepository } from '@/auth/domain/repositories/refresh-token.repository';
-import { RefreshToken } from '@/auth/infrastructure/models/refresh-token.model';
+import { RefreshTokenModel } from '@/auth/infrastructure/models/refresh-token.model';
 
 @Injectable()
 export class RefreshTokenRepositoryAdapter implements RefreshTokenRepository {
   constructor(
-    @InjectRepository(RefreshToken)
-    private readonly refreshTokenRepository: Repository<RefreshToken>,
+    @InjectRepository(RefreshTokenModel)
+    private readonly refreshTokenRepository: Repository<RefreshTokenModel>,
   ) {}
   findOneByUserIdAndHashedRefreshToken(
     userId: string,
     token: string,
-  ): Promise<RefreshToken | null> {
+  ): Promise<RefreshTokenModel | null> {
     return this.refreshTokenRepository.findOne({
       where: {
         userId: userId,
@@ -21,10 +21,10 @@ export class RefreshTokenRepositoryAdapter implements RefreshTokenRepository {
       },
     });
   }
-  create(refreshToken: Partial<RefreshToken>): RefreshToken {
+  create(refreshToken: Partial<RefreshTokenModel>): RefreshTokenModel {
     return this.refreshTokenRepository.create(refreshToken);
   }
-  save(refreshToken: RefreshToken): Promise<RefreshToken> {
+  save(refreshToken: RefreshTokenModel): Promise<RefreshTokenModel> {
     return this.refreshTokenRepository.save(refreshToken);
   }
   delete(userId: string, token: string): void {
