@@ -6,6 +6,7 @@ export enum ValidPermitions {
   ADD_CHURCH = 'add:church',
   EDIT_CHURCH = 'edit:church',
   DELETE_CHURCH = 'delete:church',
+  LIST_CHURCH = 'list:church',
   VIEW_CHURCH = 'view:church',
   ADD_USER = 'add:user',
   EDIT_USER = 'edit:user',
