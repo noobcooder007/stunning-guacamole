@@ -1,4 +1,4 @@
-export class JwtPayload {
+export class AccessJwtPayload {
   id: string;
   rights?: string[];
 }

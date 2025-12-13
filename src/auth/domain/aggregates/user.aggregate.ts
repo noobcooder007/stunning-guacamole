@@ -1,5 +1,5 @@
 import { Role } from '@/auth/domain/entities/role.entity';
-import { Permission } from '@/auth/domain/entities/permission';
+import { Permission } from '@/auth/domain/entities/permission.entity';
 
 export class User {
   id: string;

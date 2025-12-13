@@ -4,7 +4,6 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Timestamp,
 } from 'typeorm';
 import { RoleModel } from '@/auth/infrastructure/models/rol.model';
 
@@ -27,15 +26,15 @@ export class UserModel {
   @JoinColumn({ name: 'roleId' })
   role: RoleModel;
 
-  @Column('timestamp without time zone', {
+  @Column('timestamp with time zone', {
     default: () => 'NOW()',
   })
-  lastLogin: Timestamp;
+  lastLogin: Date;
 
-  @Column('timestamp without time zone', {
-    default: () => 'NOW()',
+  @Column('timestamp with time zone', {
+    nullable: false,
   })
-  createdAt: Timestamp;
+  createdAt: Date;
 
   @Column('bool', {
     default: true,

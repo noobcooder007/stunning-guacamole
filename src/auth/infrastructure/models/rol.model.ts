@@ -5,7 +5,6 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  Timestamp,
 } from 'typeorm';
 import { UserModel } from './user.model';
 import { PermissionModel } from './permission.model';
@@ -20,10 +19,10 @@ export class RoleModel {
   name: string;
   @Column('text')
   description: string;
-  @Column('timestamp without time zone', {
-    default: () => 'NOW()',
+  @Column('timestamp with time zone', {
+    nullable: false,
   })
-  createdAt: Timestamp;
+  createdAt: Date;
   @Column('bool', {
     default: true,
   })

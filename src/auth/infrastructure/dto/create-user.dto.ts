@@ -23,7 +23,5 @@ export class CreateUserDto {
   password: string;
   @IsUUID()
   @IsNotEmpty()
-  @MinLength(6)
-  @MaxLength(50)
   roleId: string;
 }

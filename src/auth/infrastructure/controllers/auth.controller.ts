@@ -1,21 +1,29 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { AuthService } from 'src/auth/domain/services/auth.service';
-import { LoginUserDto } from '../dto/login-user.dto';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { PairToken } from '../dto/pair-token.dto';
-import { RefreshTokenRequest } from '../dto/refresh-token.dto';
+import { Body, Controller, Post, Req } from '@nestjs/common';
+import { AuthService } from '@/auth/domain/services/auth.service';
+import { LoginUserDto } from '@/auth/infrastructure/dto/login-user.dto';
+import { CreateUserDto } from '@/auth/infrastructure/dto/create-user.dto';
+import { PairToken } from '@/auth/infrastructure/dto/pair-token.dto';
+import { RefreshTokenRequest } from '@/auth/infrastructure/dto/refresh-token.dto';
 import { Auth } from '../decorators/auth.decorator';
-import { ValidPermitions } from '../decorators/permit-protected.decorator';
+import { AuthResponse } from '@/auth/domain/entities/auth-response.entity';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  login(@Body() loginUserDto: LoginUserDto): Promise<PairToken> {
-    return this.authService.login(loginUserDto);
+  login(
+    @Body() loginUserDto: LoginUserDto,
+    @Req() req: Request,
+  ): Promise<AuthResponse> {
+    return this.authService.login(
+      loginUserDto,
+      req.headers['x-forwarded-for'] || (req as any).ip,
+      req.headers['user-agent'],
+    );
   }
 
+  @Auth()
   @Post('register')
   register(@Body() createUserDto: CreateUserDto): void {
     this.authService.register(createUserDto);
@@ -23,12 +31,6 @@ export class AuthController {
 
   @Post('refresh')
   refreshToken(@Body() body: RefreshTokenRequest): Promise<PairToken> {
-    return this.authService.refreshToken(body.refreshToken);
-  }
-
-  @Auth(ValidPermitions.ADD_CHURCH)
-  @Get('some')
-  some(): boolean {
-    return true;
+    return this.authService.refreshToken(body);
   }
 }

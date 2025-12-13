@@ -1,24 +1,20 @@
-import {
-  Column,
-  Entity,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-  Timestamp,
-} from 'typeorm';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { RoleModel } from '@/auth/infrastructure/models/rol.model';
 
 @Entity('permissions')
 export class PermissionModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column('text')
+  @Column('text', {
+    unique: true,
+  })
   name: string;
   @Column('text')
   description: string;
-  @Column('timestamp without time zone', {
-    default: () => 'NOW()',
+  @Column('timestamp with time zone', {
+    nullable: false,
   })
-  createdAt: Timestamp;
+  createdAt: Date;
   @Column('bool', {
     default: true,
   })

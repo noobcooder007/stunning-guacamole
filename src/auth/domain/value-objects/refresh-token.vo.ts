@@ -1,8 +1,11 @@
 export class RefreshToken {
   userId: string;
   hashedRefreshToken: string;
-  expiresAt: string;
-  createdAt: string;
+  sessionId: string;
+  ip: string;
+  userAgent: string;
+  expiresAt: Date;
+  createdAt: Date;
 
   constructor() {}
 
@@ -16,12 +19,27 @@ export class RefreshToken {
     return this;
   }
 
-  public setExpiresAt(expiresAt: string): RefreshToken {
+  public setSessionId(sessionId: string): RefreshToken {
+    this.sessionId = sessionId;
+    return this;
+  }
+
+  public setIp(ip: string): RefreshToken {
+    this.ip = ip;
+    return this;
+  }
+
+  public setUserAgent(userAgent: string): RefreshToken {
+    this.userAgent = userAgent;
+    return this;
+  }
+
+  public setExpiresAt(expiresAt: Date): RefreshToken {
     this.expiresAt = expiresAt;
     return this;
   }
 
-  public setCreatedAt(createdAt: string): RefreshToken {
+  public setCreatedAt(createdAt: Date): RefreshToken {
     this.createdAt = createdAt;
     return this;
   }

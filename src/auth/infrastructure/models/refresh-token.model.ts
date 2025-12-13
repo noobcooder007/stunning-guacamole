@@ -3,13 +3,21 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 @Entity('refresh_tokens')
 export class RefreshTokenModel {
   @PrimaryColumn('uuid')
+  sessionId: string;
+  @Column('uuid')
   userId: string;
   @Column('text')
   hashedRefreshToken: string;
-  @Column('timestamp without time zone')
-  expiresAt: string;
-  @Column('timestamp without time zone', {
-    default: () => 'NOW()',
+  @Column('text')
+  ip: string;
+  @Column('text')
+  userAgent: string;
+  @Column('timestamp with time zone', {
+    nullable: false,
   })
-  createdAt: string;
+  expiresAt: Date;
+  @Column('timestamp with time zone', {
+    nullable: false,
+  })
+  createdAt: Date;
 }

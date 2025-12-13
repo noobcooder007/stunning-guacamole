@@ -39,9 +39,6 @@ import { PermissionRepository } from '@/auth/domain/repositories/permission.repo
       useFactory: (configService: ConfigService) => {
         return {
           secret: configService.get('JWT_SECRET'),
-          signOptions: {
-            expiresIn: '2h',
-          },
         };
       },
     }),

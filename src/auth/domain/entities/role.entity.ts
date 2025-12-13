@@ -1,4 +1,4 @@
-import { Permission } from '@/auth/domain/entities/permission';
+import { Permission } from '@/auth/domain/entities/permission.entity';
 
 export class Role {
   id: string;

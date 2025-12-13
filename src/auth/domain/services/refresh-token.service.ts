@@ -10,20 +10,23 @@ export class RefreshTokenService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
-  public async findOneByUserIdAndHashedRefreshToken(
+  public async findOneByUserIdAndHashedRefreshTokenAndSessionId(
     userId: string,
     hashedToken: string,
+    sessionId: string,
   ): Promise<RefreshToken> {
     const refreshToken =
-      await this.refreshTokenRepository.findOneByUserIdAndHashedRefreshToken(
+      await this.refreshTokenRepository.findOneByUserIdAndHashedRefreshTokenAndSessionId(
         userId,
         hashedToken,
+        sessionId,
       );
     if (!refreshToken)
       throw new UnauthorizedException(
         'Token inválido (tal vez fue usado o expirado)',
       );
     return new RefreshToken()
+      .setSessionId(refreshToken.sessionId)
       .setUserId(refreshToken.userId)
       .setHashRefreshToken(refreshToken.hashedRefreshToken)
       .setExpiresAt(refreshToken.expiresAt)
@@ -31,19 +34,19 @@ export class RefreshTokenService {
       .build();
   }
 
-  public create(refreshToken: Partial<RefreshToken>): RefreshTokenModel {
-    return this.refreshTokenRepository.create({
-      userId: refreshToken.userId,
-      hashedRefreshToken: refreshToken.hashedRefreshToken,
-      expiresAt: refreshToken.expiresAt,
-    });
+  public create(refreshToken: RefreshToken): RefreshTokenModel {
+    return this.refreshTokenRepository.create(refreshToken);
   }
 
   public save(refreshToken: RefreshTokenModel): Promise<RefreshTokenModel> {
     return this.refreshTokenRepository.save(refreshToken);
   }
 
-  public delete(userId: string, hashedToken: string): void {
-    this.refreshTokenRepository.delete(userId, hashedToken);
+  public upsert(refreshToken: RefreshTokenModel): Promise<RefreshTokenModel> {
+    return this.refreshTokenRepository.upsert(refreshToken);
+  }
+
+  public delete(userId: string, hashedToken: string, sessionId: string): void {
+    this.refreshTokenRepository.delete(userId, hashedToken, sessionId);
   }
 }

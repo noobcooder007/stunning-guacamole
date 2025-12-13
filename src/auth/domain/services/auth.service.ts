@@ -9,12 +9,16 @@ import * as crypto from 'crypto';
 import { LoginUserDto } from '@/auth/infrastructure/dto/login-user.dto';
 import { CreateUserDto } from '@/auth/infrastructure/dto/create-user.dto';
 import { RoleService } from '@/auth/domain/services/role.service';
-import { JwtPayload } from '@/auth/domain/value-objects/jwt-payload.vo';
+import { AccessJwtPayload } from '@/auth/domain/value-objects/jwt-payload.vo';
 import { PermissionService } from '@/auth/domain/services/permission.service';
 import type { PairToken } from '@/auth/infrastructure/dto/pair-token.dto';
 import { UserService } from '@/auth/domain/services/user.service';
 import { User } from '@/auth/domain/aggregates/user.aggregate';
 import { RefreshTokenService } from '@/auth/domain/services/refresh-token.service';
+import { AuthResponse } from '@/auth/domain/entities/auth-response.entity';
+import { RefreshToken } from '../value-objects/refresh-token.vo';
+import { RefreshTokenRequest } from '@/auth/infrastructure/dto/refresh-token.dto';
+import { RefreshJwtPayload } from '../value-objects/refresh-jwt-payload.vo';
 
 @Injectable()
 export class AuthService {
@@ -26,23 +30,53 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  public async login(loginUserDto: LoginUserDto): Promise<PairToken> {
+  private accessTokenValidityMs = 15 * 60 * 1000;
+  private refreshTokenValidityMs = 30 * 24 * 60 * 60 * 1000;
+
+  public async login(
+    loginUserDto: LoginUserDto,
+    ip: string,
+    userAgent: string,
+  ): Promise<AuthResponse> {
     const { username, password } = loginUserDto;
     const user = await this.getUserByUsername(username);
     this.verifyPassword(password, user.password);
     const permitions = await this.getPermitionsByRoleId(user.role.id);
-    const accessToken = this.getJwtToken({
-      id: user.id,
-      rights: permitions?.map((permit) => {
-        return permit.name;
-      }),
-    });
-    const refreshToken = this.getJwtToken({
-      id: user.id,
-    });
+    const sessionId = crypto.randomUUID();
+    const accessToken = this.getAccessJwtToken(
+      {
+        id: user.id,
+        rights: permitions?.map((permit) => {
+          return permit.name;
+        }),
+      },
+      this.accessTokenValidityMs,
+    );
+    const refreshToken = this.getRefreshJwtToken(
+      {
+        id: user.id,
+        sessionId: sessionId,
+      },
+      this.refreshTokenValidityMs,
+    );
     this.updateLastLogin(user.id);
-    this.storeRefreshToken(user.id, refreshToken);
-    return { accessToken, refreshToken };
+    await this.storeRefreshToken(
+      sessionId,
+      user.id,
+      refreshToken,
+      ip,
+      userAgent,
+    );
+    return {
+      user,
+      tokens: {
+        accessToken,
+        refreshToken,
+        expiresIn: new Date(Date.now() + this.accessTokenValidityMs),
+        refreshExpiresIn: new Date(Date.now() + this.refreshTokenValidityMs),
+        sessionId,
+      },
+    };
   }
 
   public async register(createUserDto: CreateUserDto) {
@@ -59,8 +93,22 @@ export class AuthService {
     await this.userService.save(user);
   }
 
-  private getJwtToken(payload: JwtPayload): string {
-    return this.jwtService.sign(payload);
+  private getAccessJwtToken(
+    payload: AccessJwtPayload,
+    expiryMs: number,
+  ): string {
+    return this.jwtService.sign(payload, {
+      expiresIn: Math.floor(expiryMs / 1000),
+    });
+  }
+
+  private getRefreshJwtToken(
+    payload: RefreshJwtPayload,
+    expiryMs: number,
+  ): string {
+    return this.jwtService.sign(payload, {
+      expiresIn: Math.floor(expiryMs / 1000),
+    });
   }
 
   private async getUserById(id: string): Promise<User> {
@@ -94,45 +142,86 @@ export class AuthService {
     this.userService.updateLastLogin(userId);
   }
 
-  public async refreshToken(refreshToken: string): Promise<PairToken> {
+  public async refreshToken(
+    refreshTokenRequest: RefreshTokenRequest,
+  ): Promise<PairToken> {
+    const { refreshToken, sessionId: sessionIdFromRequest } =
+      refreshTokenRequest;
     const isValidToken = this.jwtService.verifyAsync(refreshToken);
     if (!isValidToken) throw new UnauthorizedException('Token inválido');
-    const { id } = this.jwtService.decode(refreshToken) as JwtPayload;
-    const user = await this.getUserById(id);
+    const { id: userId, sessionId: sessionIdFromToken } =
+      this.jwtService.decode(refreshToken) as RefreshJwtPayload;
+    if (sessionIdFromRequest !== sessionIdFromToken)
+      throw new UnauthorizedException('Token inválido');
+    const user = await this.getUserById(userId);
     if (!user || !user.isActive)
       throw new UnauthorizedException('Usuario desactivado o no existe');
     const hashedRefreshToken = this.hashToken(refreshToken);
     const currentRefreshToken =
-      await this.refreshTokenService.findOneByUserIdAndHashedRefreshToken(
-        id,
+      await this.refreshTokenService.findOneByUserIdAndHashedRefreshTokenAndSessionId(
+        userId,
         hashedRefreshToken,
+        sessionIdFromRequest,
       );
-    this.refreshTokenService.delete(
-      currentRefreshToken.userId,
-      currentRefreshToken.hashedRefreshToken,
-    );
     const permitions = await this.getPermitionsByRoleId(user.role.id);
-    const newAccessToken = this.getJwtToken({
-      id,
-      rights: permitions?.map((permit) => {
-        return permit.name;
-      }),
-    });
-    const newRefreshToken = this.getJwtToken({ id });
-    this.storeRefreshToken(id, newRefreshToken);
+    const newAccessToken = this.getAccessJwtToken(
+      {
+        id: userId,
+        rights: permitions?.map((permit) => {
+          return permit.name;
+        }),
+      },
+      this.accessTokenValidityMs,
+    );
+    const newRefreshToken = this.getRefreshJwtToken(
+      { id: userId, sessionId: sessionIdFromRequest },
+      this.refreshTokenValidityMs,
+    );
+    this.updateRefreshToken(currentRefreshToken, newRefreshToken);
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
   }
 
-  private storeRefreshToken(userId: string, rawRefreshToken: string): void {
+  private async storeRefreshToken(
+    sessionId: string,
+    userId: string,
+    rawRefreshToken: string,
+    ip?: string,
+    userAgent?: string,
+  ): Promise<string> {
     const hashedRefreshToken = this.hashToken(rawRefreshToken);
-    const expiryMs = 15 * 60 * 1000;
-    const expiresAt = new Date(Date.now() + expiryMs).getTime().toString();
-    const newRefreshToken = this.refreshTokenService.create({
-      userId,
-      hashedRefreshToken,
-      expiresAt,
-    });
-    this.refreshTokenService.save(newRefreshToken);
+    const expiresAt = new Date(Date.now() + this.refreshTokenValidityMs);
+    const refreshToken = new RefreshToken()
+      .setSessionId(sessionId)
+      .setUserId(userId)
+      .setHashRefreshToken(hashedRefreshToken)
+      .setExpiresAt(expiresAt)
+      .setCreatedAt(new Date())
+      .setIp(ip)
+      .setUserAgent(userAgent)
+      .build();
+    const refreshTokenModel = this.refreshTokenService.create(refreshToken);
+    const newRefreshToken =
+      await this.refreshTokenService.save(refreshTokenModel);
+    return newRefreshToken.sessionId;
+  }
+
+  private async updateRefreshToken(
+    currentRefreshToken: RefreshToken,
+    newRefreshToken: string,
+  ): Promise<void> {
+    const hashedRefreshToken = this.hashToken(newRefreshToken);
+    const expiresAt = new Date(Date.now() + this.refreshTokenValidityMs);
+    const refreshToken = new RefreshToken()
+      .setSessionId(currentRefreshToken.sessionId)
+      .setUserId(currentRefreshToken.userId)
+      .setHashRefreshToken(hashedRefreshToken)
+      .setExpiresAt(expiresAt)
+      .setCreatedAt(currentRefreshToken.createdAt)
+      .setIp(currentRefreshToken.ip)
+      .setUserAgent(currentRefreshToken.userAgent)
+      .build();
+    const refreshTokenModel = this.refreshTokenService.create(refreshToken);
+    await this.refreshTokenService.upsert(refreshTokenModel);
   }
 
   private hashToken(token: string): string {
