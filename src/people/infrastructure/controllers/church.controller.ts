@@ -34,16 +34,19 @@ export class ChurchController {
     return this.churchService.update(id, church);
   }
 
+  @Auth(ValidPermitions.LIST_CHURCH)
   @Get()
   findAll(@Body() paginationDto: PaginationDto) {
     return this.churchService.findAll(paginationDto);
   }
 
+  @Auth(ValidPermitions.VIEW_CHURCH)
   @Get(':id')
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.churchService.findOne(id);
   }
 
+  @Auth(ValidPermitions.DELETE_CHURCH)
   @Delete(':id')
   remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.churchService.remove(id);
