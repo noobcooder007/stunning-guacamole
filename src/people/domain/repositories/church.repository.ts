@@ -11,6 +11,5 @@ export abstract class ChurchRepository {
     offset: number,
     limit: number,
   ): Promise<ChurchModel[]>;
-  public abstract update(id: string, church: Church): Promise<ChurchModel>;
-  public abstract delete(id: string): Promise<void>;
+  public abstract delete(id: string): void;
 }

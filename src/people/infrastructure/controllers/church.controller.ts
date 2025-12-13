@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -36,5 +37,15 @@ export class ChurchController {
   @Get()
   findAll(@Body() paginationDto: PaginationDto) {
     return this.churchService.findAll(paginationDto);
+  }
+
+  @Get(':id')
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.churchService.findOne(id);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.churchService.remove(id);
   }
 }

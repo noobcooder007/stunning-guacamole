@@ -32,12 +32,15 @@ export class ChurchRepositoryAdapater implements ChurchRepository {
     churchModel.auxiliarSecondLastname = church.auxiliar.secondLastname;
     return churchModel;
   }
+
   public save(church: ChurchModel): Promise<ChurchModel> {
     return this.churchRepository.save(church);
   }
+
   public findById(id: string): Promise<ChurchModel> {
     return this.churchRepository.findOne({ where: { id } });
   }
+
   public findAll(
     offset: number = 0,
     limit: number = 10,
@@ -47,10 +50,8 @@ export class ChurchRepositoryAdapater implements ChurchRepository {
       take: limit,
     });
   }
-  public update(id: string, church: Church): Promise<ChurchModel> {
-    throw new Error('Method not implemented.');
-  }
-  public delete(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  public delete(id: string): void {
+    this.churchRepository.update(id, { isActive: false });
   }
 }
