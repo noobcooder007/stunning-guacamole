@@ -68,7 +68,10 @@ export class AuthService {
       userAgent,
     );
     return {
-      user,
+      user: {
+        username: user.username,
+        role: user.role.name,
+      },
       tokens: {
         accessToken,
         refreshToken,

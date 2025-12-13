@@ -1,7 +1,8 @@
-import { User } from '../aggregates/user.aggregate';
-
 export interface AuthResponse {
-  user: User;
+  user: {
+    username: string;
+    role: string;
+  };
   tokens: {
     accessToken: string;
     expiresIn: Date;
