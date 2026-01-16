@@ -1,35 +1,32 @@
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { UserModel } from '@/auth/infrastructure/models/user.model';
 import { RoleModel } from '@/auth/infrastructure/models/rol.model';
-import { UserRepositoryAdapter } from '@/auth/infrastructure/persistence/user.repository.adapter';
 import { JwtStrategy } from '@/auth/domain/strategies/jwt.strategy';
-import { AuthService } from '@/auth/domain/services/auth.service';
 import { AuthController } from '@/auth/infrastructure/controllers/auth.controller';
-import { UserService } from '@/auth/domain/services/user.service';
-import { RoleService } from '@/auth/domain/services/role.service';
-import { RoleRepositoryAdapter } from '@/auth/infrastructure/persistence/role.repository.adapter';
-import { PermissionRepositoryAdapter } from '@/auth/infrastructure/persistence/permission.repository.adapter';
-import { PermissionService } from '@/auth/domain/services/permission.service';
-import { RefreshTokenRepositoryAdapter } from '@/auth/infrastructure/persistence/refresh-token.repository.adapter';
-import { UserRepository } from '@/auth/domain/repositories/user.repository';
-import { RoleRepository } from '@/auth/domain/repositories/role.repository';
-import { RefreshTokenRepository } from '@/auth/domain/repositories/refresh-token.repository';
-import { RefreshTokenService } from '@/auth/domain/services/refresh-token.service';
 import { PermissionModel } from '@/auth/infrastructure/models/permission.model';
-import { RefreshTokenModel } from '@/auth/infrastructure/models/refresh-token.model';
-import { PermissionRepository } from '@/auth/domain/repositories/permission.repository';
+import { SessionModel } from '@/auth/infrastructure/models/session.model';
+import { BcryptHasher } from '@/shared/infrastructure/security/bcrypt.hasher';
+import { LoginUserHandler } from '@/auth/application/handlers/login-user.handler';
+import { SessionHandler } from '@/auth/application/handlers/session.handler';
+import { SeedController } from '@/auth/infrastructure/controllers/seed.controller';
+import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
+import { JWTService } from '@/auth/application/services/jwt.service';
+import { LogoutHandler } from '@/auth/application/handlers/logout.handler';
+import { SeedHandler } from '@/auth/application/handlers/seed.handler';
 
 @Module({
   imports: [
+    CqrsModule,
     TypeOrmModule.forFeature([
       UserModel,
       RoleModel,
       PermissionModel,
-      RefreshTokenModel,
+      SessionModel,
     ]),
     ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -43,31 +40,26 @@ import { PermissionRepository } from '@/auth/domain/repositories/permission.repo
       },
     }),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, SeedController],
   providers: [
     JwtStrategy,
-    AuthService,
-    UserService,
-    RoleService,
-    PermissionService,
-    RefreshTokenService,
+    JWTService,
+    CreateUserService,
+    LoginUserHandler,
+    SessionHandler,
+    LogoutHandler,
+    SeedHandler,
     {
-      provide: UserRepository,
-      useClass: UserRepositoryAdapter,
-    },
-    {
-      provide: RoleRepository,
-      useClass: RoleRepositoryAdapter,
-    },
-    {
-      provide: PermissionRepository,
-      useClass: PermissionRepositoryAdapter,
-    },
-    {
-      provide: RefreshTokenRepository,
-      useClass: RefreshTokenRepositoryAdapter,
+      provide: 'IPasswordHasher',
+      useClass: BcryptHasher,
     },
   ],
-  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule],
+  exports: [
+    TypeOrmModule,
+    JwtStrategy,
+    PassportModule,
+    JwtModule,
+    CreateUserService,
+  ],
 })
 export class AuthModule {}

@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class RefreshTokenRequest {
+export class sessionRequest {
   @IsString()
   @IsNotEmpty()
-  refreshToken: string;
+  session: string;
   @IsUUID()
   @IsNotEmpty()
   sessionId: string;

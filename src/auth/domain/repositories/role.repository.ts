@@ -1,9 +1,9 @@
-import { RoleModel } from '@/auth/infrastructure/models/rol.model';
 import { Injectable } from '@nestjs/common';
+import { Role } from '../entities/role.entity';
 
 @Injectable()
 export abstract class RoleRepository {
-  abstract findById(id: string): Promise<RoleModel>;
-  abstract create(role: Partial<RoleModel>): RoleModel;
-  abstract save(role: RoleModel): Promise<RoleModel>;
+  abstract findById(id: string): Promise<Role>;
+  abstract findByName(name: string): Promise<Role | null>;
+  abstract save(roles: Role | Role[]): Promise<Role | Role[]>;
 }

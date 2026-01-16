@@ -3,13 +3,15 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  OneToOne,
+  PrimaryColumn,
 } from 'typeorm';
 import { RoleModel } from '@/auth/infrastructure/models/rol.model';
+import { ParticipantModel } from '@/people/infrastructure/models/participants.model';
 
 @Entity('users')
 export class UserModel {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
 
   @Column('text', {
@@ -17,9 +19,7 @@ export class UserModel {
   })
   username: string;
 
-  @Column('text', {
-    select: false,
-  })
+  @Column('text')
   password: string;
 
   @ManyToOne(() => RoleModel, (role) => role.users)
@@ -30,6 +30,12 @@ export class UserModel {
     default: () => 'NOW()',
   })
   lastLogin: Date;
+
+  @OneToOne(
+    () => ParticipantModel,
+    (participant) => participant.authenticationAccount,
+  )
+  participant: ParticipantModel;
 
   @Column('timestamp with time zone', {
     nullable: false,

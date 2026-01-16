@@ -1,40 +1,93 @@
+import { v4 as uuidv4 } from 'uuid';
 import { Permission } from '@/auth/domain/entities/permission.entity';
+import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 
-export class Role {
-  id: string;
+export class RoleId {
+  constructor(private readonly value: string) {
+    GeneralGuard.againstNullOrUndefined(
+      value,
+      'Id cannot be null or undefined',
+      RoleId.name,
+    );
+  }
+
+  public static of(): RoleId {
+    return new RoleId(uuidv4());
+  }
+
+  public toString(): string {
+    return this.value;
+  }
+}
+
+export interface RoleProps {
   name: string;
   description: string;
-  isActive: boolean;
   permissions: Permission[];
+  isActive?: boolean;
+  createdAt?: Date;
+}
 
-  constructor() {}
-
-  public setId(id: string): Role {
-    this.id = id;
-    return this;
+export class Role {
+  constructor(
+    private readonly id: RoleId,
+    private props: RoleProps,
+  ) {
+    GeneralGuard.againstNullOrUndefined(props.name, 'Name is required', 'Role');
+    GeneralGuard.againstNullOrUndefined(
+      props.description,
+      'Description is required',
+      Role.name,
+    );
+    GeneralGuard.againstNullOrUndefined(
+      props.permissions,
+      'Permissions are required',
+      Role.name,
+    );
+    GeneralGuard.againstArrayLengthIsGreaterThan(
+      props.permissions.length,
+      0,
+      'Permission must have at least one',
+      Role.name,
+    );
   }
 
-  public setName(name: string): Role {
-    this.name = name;
-    return this;
+  public static create(props: RoleProps) {
+    const id = RoleId.of();
+    const data = {
+      ...props,
+      createdAt: new Date(),
+      isActive: true,
+    };
+    return new Role(id, data);
   }
 
-  public setDescription(description: string): Role {
-    this.description = description;
-    return this;
+  public static recreate(id: string, props: RoleProps) {
+    const roleId = new RoleId(id);
+    return new Role(roleId, props);
   }
 
-  public setIsActive(isActive: boolean): Role {
-    this.isActive = isActive;
-    return this;
+  public get _id(): string {
+    return this.id.toString();
   }
 
-  public setPermissions(permissions: Permission[]): Role {
-    this.permissions = permissions;
-    return this;
+  public get name(): string {
+    return this.props.name;
   }
 
-  public build(): Role {
-    return this;
+  public get description(): string {
+    return this.props.description;
+  }
+
+  public get createdAt(): Date {
+    return this.props.createdAt;
+  }
+
+  public get isActive(): boolean {
+    return this.props.isActive;
+  }
+
+  public get permissions(): Permission[] {
+    return this.props.permissions;
   }
 }

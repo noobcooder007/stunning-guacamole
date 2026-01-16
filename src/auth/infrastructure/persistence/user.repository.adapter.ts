@@ -1,55 +1,56 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { UserRepository } from '@/auth/domain/repositories/user.repository';
 import { UserModel } from '@/auth/infrastructure/models/user.model';
+import { BaseRepository } from '@/database/base.repository';
+import { User } from '@/auth/domain/aggregates/user.aggregate';
+import { UserMapper } from '../mappers/user.mapper';
 
 @Injectable()
-export class UserRepositoryAdapter implements UserRepository {
-  constructor(
-    @InjectRepository(UserModel)
-    private readonly userRepository: Repository<UserModel>,
-  ) {}
+export class UserRepositoryAdapter
+  extends BaseRepository<UserModel>
+  implements UserRepository
+{
+  constructor(datasource: DataSource) {
+    super(datasource, UserModel);
+  }
 
-  findOneById(id: string): Promise<UserModel> {
-    return this.userRepository.findOne({
+  async count(): Promise<number> {
+    return await this.repository.count();
+  }
+
+  async findOneById(id: string): Promise<User | null> {
+    const userModel = await this.repository.findOne({
       where: {
         id,
       },
       relations: {
-        role: true,
+        participant: true,
+        role: {
+          permissions: true,
+        },
       },
     });
+    return userModel ? UserMapper.fromModelToDomain(userModel) : null;
   }
 
-  findOneByUsername(username: string): Promise<UserModel | null> {
-    return this.userRepository.findOne({
+  async findOneByUsername(username: string): Promise<User | null> {
+    const userModel = await this.repository.findOne({
       where: {
         username,
       },
-      select: {
-        id: true,
-        username: true,
-        password: true,
-        isActive: true,
-      },
       relations: {
-        role: true,
+        participant: true,
+        role: {
+          permissions: true,
+        },
       },
     });
+    return userModel ? UserMapper.fromModelToDomain(userModel) : null;
   }
 
-  create(user: Partial<UserModel>): UserModel {
-    return this.userRepository.create(user);
-  }
-
-  save(user: UserModel): Promise<UserModel> {
-    return this.userRepository.save(user);
-  }
-
-  updateLastLogin(id: string): void {
-    this.userRepository.update(id, {
-      lastLogin: new Date(),
-    });
+  async save(user: User): Promise<User> {
+    await this.repository.save(UserMapper.toPersistance(user));
+    return user;
   }
 }

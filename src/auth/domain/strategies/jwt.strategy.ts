@@ -1,17 +1,17 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { User } from '../aggregates/user.aggregate';
-import { UserService } from '../services/user.service';
-import { PermissionService } from '../services/permission.service';
 import { AccessJwtPayload } from '../value-objects/jwt-payload.vo';
+import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
+import { UserRepository } from '../repositories/user.repository';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly userService: UserService,
-    private readonly permissionService: PermissionService,
+    @Inject(REPOSITORY_TOKENS.USER)
+    private readonly userRepository: UserRepository,
     configService: ConfigService,
   ) {
     super({
@@ -22,9 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: AccessJwtPayload): Promise<User> {
     const { id } = payload;
-    const user = await this.userService.findById(id);
-    const permissions = await this.permissionService.findByRoleId(user.role.id);
-    user.addPermissions(permissions);
+    const user = await this.userRepository.findOneById(id);
     if (!user) throw new UnauthorizedException('Invalid token');
     if (!user.isActive) throw new UnauthorizedException('User is inactive');
     return user;

@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity('refresh_tokens')
-export class RefreshTokenModel {
+@Entity('sessions')
+export class SessionModel {
   @PrimaryColumn('uuid')
   sessionId: string;
   @Column('uuid')
@@ -20,4 +20,12 @@ export class RefreshTokenModel {
     nullable: false,
   })
   createdAt: Date;
+  @Column('timestamp with time zone', {
+    nullable: true,
+  })
+  updatedAt: Date;
+  @Column('bool', {
+    nullable: false,
+  })
+  revoked: boolean;
 }

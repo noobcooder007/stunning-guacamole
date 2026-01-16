@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PermissionModel } from '@/auth/infrastructure/models/permission.model';
+import { Permission } from '../entities/permission.entity';
 
 @Injectable()
 export abstract class PermissionRepository {
-  abstract findByRoleId(roleId: string): Promise<PermissionModel[]>;
+  abstract findByRoleId(roleId: string): Promise<Permission[]>;
+  abstract save(permission: Permission): Promise<Permission>;
+  abstract save(permissions: Permission[]): Promise<Permission[]>;
 }

@@ -4,14 +4,14 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { UserModel } from './user.model';
 import { PermissionModel } from './permission.model';
 
 @Entity('roles')
 export class RoleModel {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   id: string;
   @Column('text', {
     unique: true,
