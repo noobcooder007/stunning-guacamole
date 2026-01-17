@@ -1,11 +1,24 @@
 import { v4 as uuidv4 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
+import { ValueObject } from '@/shared/domain/vo/value-objet';
 
-export class PermissionId {
-  constructor(private readonly value: string) {}
+export class PermissionId extends ValueObject<string> {
+  private constructor(value: string) {
+    GeneralGuard.againstNullOrUndefined(
+      value,
+      'Id cannot be null or undefined',
+      PermissionId.name,
+    );
+    super(value);
+  }
 
-  public static of(): PermissionId {
+  public static create() {
     return new PermissionId(uuidv4());
+  }
+
+  public static of(value: string): PermissionId {
+    GeneralGuard.againstValueIsUUID(value, PermissionId.name);
+    return new PermissionId(value);
   }
 
   public toString(): string {
@@ -38,7 +51,7 @@ export class Permission {
   }
 
   public static create(props: PermissionProps) {
-    const id = PermissionId.of();
+    const id = PermissionId.create();
     const data: PermissionProps = {
       ...props,
       createdAt: new Date(),
@@ -48,7 +61,7 @@ export class Permission {
   }
 
   public static recreate(id: string, props: PermissionProps) {
-    const permissionId = new PermissionId(id);
+    const permissionId = PermissionId.of(id);
     return new Permission(permissionId, props);
   }
 

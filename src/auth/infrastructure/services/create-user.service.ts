@@ -1,10 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
-import { UserMapper } from '@/auth/infrastructure/mappers/user.mapper';
-import { UserRepository } from '../../domain/repositories/user.repository';
-import { IPasswordHasher } from '../../domain/services/password.hasher';
+import { IUserRepository } from '@/auth/application/repositories/user.repository';
+import { IPasswordHasher } from '@/auth/domain/services/password.hasher.service';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
-import { RoleRepository } from '@/auth/domain/repositories/role.repository';
+import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { User } from '@/auth/domain/aggregates/user.aggregate';
 import { Role } from '@/auth/domain/entities/role.entity';
@@ -14,9 +13,9 @@ import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 export class CreateUserService {
   constructor(
     @Inject(REPOSITORY_TOKENS.USER)
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: IUserRepository,
     @Inject(REPOSITORY_TOKENS.ROLES)
-    private readonly roleRepository: RoleRepository,
+    private readonly roleRepository: IRoleRepository,
     @Inject('IPasswordHasher')
     private readonly passwordHasher: IPasswordHasher,
   ) {}
@@ -40,12 +39,8 @@ export class CreateUserService {
     const hashedPassword = await this.passwordHasher.hash(data.password);
     data.password = hashedPassword;
     try {
-      const user = UserMapper.fromCommandToDomain({
-        username: data.username,
-        password: data.password,
-        roleId: role._id,
-      });
-      user.assignRole(role);
+      const { username, password } = data;
+      const user = User.create({ username, password, role });
       await this.userRepository.save(user);
       return Result.ok<User>(user);
     } catch (err) {

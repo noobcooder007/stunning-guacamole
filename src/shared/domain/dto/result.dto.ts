@@ -6,24 +6,26 @@ export enum ErrorType {
   FORBIDDEN = 'FORBIDDEN',
 }
 
-export class Result<T> {
+export interface IErrorResult {
+  type: ErrorType;
+  message: string;
+  entity: string;
+}
+
+export class Result<T, E extends IErrorResult = IErrorResult> {
   private constructor(
     public readonly isSuccess: boolean,
     public readonly value?: T,
-    public readonly error?: {
-      type: ErrorType;
-      message: string;
-      entity: string;
-    },
+    public readonly error?: E,
   ) {
     Object.freeze(this);
   }
 
-  static ok<T>(value: T): Result<T> {
-    return new Result<T>(true, value);
+  static ok<U>(value?: U): Result<U, any> {
+    return new Result<U, any>(true, value, undefined);
   }
 
-  static fail<T>(type: ErrorType, message: string, entity: string): Result<T> {
-    return new Result<T>(false, undefined, { type, message, entity });
+  static fail<U, F extends IErrorResult>(error: F): Result<U, F> {
+    return new Result<U, F>(false, undefined, error);
   }
 }

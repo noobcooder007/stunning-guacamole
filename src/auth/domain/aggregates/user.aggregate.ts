@@ -1,29 +1,14 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Role } from '@/auth/domain/entities/role.entity';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
-
-export class UserId {
-  constructor(private readonly value: string) {
-    GeneralGuard.againstNullOrUndefined(
-      value,
-      'Id cannot be null or undefined',
-      UserId.name,
-    );
-  }
-
-  public static of(): UserId {
-    return new UserId(uuidv4());
-  }
-
-  public toString(): string {
-    return this.value;
-  }
-}
+import { Participant } from '@/people/domain/aggregate/participant.aggregate';
+import { UserId } from '@/auth/domain/value-objects/user-id.vo';
+import { IPasswordHasher } from '../services/password.hasher.service';
 
 export interface UserProps {
   username: string;
   password: string;
-  role?: Role;
+  role: Role;
+  participant?: Participant;
   isActive?: boolean;
   createdAt?: Date;
   lastLogin?: Date;
@@ -57,7 +42,7 @@ export class User {
   }
 
   public static create(props: UserProps) {
-    const id = UserId.of();
+    const id = UserId.create();
     const data = {
       ...props,
       createdAt: new Date(),
@@ -67,7 +52,7 @@ export class User {
   }
 
   public static recreate(id: string, props: UserProps) {
-    const userId = new UserId(id);
+    const userId = UserId.of(id);
     return new User(userId, props);
   }
 
@@ -87,6 +72,10 @@ export class User {
     return this.props.role;
   }
 
+  public get participant(): Participant {
+    return this.props.participant;
+  }
+
   public get isActive(): boolean {
     return this.props.isActive;
   }
@@ -99,16 +88,19 @@ export class User {
     return this.props.lastLogin;
   }
 
-  public assignRole(role: Role) {
-    GeneralGuard.againstNullOrUndefined(
-      role,
-      'Role cant be null or undefined',
-      User.name,
-    );
-    this.props.role = role;
+  public async validatePassword(
+    hasher: IPasswordHasher,
+    rawPassword: string,
+  ): Promise<boolean> {
+    const isPasswordValid = await hasher.compare(rawPassword, this.password);
+    return isPasswordValid && this.isActive;
   }
 
   public updateLastLogin() {
     this.props.lastLogin = new Date();
+  }
+
+  public desactivate() {
+    this.props.isActive = false;
   }
 }

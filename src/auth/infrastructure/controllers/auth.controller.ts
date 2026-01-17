@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { Response } from 'express';
-import { Auth } from '../decorators/auth.decorator';
+import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
 import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
 import { GetContext } from '@/auth/infrastructure/decorators/get-context.decorator';
@@ -15,6 +15,7 @@ import { Result } from '@/shared/domain/dto/result.dto';
 export class AuthController {
   constructor(private readonly commandBus: CommandBus) {}
 
+  // Establecer cookie secure: false y sameSite: 'lax' para desarrollo
   @Post('login')
   async login(
     @Body() command: LoginUserCommand,
@@ -32,9 +33,9 @@ export class AuthController {
     const { refreshToken } = result.value.tokens;
     res.cookie('refresh-token', refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      secure: false,
+      sameSite: 'lax',
+      // maxAge: 30 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
     });
     return result;
@@ -54,18 +55,25 @@ export class AuthController {
   ) {
     (command as any).metadata = context;
     const result = await this.commandBus.execute(command);
-    if (!result.isSuccess)
+    if (!result.isSuccess) {
+      res.clearCookie('refresh-token', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        path: '/api/auth',
+      });
       return Result.fail({
         type: result.error.type,
         message: result.error.message,
         entity: AuthController.name,
       });
+    }
     const { refreshToken } = result.value.tokens;
     res.cookie('refresh-token', refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 30 * 24 * 60 * 60 * 1000,
+      secure: false,
+      sameSite: 'lax',
+      // maxAge: 30 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
     });
     return result;
@@ -79,14 +87,12 @@ export class AuthController {
   ) {
     (command as any).metadata = context;
     const result = await this.commandBus.execute(command);
-    if (result.isSuccess) {
-      res.clearCookie('session', {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        path: '/api/auth',
-      });
-    }
+    res.clearCookie('session', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/api/auth',
+    });
     return result;
   }
 }

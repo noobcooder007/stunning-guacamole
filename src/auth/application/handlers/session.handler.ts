@@ -7,16 +7,16 @@ import {
 } from '@/auth/application/dto/auth.response';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
-import { hashToken } from '@/shared/infrastructure/services/hash-token.service';
 import { JWTService } from '@/auth/application/services/jwt.service';
-import { RefreshJwtPayload } from '@/auth/domain/value-objects/refresh-jwt-payload.vo';
 import { SessionCommand } from '@/auth/application/commands/session.command';
-import { SessionRepository } from '@/auth/domain/repositories/session.repository';
+import { ISessionRepository } from '@/auth/application/repositories/session.repository';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { User } from '@/auth/domain/aggregates/user.aggregate';
-import { UserRepository } from '@/auth/domain/repositories/user.repository';
-import { safeCompare } from '@/shared/infrastructure/security/safe-compare';
+import { IUserRepository } from '@/auth/application/repositories/user.repository';
+import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
+import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
+import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
 
 export interface TokenResult {
   rawAccessToken: string;
@@ -36,9 +36,11 @@ export class SessionHandler extends BaseCommandHandler<
 > {
   constructor(
     @Inject(REPOSITORY_TOKENS.USER)
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: IUserRepository,
     @Inject(REPOSITORY_TOKENS.SESSION)
-    private readonly sessionRepository: SessionRepository,
+    private readonly sessionRepository: ISessionRepository,
+    @Inject('ITokenHasher')
+    private readonly hasherService: ITokenHasher,
     private readonly jwtService: JWTService,
   ) {
     super();
@@ -90,7 +92,7 @@ export class SessionHandler extends BaseCommandHandler<
           new Date(Date.now() + this.jwtService.ACCESSTOKENVALIDITYMS),
         ),
         refreshExpiresIn: Number(
-          new Date(Date.now() + this.jwtService.sessionVALIDITYMS),
+          new Date(Date.now() + this.jwtService.REFRESHTOKENVALIDITYMS),
         ),
         sessionId: resultTokenResult.value.sessionId.toString(),
       }),
@@ -103,21 +105,12 @@ export class SessionHandler extends BaseCommandHandler<
     context: CommandMetadata,
   ): Promise<Result<TokenData>> {
     const { sessionId: sessionIdFromRequest } = command;
-    const isValidToken = await this.jwtService.verifyAsync(
-      context.refreshToken,
-    );
-    if (!isValidToken)
-      return Result.fail({
-        type: ErrorType.UNAUTHORIZED,
-        message: 'Invalid token',
-        entity: SessionHandler.name,
-      });
-    const { id: userId, sessionId: sessionIdFromToken } =
-      this.jwtService.decode(context.refreshToken) as RefreshJwtPayload;
+    const payload = this.jwtService.verify(context.refreshToken);
+    const { id: userId, sessionId: sessionIdFromToken } = payload;
     if (sessionIdFromRequest !== sessionIdFromToken)
       return Result.fail({
         type: ErrorType.UNAUTHORIZED,
-        message: 'Invalid token',
+        message: 'Session not found',
         entity: SessionHandler.name,
       });
     return Result.ok({
@@ -144,19 +137,13 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
-    if (currentSession.revoked) {
-      return Result.fail({
-        type: ErrorType.UNAUTHORIZED,
-        message: 'Invalid token (maybe was used or expired)',
-        entity: SessionHandler.name,
-      });
-    }
-    const isMatch = await safeCompare(
-      hashToken(rawRefreshToken),
-      currentSession.hashRefreshToken,
+    const isValid = await currentSession.validateToken(
+      rawRefreshToken,
+      context.userAgent,
+      this.hasherService,
     );
-    if (!isMatch) {
-      currentSession.revoked = true;
+    if (!isValid) {
+      currentSession.revokeSession();
       await this.sessionRepository.save(currentSession);
       return Result.fail({
         type: ErrorType.UNAUTHORIZED,
@@ -175,14 +162,18 @@ export class SessionHandler extends BaseCommandHandler<
       id: user._id,
       sessionId: sessionIdFromRequest,
     });
-    const newHashedsession = hashToken(newRawRefreshToken);
-    const expiresAt = new Date(Date.now() + this.jwtService.sessionVALIDITYMS);
-    currentSession.updateSession(newHashedsession, expiresAt);
+    const newHashedsession = await this.hasherService.hash(newRawRefreshToken);
+    const refreshTokenHash = RefreshTokenHash.of(newHashedsession);
+    const expiresAt = new Date(
+      Date.now() + this.jwtService.REFRESHTOKENVALIDITYMS,
+    );
+    const expiresAtDate = ExpiresAtDate.of(expiresAt);
+    currentSession.updateSession(refreshTokenHash, expiresAtDate);
     await this.sessionRepository.save(currentSession);
     return Result.ok<TokenResult>({
       rawAccessToken: newAccessToken,
       rawRefreshToken: newRawRefreshToken,
-      sessionId: currentSession.sessionId,
+      sessionId: currentSession.sessionId.unpack(),
     });
   }
 }

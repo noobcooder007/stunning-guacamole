@@ -1,7 +1,7 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
 import { SetupGuard } from '@/auth/infrastructure/guards/setup.guard';
+import { SeedCommand } from '@/auth/application/commands/seed.command';
 
 @Controller('seed/admin')
 export class SeedController {
@@ -9,7 +9,7 @@ export class SeedController {
 
   @Post()
   @UseGuards(SetupGuard)
-  async seedAdmin(@Body() command: CreateUserCommand) {
+  async seedAdmin(@Body() command: SeedCommand) {
     return await this.commandBus.execute(command);
   }
 }

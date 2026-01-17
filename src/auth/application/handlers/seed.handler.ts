@@ -5,8 +5,8 @@ import { Result } from '@/shared/domain/dto/result.dto';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { Permission } from '@/auth/domain/entities/permission.entity';
 import { Role } from '@/auth/domain/entities/role.entity';
-import { PermissionRepository } from '@/auth/domain/repositories/permission.repository';
-import { RoleRepository } from '@/auth/domain/repositories/role.repository';
+import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
+import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { UnitOfWork } from '@/database/unit-of-work';
@@ -17,9 +17,9 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
   constructor(
     private readonly createUserService: CreateUserService,
     @Inject(REPOSITORY_TOKENS.ROLES)
-    private readonly roleRepository: RoleRepository,
+    private readonly roleRepository: IRoleRepository,
     @Inject(REPOSITORY_TOKENS.PERMISSION)
-    private readonly permissionRepository: PermissionRepository,
+    private readonly permissionRepository: IPermissionRepository,
     private readonly uow: UnitOfWork,
   ) {
     super();

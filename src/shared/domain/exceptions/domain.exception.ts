@@ -5,6 +5,7 @@ export class DomainException extends Error {
     public readonly message: string,
     public readonly entityName: string,
     public readonly type: ErrorType,
+    public readonly stack: string = new Error().stack,
   ) {
     super(message);
     this.name = this.constructor.name;

@@ -1,9 +1,17 @@
-import { AccessJwtPayload } from '@/auth/domain/value-objects/jwt-payload.vo';
-import { RefreshJwtPayload } from '@/auth/domain/value-objects/refresh-jwt-payload.vo';
 import { JwtService } from '@nestjs/jwt';
 
+export class AccessJwtPayload {
+  id: string;
+  rights?: string[];
+}
+
+export interface RefreshJwtPayload {
+  id: string;
+  sessionId: string;
+}
+
 export class JWTService extends JwtService {
-  sessionVALIDITYMS = 30 * 24 * 60 * 60 * 1000;
+  REFRESHTOKENVALIDITYMS = 30 * 24 * 60 * 60 * 1000;
   ACCESSTOKENVALIDITYMS = 15 * 60 * 1000;
 
   constructor() {

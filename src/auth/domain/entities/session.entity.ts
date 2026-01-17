@@ -1,38 +1,29 @@
-import { v4 as uuidv4 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
-
-export class SessionId {
-  constructor(private readonly value: string) {
-    GeneralGuard.againstNullOrUndefined(
-      value,
-      'Id cannot be null or undefined',
-      SessionId.name,
-    );
-  }
-
-  public static of(): SessionId {
-    return new SessionId(uuidv4());
-  }
-
-  public toString(): string {
-    return this.value;
-  }
-}
+import { SessionId } from '@/auth/domain/value-objects/session-id.vo';
+import { UserId } from '@/auth/domain/value-objects/user-id.vo';
+import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
+import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
+import { SessionMetadata } from '@/auth/domain/value-objects/session-metadata.vo';
+import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
 
 export interface SessionProps {
   sessionId: SessionId;
-  userId: string;
-  hashRefreshToken: string;
-  expiresAt: Date;
+  userId: UserId;
+  hashRefreshToken: RefreshTokenHash;
+  expiresAt: ExpiresAtDate;
   createdAt?: Date;
   updatedAt?: Date;
-  ip: string;
-  userAgent: string;
+  sessionMetadata: SessionMetadata;
   revoked?: boolean;
 }
 
 export class Session {
   constructor(private props: SessionProps) {
+    GeneralGuard.againstNullOrUndefined(
+      props.sessionId,
+      'Session id cannot be null or undefined',
+      Session.name,
+    );
     GeneralGuard.againstNullOrUndefined(
       props.userId,
       'User id cannot be null or undefined',
@@ -54,13 +45,8 @@ export class Session {
       Session.name,
     );
     GeneralGuard.againstNullOrUndefined(
-      props.ip,
-      'Ip cannot be null or undefined',
-      Session.name,
-    );
-    GeneralGuard.againstNullOrUndefined(
-      props.userAgent,
-      'User agent cannot be null or undefined',
+      props.sessionMetadata,
+      'Session metadata cannot be null or undefined',
       Session.name,
     );
     GeneralGuard.againstNullOrUndefined(
@@ -84,19 +70,19 @@ export class Session {
     return new Session(props);
   }
 
-  public get sessionId(): string {
-    return this.props.sessionId.toString();
+  public get sessionId(): SessionId {
+    return this.props.sessionId;
   }
 
-  public get userId(): string {
+  public get userId(): UserId {
     return this.props.userId;
   }
 
-  public get hashRefreshToken(): string {
+  public get hashRefreshToken(): RefreshTokenHash {
     return this.props.hashRefreshToken;
   }
 
-  public get expiresAt(): Date {
+  public get expiresAt(): ExpiresAtDate {
     return this.props.expiresAt;
   }
 
@@ -108,25 +94,37 @@ export class Session {
     return this.props.updatedAt;
   }
 
-  public get ip(): string {
-    return this.props.ip;
-  }
-
-  public get userAgent(): string {
-    return this.props.userAgent;
+  public get sessionMetadata(): SessionMetadata {
+    return this.props.sessionMetadata;
   }
 
   public get revoked(): boolean {
     return this.props.revoked;
   }
 
-  updateSession(hashRefreshToken: string, expiresAt: Date) {
+  updateSession(hashRefreshToken: RefreshTokenHash, expiresAt: ExpiresAtDate) {
     this.props.hashRefreshToken = hashRefreshToken;
     this.props.expiresAt = expiresAt;
     this.props.updatedAt = new Date();
   }
 
-  public set revoked(value: boolean) {
-    this.props.revoked = value;
+  async validateToken(
+    plainToken: string,
+    userAgent: string,
+    hasher: ITokenHasher,
+  ): Promise<boolean> {
+    if (
+      !this.revoked ||
+      this.expiresAt.isAlive() ||
+      this.sessionMetadata.validateFingerprint(userAgent)
+    ) {
+      return true;
+    }
+    return await this.hashRefreshToken.compare(plainToken, hasher);
+  }
+
+  public revokeSession() {
+    this.props.revoked = true;
+    this.props.updatedAt = new Date();
   }
 }

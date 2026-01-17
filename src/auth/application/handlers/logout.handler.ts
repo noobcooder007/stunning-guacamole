@@ -5,15 +5,16 @@ import { BaseCommandHandler } from '@/shared/application/handler/base-command.ha
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { LogoutCommand } from '@/auth/application/commands/logout.command';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
-import { SessionRepository } from '@/auth/domain/repositories/session.repository';
-import { safeCompare } from '@/shared/infrastructure/security/safe-compare';
-import { hashToken } from '@/shared/infrastructure/services/hash-token.service';
+import { ISessionRepository } from '@/auth/application/repositories/session.repository';
+import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
 
 @CommandHandler(LogoutCommand)
 export class LogoutHandler extends BaseCommandHandler<LogoutCommand, void> {
   constructor(
     @Inject(REPOSITORY_TOKENS.SESSION)
-    private readonly sessionRepository: SessionRepository,
+    private readonly sessionRepository: ISessionRepository,
+    @Inject('ITokenHasher')
+    private readonly hasherService: ITokenHasher,
   ) {
     super();
   }
@@ -38,12 +39,13 @@ export class LogoutHandler extends BaseCommandHandler<LogoutCommand, void> {
         message: 'Invalid token',
         entity: LogoutHandler.name,
       });
-    const isTokenValid = safeCompare(
-      hashToken(rawRefreshToken),
-      session.hashRefreshToken,
+    const isTokenValid = session.validateToken(
+      rawRefreshToken,
+      context.userAgent,
+      this.hasherService,
     );
     if (!isTokenValid) {
-      session.revoked = true;
+      session.revokeSession();
       await this.sessionRepository.save(session);
       return Result.fail({
         type: ErrorType.UNAUTHORIZED,
@@ -51,7 +53,7 @@ export class LogoutHandler extends BaseCommandHandler<LogoutCommand, void> {
         entity: LogoutHandler.name,
       });
     }
-    session.revoked = true;
+    session.revokeSession();
     await this.sessionRepository.save(session);
     return Result.ok<void>(undefined);
   }

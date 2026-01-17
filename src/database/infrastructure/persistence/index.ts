@@ -2,10 +2,10 @@ import { BeneficientRepositoryAdapter } from '@/people/infrastructure/persistenc
 import { ChurchRepositoryAdapater } from '@/people/infrastructure/persistence/church.repository.adapter';
 import { CollectorRepositoryAdapter } from '@/people/infrastructure/persistence/collector.repository.adapter';
 import { ParticipantRespositoryAdapter } from '@/people/infrastructure/persistence/participant.repository.adapter';
-import { PermissionRepositoryAdapter } from '@/auth/infrastructure/persistence/permission.repository.adapter';
-import { sessionRepositoryAdapter } from '@/auth/infrastructure/persistence/session.repository.adapter';
-import { RoleRepositoryAdapter } from '@/auth/infrastructure/persistence/role.repository.adapter';
-import { UserRepositoryAdapter } from '@/auth/infrastructure/persistence/user.repository.adapter';
+import { TypeORMPermissionRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-permission-repository';
+import { TypeORMSessionRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-session-repository';
+import { TypeORMRoleRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-role-repository';
+import { TypeORMUserRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-user-repository';
 
 export const REPOSITORY_TOKENS = {
   USER: 'UserRepository',
@@ -21,19 +21,19 @@ export const REPOSITORY_TOKENS = {
 export const DATABASE_REPOSITORIES = [
   {
     provide: REPOSITORY_TOKENS.USER,
-    useClass: UserRepositoryAdapter,
+    useClass: TypeORMUserRepository,
   },
   {
     provide: REPOSITORY_TOKENS.ROLES,
-    useClass: RoleRepositoryAdapter,
+    useClass: TypeORMRoleRepository,
   },
   {
     provide: REPOSITORY_TOKENS.PERMISSION,
-    useClass: PermissionRepositoryAdapter,
+    useClass: TypeORMPermissionRepository,
   },
   {
     provide: REPOSITORY_TOKENS.SESSION,
-    useClass: sessionRepositoryAdapter,
+    useClass: TypeORMSessionRepository,
   },
   {
     provide: REPOSITORY_TOKENS.CHURCH,

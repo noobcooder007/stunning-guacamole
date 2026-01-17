@@ -64,4 +64,27 @@ export class GeneralGuard {
       throw new InvalidAttributeException(message, entity);
     }
   }
+
+  public static againstValueIsUUID(value: string, entity: string) {
+    const uuidRegex =
+      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
+    if (!value.match(uuidRegex)) {
+      throw new InvalidAttributeException('Value is not a valid UUID', entity);
+    }
+  }
+
+  public static againstBeforeTodayDate(value: Date, entity: string) {
+    const today = new Date();
+    if (value.getTime() <= today.getTime()) {
+      throw new InvalidAttributeException('Date is before today date', entity);
+    }
+  }
+
+  public static againstIPNotValid(value: string, entity: string) {
+    const ipRegex =
+      /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    if (!value.match(ipRegex)) {
+      throw new InvalidAttributeException('IP is not valid', entity);
+    }
+  }
 }

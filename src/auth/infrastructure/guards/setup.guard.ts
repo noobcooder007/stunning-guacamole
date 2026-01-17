@@ -1,4 +1,4 @@
-import { UserRepository } from '@/auth/domain/repositories/user.repository';
+import { IUserRepository } from '@/auth/application/repositories/user.repository';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import {
   CanActivate,
@@ -15,7 +15,7 @@ export class SetupGuard implements CanActivate {
   constructor(
     private readonly configService: ConfigService,
     @Inject(REPOSITORY_TOKENS.USER)
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: IUserRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

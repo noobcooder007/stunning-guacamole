@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DATABASE_REPOSITORIES } from '@/database/infrastructure/persistence';
 import { UnitOfWork } from '@/database/unit-of-work';
-import { UserModel } from '@/auth/infrastructure/models/user.model';
-import { RoleModel } from '@/auth/infrastructure/models/rol.model';
-import { PermissionModel } from '@/auth/infrastructure/models/permission.model';
-import { SessionModel } from '@/auth/infrastructure/models/session.model';
+import { UserSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/user.schema';
+import { RoleSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/role.schema';
+import { PermissionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/permission.schema';
+import { SessionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/session.schema';
 import { BeneficientModel } from '@/people/infrastructure/models/beneficient.model';
 import { ChurchModel } from '@/people/infrastructure/models/church.model';
 import { CollectorModel } from '@/people/infrastructure/models/collector.model';
@@ -29,10 +29,10 @@ import { ParticipantModel } from '@/people/infrastructure/models/participants.mo
       }),
     }),
     TypeOrmModule.forFeature([
-      UserModel,
-      RoleModel,
-      PermissionModel,
-      SessionModel,
+      UserSchema,
+      RoleSchema,
+      PermissionSchema,
+      SessionSchema,
       BeneficientModel,
       ChurchModel,
       BeneficientModel,

@@ -1,7 +1,7 @@
 // database/unit-of-work.ts
 import { Injectable } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
-import { transactionStorage } from './transactional-context';
+import { transactionStorage } from '@/database/transactional-context';
 
 @Injectable()
 export class UnitOfWork {

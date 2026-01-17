@@ -1,6 +1,6 @@
 // database/base.repository.ts
 import { DataSource, EntityManager, EntityTarget, Repository } from 'typeorm';
-import { transactionStorage } from './transactional-context';
+import { transactionStorage } from '@/database/transactional-context';
 
 export abstract class BaseRepository<T> {
   constructor(

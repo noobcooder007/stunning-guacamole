@@ -2,16 +2,16 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { User } from '../aggregates/user.aggregate';
-import { AccessJwtPayload } from '../value-objects/jwt-payload.vo';
+import { User } from '@/auth/domain/aggregates/user.aggregate';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
-import { UserRepository } from '../repositories/user.repository';
+import { IUserRepository } from '@/auth/application/repositories/user.repository';
+import { AccessJwtPayload } from '@/auth/application/services/jwt.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     @Inject(REPOSITORY_TOKENS.USER)
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: IUserRepository,
     configService: ConfigService,
   ) {
     super({

@@ -1,18 +1,25 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Permission } from '@/auth/domain/entities/permission.entity';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
+import { ValueObject } from '@/shared/domain/vo/value-objet';
 
-export class RoleId {
-  constructor(private readonly value: string) {
+export class RoleId extends ValueObject<string> {
+  private constructor(value: string) {
     GeneralGuard.againstNullOrUndefined(
       value,
       'Id cannot be null or undefined',
       RoleId.name,
     );
+    super(value);
   }
 
-  public static of(): RoleId {
+  public static create() {
     return new RoleId(uuidv4());
+  }
+
+  public static of(value: string): RoleId {
+    GeneralGuard.againstValueIsUUID(value, RoleId.name);
+    return new RoleId(value);
   }
 
   public toString(): string {
@@ -53,7 +60,7 @@ export class Role {
   }
 
   public static create(props: RoleProps) {
-    const id = RoleId.of();
+    const id = RoleId.create();
     const data = {
       ...props,
       createdAt: new Date(),
@@ -63,7 +70,7 @@ export class Role {
   }
 
   public static recreate(id: string, props: RoleProps) {
-    const roleId = new RoleId(id);
+    const roleId = RoleId.of(id);
     return new Role(roleId, props);
   }
 
