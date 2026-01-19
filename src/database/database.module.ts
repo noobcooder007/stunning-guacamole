@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DATABASE_REPOSITORIES } from '@/database/infrastructure/persistence';
 import { UnitOfWork } from '@/database/unit-of-work';
@@ -16,6 +16,7 @@ import { ParticipantModel } from '@/people/infrastructure/models/participants.mo
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',

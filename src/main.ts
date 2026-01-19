@@ -4,14 +4,16 @@ import {
   Logger,
   ValidationPipe,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
-import { AppModule } from './app.module';
-import { ResultInterceptor } from './shared/infrastructure/interceptors/result.interceptor';
-import { GlobalExceptionsFilter } from './shared/infrastructure/filters/global-exceptions.filter';
+import { AppModule } from '@/app.module';
+import { ResultInterceptor } from '@/shared/infrastructure/interceptors/result.interceptor';
+import { GlobalExceptionsFilter } from '@/shared/infrastructure/filters/global-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger();
+  const configService = app.get(ConfigService);
   app.setGlobalPrefix('api');
   const reflector = app.get(Reflector);
   app.use(cookieParser.default());
@@ -32,7 +34,8 @@ async function bootstrap() {
     new ResultInterceptor(),
     new ClassSerializerInterceptor(reflector),
   );
-  await app.listen(+process.env.PORT);
-  logger.log(`App running on port ${process.env.PORT}`);
+  const port = configService.get('PORT') || 3000;
+  await app.listen(port);
+  logger.log(`App running on port ${port}`);
 }
 bootstrap();

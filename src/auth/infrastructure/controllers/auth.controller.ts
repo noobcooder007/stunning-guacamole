@@ -1,6 +1,7 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { CookieOptions, Response } from 'express';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
 import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
@@ -10,11 +11,24 @@ import { ValidPermitions } from '@/auth/infrastructure/decorators/permit-protect
 import { SessionCommand } from '@/auth/application/commands/session.command';
 import { LogoutCommand } from '@/auth/application/commands/logout.command';
 import { Result } from '@/shared/domain/dto/result.dto';
-import { environment } from '@/environments/environment.development';
+
+export const getCookieOptions = (
+  configService: ConfigService,
+): CookieOptions => ({
+  httpOnly: true,
+  secure: configService.get('COOKIE_SECURE') === 'true',
+  sameSite:
+    (configService.get('COOKIE_SAME_SITE') as 'lax' | 'strict' | 'none') ||
+    'lax',
+  path: '/api/auth',
+});
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly configService: ConfigService,
+  ) {}
 
   // Establecer cookie secure: false y sameSite: 'lax' para desarrollo
   @Post('login')
@@ -33,11 +47,8 @@ export class AuthController {
       });
     const { refreshToken } = result.value.tokens;
     res.cookie('refresh-token', refreshToken, {
-      httpOnly: true,
-      secure: environment.production ? true : false,
-      sameSite: environment.production ? 'strict' : 'lax',
+      ...getCookieOptions(this.configService),
       expires: new Date(result.value.tokens.refreshExpiresIn),
-      path: '/api/auth',
     });
     return result;
   }
@@ -58,10 +69,7 @@ export class AuthController {
     const result = await this.commandBus.execute(command);
     if (!result.isSuccess) {
       res.clearCookie('refresh-token', {
-        httpOnly: true,
-        secure: environment.production ? true : false,
-        sameSite: environment.production ? 'strict' : 'lax',
-        path: '/api/auth',
+        ...getCookieOptions(this.configService),
       });
       return Result.fail({
         type: result.error.type,
@@ -71,11 +79,8 @@ export class AuthController {
     }
     const { refreshToken } = result.value.tokens;
     res.cookie('refresh-token', refreshToken, {
-      httpOnly: true,
-      secure: environment.production ? true : false,
-      sameSite: environment.production ? 'strict' : 'lax',
+      ...getCookieOptions(this.configService),
       expires: new Date(result.value.tokens.refreshExpiresIn),
-      path: '/api/auth',
     });
     return result;
   }
@@ -89,10 +94,7 @@ export class AuthController {
     (command as any).metadata = context;
     const result = await this.commandBus.execute(command);
     res.clearCookie('session', {
-      httpOnly: true,
-      secure: environment.production ? true : false,
-      sameSite: environment.production ? 'strict' : 'lax',
-      path: '/api/auth',
+      ...getCookieOptions(this.configService),
     });
     return result;
   }

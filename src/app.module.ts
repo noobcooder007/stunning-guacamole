@@ -7,7 +7,10 @@ import { LoggerMiddleware } from './shared/infrastructure/middlewares/logging.mi
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}.local`,
+      isGlobal: true,
+    }),
     DatabaseModule,
     AuthModule,
     PeopleModule,
