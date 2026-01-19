@@ -35,6 +35,7 @@ export class AuthController {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
+      expires: new Date(result.value.tokens.refreshExpiresIn),
       // maxAge: 30 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
     });
@@ -73,6 +74,7 @@ export class AuthController {
       httpOnly: true,
       secure: false,
       sameSite: 'lax',
+      expires: new Date(result.value.tokens.refreshExpiresIn),
       // maxAge: 30 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
     });
