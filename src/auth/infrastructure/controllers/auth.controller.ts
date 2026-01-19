@@ -10,6 +10,7 @@ import { ValidPermitions } from '@/auth/infrastructure/decorators/permit-protect
 import { SessionCommand } from '@/auth/application/commands/session.command';
 import { LogoutCommand } from '@/auth/application/commands/logout.command';
 import { Result } from '@/shared/domain/dto/result.dto';
+import { environment } from '@/environments/environment.development';
 
 @Controller('auth')
 export class AuthController {
@@ -33,10 +34,9 @@ export class AuthController {
     const { refreshToken } = result.value.tokens;
     res.cookie('refresh-token', refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: environment.production ? true : false,
+      sameSite: environment.production ? 'strict' : 'lax',
       expires: new Date(result.value.tokens.refreshExpiresIn),
-      // maxAge: 30 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
     });
     return result;
@@ -59,8 +59,8 @@ export class AuthController {
     if (!result.isSuccess) {
       res.clearCookie('refresh-token', {
         httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
+        secure: environment.production ? true : false,
+        sameSite: environment.production ? 'strict' : 'lax',
         path: '/api/auth',
       });
       return Result.fail({
@@ -72,10 +72,9 @@ export class AuthController {
     const { refreshToken } = result.value.tokens;
     res.cookie('refresh-token', refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: environment.production ? true : false,
+      sameSite: environment.production ? 'strict' : 'lax',
       expires: new Date(result.value.tokens.refreshExpiresIn),
-      // maxAge: 30 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
     });
     return result;
@@ -91,8 +90,8 @@ export class AuthController {
     const result = await this.commandBus.execute(command);
     res.clearCookie('session', {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: environment.production ? true : false,
+      sameSite: environment.production ? 'strict' : 'lax',
       path: '/api/auth',
     });
     return result;
