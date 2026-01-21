@@ -4,7 +4,7 @@ import { SeedCommand } from '@/auth/application/commands/seed.command';
 import { Result } from '@/shared/domain/dto/result.dto';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { Permission } from '@/auth/domain/entities/permission.entity';
-import { Role } from '@/auth/domain/entities/role.entity';
+import { Role } from '@/auth/domain/aggregates/role.aggregate';
 import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
@@ -29,11 +29,11 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
     await this.uow.runInTransaction(async () => {
       // TODO: Terminar de definir los permisos para cada rol y moverlo a un command handler
       const addChurchPermission = Permission.create({
-        name: 'add:curch',
+        name: 'add:church',
         description: 'Añadir inglesia',
       });
       const viewChurchPermission = Permission.create({
-        name: 'view:curch',
+        name: 'view:church',
         description: 'Ver inglesia',
       });
       const viewInvoicePermission = Permission.create({
@@ -46,7 +46,7 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
         viewInvoicePermission,
       ]);
       const adminRole = Role.create({
-        name: 'admin',
+        name: 'administrator',
         description: 'Rol dedicado a actividades de administración',
         permissions: [addChurchPermission],
       });

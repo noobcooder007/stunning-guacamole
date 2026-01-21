@@ -1,4 +1,4 @@
-import { Role } from '@/auth/domain/entities/role.entity';
+import { Role } from '@/auth/domain/aggregates/role.aggregate';
 import {
   IPermissionPersistence,
   PermissionMapper,

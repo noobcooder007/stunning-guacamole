@@ -1,8 +1,5 @@
 import { User } from '@/auth/domain/aggregates/user.aggregate';
-import {
-  IRolePersistence,
-  RoleMapper,
-} from '@/auth/infrastructure/persistence/mappers/role.mapper';
+import { IRolePersistence } from '@/auth/infrastructure/persistence/mappers/role.mapper';
 
 export interface IUserPersistence {
   id: string;
@@ -22,7 +19,7 @@ export class UserMapper {
       id: user._id,
       username: user.username,
       password: user.password,
-      roleId: user.role._id,
+      roleId: user.role,
       createdAt: user.createdAt,
       isActive: user.isActive,
       lastLogin: user.lastLogin,
@@ -33,7 +30,7 @@ export class UserMapper {
     return User.recreate(raw.id, {
       username: raw.username,
       password: raw.password,
-      role: RoleMapper.toDomain(raw.role),
+      roleId: raw.roleId,
       // participant: ParticipantMapper.toDomain(raw.participant),
       createdAt: raw.createdAt,
       isActive: raw.isActive,

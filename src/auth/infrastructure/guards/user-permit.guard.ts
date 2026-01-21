@@ -6,28 +6,26 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
 import { META_PERMITIONS } from '@/auth/infrastructure/decorators/permit-protected.decorator';
-import { User } from '@/auth/domain/aggregates/user.aggregate';
 
 @Injectable()
 export class UserPermitGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     const validPermitions: string[] = this.reflector.get(
       META_PERMITIONS,
       context.getHandler(),
     );
     if (!validPermitions || validPermitions.length === 0) return true;
     const request = context.switchToHttp().getRequest();
-    const user = request.user as User;
-    if (!user) throw new BadRequestException('User not found');
-    for (const permission of user.role.permissions) {
-      if (validPermitions.includes(permission.name)) return true;
-    }
+    const user = request.user;
+    if (!user) throw new BadRequestException('User not found in request');
+    const userRights: string[] = user.rights || [];
+    const hasPermission = validPermitions.some((permission) =>
+      userRights.includes(permission),
+    );
+    if (hasPermission) return true;
     throw new ForbiddenException('User does not have permission');
   }
 }

@@ -17,6 +17,8 @@ import { IUserRepository } from '@/auth/application/repositories/user.repository
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { Role } from '@/auth/domain/aggregates/role.aggregate';
+import { IRoleRepository } from '../repositories/role.repository';
 
 export interface TokenResult {
   rawAccessToken: string;
@@ -37,6 +39,8 @@ export class SessionHandler extends BaseCommandHandler<
   constructor(
     @Inject(REPOSITORY_TOKENS.USER)
     private readonly userRepository: IUserRepository,
+    @Inject(REPOSITORY_TOKENS.ROLES)
+    private readonly roleRepository: IRoleRepository,
     @Inject(REPOSITORY_TOKENS.SESSION)
     private readonly sessionRepository: ISessionRepository,
     @Inject('ITokenHasher')
@@ -68,8 +72,10 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
+    const role = await this.roleRepository.findById(user.role);
     const resultTokenResult = await this.generateTokens(
       user,
+      role,
       context,
       resultTokenData.value.sessionIdFromRequest,
     );
@@ -83,7 +89,7 @@ export class SessionHandler extends BaseCommandHandler<
     const session = new AuthResponse({
       user: new UserDto({
         username: user.username,
-        role: user.role.name,
+        role: role.name,
       }),
       tokens: new SessionDto({
         accessToken: resultTokenResult.value.rawAccessToken,
@@ -121,6 +127,7 @@ export class SessionHandler extends BaseCommandHandler<
 
   private async generateTokens(
     user: User,
+    role: Role,
     context: CommandMetadata,
     sessionIdFromRequest: string,
   ): Promise<Result<TokenResult>> {
@@ -151,9 +158,7 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
-    const permissions = user.role.permissions.map(
-      (permission) => permission.name,
-    );
+    const permissions = role.permissions.map((permission) => permission.name);
     const newAccessToken = this.jwtService.createAccessToken({
       id: user._id,
       rights: permissions,

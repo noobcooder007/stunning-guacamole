@@ -19,6 +19,8 @@ import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { SessionMetadata } from '@/auth/domain/value-objects/session-metadata.vo';
 import { SessionId } from '@/auth/domain/value-objects/session-id.vo';
 import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { IRoleRepository } from '@/auth/application/repositories/role.repository';
+import { Role } from '@/auth/domain/aggregates/role.aggregate';
 
 export interface TokenResult {
   rawAccessToken: string;
@@ -36,6 +38,8 @@ export class LoginUserHandler extends BaseCommandHandler<
     private readonly userRepository: IUserRepository,
     @Inject(REPOSITORY_TOKENS.SESSION)
     private readonly sessionRepository: ISessionRepository,
+    @Inject(REPOSITORY_TOKENS.ROLES)
+    private readonly roleRepository: IRoleRepository,
     @Inject('IPasswordHasher')
     private readonly hasherService: IPasswordHasher,
     @Inject('ITokenHasher')
@@ -57,14 +61,15 @@ export class LoginUserHandler extends BaseCommandHandler<
         entity: LoginUserHandler.name,
       });
     }
+    const role = await this.roleRepository.findById(user.role);
     const { rawAccessToken, rawRefreshToken, sessionId } =
-      await this.generateTokens(user, context);
+      await this.generateTokens(user, role, context);
     user.updateLastLogin();
     this.userRepository.save(user);
     const session = new AuthResponse({
       user: new UserDto({
         username: user.username,
-        role: user.role.name,
+        role: role.name,
       }),
       tokens: new SessionDto({
         accessToken: rawAccessToken,
@@ -105,10 +110,11 @@ export class LoginUserHandler extends BaseCommandHandler<
 
   private async generateTokens(
     user: User,
+    role: Role,
     context: CommandMetadata,
   ): Promise<TokenResult> {
     const sessionId = SessionId.create();
-    const permissionsName = user.role.permissions.map(
+    const permissionsName = role.permissions.map(
       (permission) => permission.name,
     );
     const rawAccessToken = this.jwtService.createAccessToken({

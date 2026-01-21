@@ -1,4 +1,3 @@
-import { Role } from '@/auth/domain/entities/role.entity';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { Participant } from '@/people/domain/aggregate/participant.aggregate';
 import { UserId } from '@/auth/domain/value-objects/user-id.vo';
@@ -7,7 +6,7 @@ import { IPasswordHasher } from '../services/password.hasher.service';
 export interface UserProps {
   username: string;
   password: string;
-  role: Role;
+  roleId: string;
   participant?: Participant;
   isActive?: boolean;
   createdAt?: Date;
@@ -27,6 +26,11 @@ export class User {
     GeneralGuard.againstNullOrUndefined(
       props.password,
       'Password is required',
+      User.name,
+    );
+    GeneralGuard.againstNullOrUndefined(
+      props.roleId,
+      'Role id is required',
       User.name,
     );
     GeneralGuard.againstNullOrUndefined(
@@ -68,8 +72,8 @@ export class User {
     return this.props.password;
   }
 
-  public get role(): Role {
-    return this.props.role;
+  public get role(): string {
+    return this.props.roleId;
   }
 
   public get participant(): Participant {

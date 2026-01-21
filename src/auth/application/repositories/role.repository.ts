@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Role } from '@/auth/domain/entities/role.entity';
+import { Role } from '@/auth/domain/aggregates/role.aggregate';
 
 @Injectable()
 export abstract class IRoleRepository {

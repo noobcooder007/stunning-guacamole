@@ -30,7 +30,11 @@ export class RoleSchema implements IRolePersistence {
   isActive: boolean;
   @OneToMany(() => UserSchema, (user) => user.role)
   users: UserSchema;
-  @ManyToMany(() => PermissionSchema, (permission) => permission.roles)
+  @ManyToMany(() => PermissionSchema, (permission) => permission.roles, {
+    cascade: true,
+    orphanedRowAction: 'delete',
+    onDelete: 'CASCADE',
+  })
   @JoinTable({ name: 'role_permissions' })
   permissions: PermissionSchema[];
 }

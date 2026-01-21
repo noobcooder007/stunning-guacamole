@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { RoleSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/role.schema';
-import { Role } from '@/auth/domain/entities/role.entity';
+import { Role } from '@/auth/domain/aggregates/role.aggregate';
 import { RoleMapper } from '@/auth/infrastructure/persistence/mappers/role.mapper';
 import { BaseRepository } from '@/database/base.repository';
 
