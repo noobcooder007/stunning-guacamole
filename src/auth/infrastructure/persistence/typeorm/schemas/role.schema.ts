@@ -14,26 +14,30 @@ import { IRolePersistence } from '@/auth/infrastructure/persistence/mappers/role
 export class RoleSchema implements IRolePersistence {
   @PrimaryColumn('uuid')
   id: string;
+
   @Column('text', {
     unique: true,
   })
   name: string;
+
   @Column('text')
   description: string;
+
   @Column('timestamp with time zone', {
     nullable: false,
   })
   createdAt: Date;
+
   @Column('bool', {
     default: true,
   })
   isActive: boolean;
+
   @OneToMany(() => UserSchema, (user) => user.role)
   users: UserSchema;
+
   @ManyToMany(() => PermissionSchema, (permission) => permission.roles, {
-    cascade: true,
-    orphanedRowAction: 'delete',
-    onDelete: 'CASCADE',
+    cascade: false,
   })
   @JoinTable({ name: 'role_permissions' })
   permissions: PermissionSchema[];

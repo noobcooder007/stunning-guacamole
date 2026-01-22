@@ -1,10 +1,35 @@
+import { v4 as uuidv4 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
-import { SessionId } from '@/auth/domain/value-objects/session-id.vo';
-import { UserId } from '@/auth/domain/value-objects/user-id.vo';
+import { ValueObject } from '@/shared/domain/vo/value-objet';
+import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { SessionMetadata } from '@/auth/domain/value-objects/session-metadata.vo';
-import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { UserId } from '@/auth/domain/aggregates/user.aggregate';
+
+export class SessionId extends ValueObject<string> {
+  private constructor(value: string) {
+    GeneralGuard.againstNullOrUndefined(
+      value,
+      'Id cannot be null or undefined',
+      SessionId.name,
+    );
+    super(value);
+  }
+
+  public static create() {
+    return new SessionId(uuidv4());
+  }
+
+  public static of(value: string): SessionId {
+    GeneralGuard.againstValueIsUUID(value, SessionId.name);
+    return new SessionId(value);
+  }
+
+  public toString(): string {
+    return this.value;
+  }
+}
 
 export interface SessionProps {
   sessionId: SessionId;

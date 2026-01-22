@@ -1,7 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Permission } from '@/auth/domain/entities/permission.entity';
-import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
+import { GeneralGuard } from '@/shared/domain/guards/general.guard';
+import { Permission } from '@/auth/domain/entities/permission.entity';
+import { DomainException } from '@/shared/domain/exceptions/domain.exception';
+import { ErrorType } from '@/shared/domain/dto/result.dto';
 
 export class RoleId extends ValueObject<string> {
   private constructor(value: string) {
@@ -30,7 +32,7 @@ export class RoleId extends ValueObject<string> {
 export interface RoleProps {
   name: string;
   description: string;
-  permissions: Permission[];
+  permissions: Set<Permission>;
   isActive?: boolean;
   createdAt?: Date;
 }
@@ -52,7 +54,7 @@ export class Role {
       Role.name,
     );
     GeneralGuard.againstArrayLengthIsGreaterThan(
-      props.permissions.length,
+      props.permissions.size,
       0,
       'Permission must have at least one',
       Role.name,
@@ -74,8 +76,8 @@ export class Role {
     return new Role(roleId, props);
   }
 
-  public get _id(): string {
-    return this.id.toString();
+  public get _id(): RoleId {
+    return this.id;
   }
 
   public get name(): string {
@@ -95,6 +97,20 @@ export class Role {
   }
 
   public get permissions(): Permission[] {
-    return this.props.permissions;
+    return Array.from(this.props.permissions);
+  }
+
+  public updatePermissions(list: Permission[]) {
+    if (list.length === 0)
+      throw new DomainException(
+        'Permissions are required',
+        'Role',
+        ErrorType.VALIDATION,
+      );
+    this.props.permissions = new Set(list);
+  }
+
+  public desactivate() {
+    this.props.isActive = false;
   }
 }

@@ -24,12 +24,6 @@ export class TypeORMUserRepository
       where: {
         id,
       },
-      relations: {
-        participant: true,
-        role: {
-          permissions: true,
-        },
-      },
     });
     return userModel ? UserMapper.fromModelToDomain(userModel) : null;
   }
@@ -38,12 +32,6 @@ export class TypeORMUserRepository
     const userModel = await this.repository.findOne({
       where: {
         username,
-      },
-      relations: {
-        participant: true,
-        role: {
-          permissions: true,
-        },
       },
     });
     return userModel ? UserMapper.fromModelToDomain(userModel) : null;

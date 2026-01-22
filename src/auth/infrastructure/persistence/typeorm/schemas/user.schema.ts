@@ -3,12 +3,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
 } from 'typeorm';
 import { RoleSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/role.schema';
-import { ParticipantModel } from '@/people/infrastructure/models/participants.model';
+import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { IUserPersistence } from '@/auth/infrastructure/persistence/mappers/user.mapper';
+import { SessionSchema } from './session.schema';
 
 @Entity('users')
 export class UserSchema implements IUserPersistence {
@@ -38,10 +40,13 @@ export class UserSchema implements IUserPersistence {
   lastLogin: Date;
 
   @OneToOne(
-    () => ParticipantModel,
-    (participant) => participant.authenticationAccount,
+    () => CollectorSchema,
+    (collector) => collector.authenticationAccount,
   )
-  participant: ParticipantModel;
+  collector: CollectorSchema;
+
+  @OneToMany(() => SessionSchema, (session) => session.user)
+  sessions: SessionSchema[];
 
   @Column('timestamp with time zone', {
     nullable: false,

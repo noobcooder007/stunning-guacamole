@@ -14,11 +14,12 @@ import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { User } from '@/auth/domain/aggregates/user.aggregate';
 import { IUserRepository } from '@/auth/application/repositories/user.repository';
+import { IRoleRepository } from '@/auth/application/repositories/role.repository';
+import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
 import { Role } from '@/auth/domain/aggregates/role.aggregate';
-import { IRoleRepository } from '../repositories/role.repository';
 
 export interface TokenResult {
   rawAccessToken: string;
@@ -41,6 +42,8 @@ export class SessionHandler extends BaseCommandHandler<
     private readonly userRepository: IUserRepository,
     @Inject(REPOSITORY_TOKENS.ROLES)
     private readonly roleRepository: IRoleRepository,
+    @Inject(REPOSITORY_TOKENS.PERMISSION)
+    private readonly permissionRepository: IPermissionRepository,
     @Inject(REPOSITORY_TOKENS.SESSION)
     private readonly sessionRepository: ISessionRepository,
     @Inject('ITokenHasher')
@@ -72,7 +75,7 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
-    const role = await this.roleRepository.findById(user.role);
+    const role = await this.roleRepository.findById(user.role.unpack());
     const resultTokenResult = await this.generateTokens(
       user,
       role,
@@ -134,7 +137,7 @@ export class SessionHandler extends BaseCommandHandler<
     const rawRefreshToken = context.refreshToken;
     const currentSession =
       await this.sessionRepository.findOneByUserIdAndSessionId(
-        user._id,
+        user._id.unpack(),
         sessionIdFromRequest,
       );
     if (!currentSession) {
@@ -158,13 +161,15 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
-    const permissions = role.permissions.map((permission) => permission.name);
+    const permissions = await this.permissionRepository.findByRoleId(
+      role._id.unpack(),
+    );
     const newAccessToken = this.jwtService.createAccessToken({
-      id: user._id,
-      rights: permissions,
+      id: user._id.unpack(),
+      rights: permissions.map((p) => p.name),
     });
     const newRawRefreshToken = this.jwtService.createRefreshToken({
-      id: user._id,
+      id: user._id.unpack(),
       sessionId: sessionIdFromRequest,
     });
     const newHashedsession = await this.hasherService.hash(newRawRefreshToken);

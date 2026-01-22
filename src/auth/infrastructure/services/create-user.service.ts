@@ -5,7 +5,7 @@ import { IPasswordHasher } from '@/auth/domain/services/password.hasher.service'
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
-import { User } from '@/auth/domain/aggregates/user.aggregate';
+import { User, UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { Role } from '@/auth/domain/aggregates/role.aggregate';
 import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 
@@ -42,7 +42,7 @@ export class CreateUserService {
       const { username, password } = data;
       const user = User.create({ username, password, roleId: role._id });
       await this.userRepository.save(user);
-      return Result.ok<User>(user);
+      return Result.ok<UserId>(user._id);
     } catch (err) {
       if (err instanceof DomainException)
         return Result.fail({

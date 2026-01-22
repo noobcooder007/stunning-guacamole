@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { ISessionRepository } from '@/auth/application/repositories/session.repository';
 import { SessionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/session.schema';
-import { Session } from '@/auth/domain/entities/session.entity';
+import { Session } from '@/auth/domain/aggregates/session.aggregate';
 import { SessionMapper } from '../../mappers/session.mapper';
 import { BaseRepository } from '@/database/base.repository';
 

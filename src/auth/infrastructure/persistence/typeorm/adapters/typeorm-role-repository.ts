@@ -5,6 +5,9 @@ import { RoleSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/ro
 import { Role } from '@/auth/domain/aggregates/role.aggregate';
 import { RoleMapper } from '@/auth/infrastructure/persistence/mappers/role.mapper';
 import { BaseRepository } from '@/database/base.repository';
+import { Permission } from '@/auth/domain/entities/permission.entity';
+import { PermissionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/permission.schema';
+import { PermissionMapper } from '@/auth/infrastructure/persistence/mappers/permission.mapper';
 
 @Injectable()
 export class TypeORMRoleRepository
@@ -13,6 +16,15 @@ export class TypeORMRoleRepository
 {
   constructor(datasource: DataSource) {
     super(datasource, RoleSchema);
+  }
+
+  async findPermissions(): Promise<Permission[]> {
+    const permissionsModel = await this.dataSource
+      .createQueryBuilder(PermissionSchema, 'p')
+      .getMany();
+    return permissionsModel.map((permission) => {
+      return PermissionMapper.toDomain(permission);
+    });
   }
 
   async findById(id: string): Promise<Role | null> {
@@ -27,7 +39,12 @@ export class TypeORMRoleRepository
   }
 
   async findByName(name: string): Promise<Role | null> {
-    const roleModel = await this.repository.findOneBy({ name: name });
+    const roleModel = await this.repository.findOne({
+      where: { name },
+      relations: {
+        permissions: true,
+      },
+    });
     if (!roleModel) return null;
     return RoleMapper.toDomain(roleModel);
   }

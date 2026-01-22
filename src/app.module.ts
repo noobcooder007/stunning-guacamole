@@ -1,9 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import { PeopleModule } from './people/people.module';
-import { DatabaseModule } from './database/database.module';
-import { LoggerMiddleware } from './shared/infrastructure/middlewares/logging.middleware';
+import { AuthModule } from '@/auth/auth.module';
+import { CommunityModule } from '@/community/community.module';
+import { DatabaseModule } from '@/database/database.module';
+import { LoggerMiddleware } from '@/shared/infrastructure/middlewares/logging.middleware';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { LoggerMiddleware } from './shared/infrastructure/middlewares/logging.mi
     }),
     DatabaseModule,
     AuthModule,
-    PeopleModule,
+    CommunityModule,
   ],
   controllers: [],
   providers: [],

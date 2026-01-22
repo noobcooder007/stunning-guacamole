@@ -65,8 +65,8 @@ export class Permission {
     return new Permission(permissionId, props);
   }
 
-  public get _id(): string {
-    return this.id.toString();
+  public get _id(): PermissionId {
+    return this.id;
   }
 
   public get name(): string {

@@ -1,21 +1,19 @@
-import { BeneficientRepositoryAdapter } from '@/people/infrastructure/persistence/beneficient.repository.adapter';
-import { ChurchRepositoryAdapater } from '@/people/infrastructure/persistence/church.repository.adapter';
-import { CollectorRepositoryAdapter } from '@/people/infrastructure/persistence/collector.repository.adapter';
-import { ParticipantRespositoryAdapter } from '@/people/infrastructure/persistence/participant.repository.adapter';
+import { TypeORMBeneficientRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-beneficient.repository';
+import { TypeORMChurchRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-church.repository';
+import { TypeORMCollectorRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-collector.repository';
 import { TypeORMPermissionRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-permission-repository';
 import { TypeORMSessionRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-session-repository';
 import { TypeORMRoleRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-role-repository';
 import { TypeORMUserRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-user-repository';
 
 export const REPOSITORY_TOKENS = {
-  USER: 'UserRepository',
-  ROLES: 'RoleRepository',
-  PERMISSION: 'PermissionRepository',
-  SESSION: 'SessionRepository',
-  CHURCH: 'ChurchRepository',
-  COLLECTOR: 'CollectorRepository',
-  BENEFICIENT: 'BeneficientRepository',
-  PARTICIPANT: 'ParticipantRepository',
+  USER: 'IUserRepository',
+  ROLES: 'IRoleRepository',
+  PERMISSION: 'IPermissionRepository',
+  SESSION: 'ISessionRepository',
+  CHURCH: 'IChurchRepository',
+  COLLECTOR: 'ICollectorRepository',
+  BENEFICIENT: 'IBeneficientRepository',
 };
 
 export const DATABASE_REPOSITORIES = [
@@ -37,18 +35,14 @@ export const DATABASE_REPOSITORIES = [
   },
   {
     provide: REPOSITORY_TOKENS.CHURCH,
-    useClass: ChurchRepositoryAdapater,
+    useClass: TypeORMChurchRepository,
   },
   {
     provide: REPOSITORY_TOKENS.COLLECTOR,
-    useClass: CollectorRepositoryAdapter,
+    useClass: TypeORMCollectorRepository,
   },
   {
     provide: REPOSITORY_TOKENS.BENEFICIENT,
-    useClass: BeneficientRepositoryAdapter,
-  },
-  {
-    provide: REPOSITORY_TOKENS.PARTICIPANT,
-    useClass: ParticipantRespositoryAdapter,
+    useClass: TypeORMBeneficientRepository,
   },
 ];

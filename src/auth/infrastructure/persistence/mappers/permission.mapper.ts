@@ -14,7 +14,7 @@ export class PermissionMapper {
   ): IPermissionPersistence | IPermissionPersistence[] {
     if (!Array.isArray(permission)) {
       return {
-        id: permission._id,
+        id: permission._id.unpack(),
         name: permission.name,
         description: permission.description,
         createdAt: permission.createdAt,
@@ -24,7 +24,7 @@ export class PermissionMapper {
     const permissions = permission;
     return permissions.map((permission) => {
       return {
-        id: permission._id,
+        id: permission._id.unpack(),
         name: permission.name,
         description: permission.description,
         createdAt: permission.createdAt,

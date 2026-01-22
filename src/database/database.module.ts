@@ -7,10 +7,10 @@ import { UserSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/us
 import { RoleSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/role.schema';
 import { PermissionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/permission.schema';
 import { SessionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/session.schema';
-import { BeneficientModel } from '@/people/infrastructure/models/beneficient.model';
-import { ChurchModel } from '@/people/infrastructure/models/church.model';
-import { CollectorModel } from '@/people/infrastructure/models/collector.model';
-import { ParticipantModel } from '@/people/infrastructure/models/participants.model';
+import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
+import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/schemas/church.schema';
+import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
+import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
 
 @Global()
 @Module({
@@ -34,11 +34,11 @@ import { ParticipantModel } from '@/people/infrastructure/models/participants.mo
       RoleSchema,
       PermissionSchema,
       SessionSchema,
-      BeneficientModel,
-      ChurchModel,
-      BeneficientModel,
-      CollectorModel,
-      ParticipantModel,
+      BeneficientSchema,
+      ChurchSchema,
+      BeneficientSchema,
+      CollectorSchema,
+      AssignationSchema,
     ]),
   ],
   providers: [UnitOfWork, ...DATABASE_REPOSITORIES],

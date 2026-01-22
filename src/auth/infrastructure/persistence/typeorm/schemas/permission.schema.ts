@@ -6,20 +6,25 @@ import { IPermissionPersistence } from '@/auth/infrastructure/persistence/mapper
 export class PermissionSchema implements IPermissionPersistence {
   @PrimaryColumn('uuid')
   id: string;
+
   @Column('text', {
     unique: true,
   })
   name: string;
+
   @Column('text')
   description: string;
+
   @Column('timestamp with time zone', {
     nullable: false,
   })
   createdAt: Date;
+
   @Column('bool', {
     default: true,
   })
   isActive: boolean;
+
   @ManyToMany(() => RoleSchema, (role) => role.permissions)
   roles: RoleSchema[];
 }

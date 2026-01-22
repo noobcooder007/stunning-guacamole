@@ -31,6 +31,13 @@ export class TypeORMPermissionRepository
     });
   }
 
+  async findAll(): Promise<Permission[]> {
+    const permissionsModel = await this.repository.find();
+    return permissionsModel.map((permission) => {
+      return PermissionMapper.toDomain(permission);
+    });
+  }
+
   save(permission: Permission): Promise<Permission>;
   save(permissions: Permission[]): Promise<Permission[]>;
   async save(

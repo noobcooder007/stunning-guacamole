@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Session } from '@/auth/domain/entities/session.entity';
+import { Session } from '@/auth/domain/aggregates/session.aggregate';
 
 @Injectable()
 export abstract class ISessionRepository {

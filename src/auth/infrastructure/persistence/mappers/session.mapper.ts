@@ -1,9 +1,8 @@
-import { Session } from '@/auth/domain/entities/session.entity';
-import { SessionId } from '@/auth/domain/value-objects/session-id.vo';
-import { UserId } from '@/auth/domain/value-objects/user-id.vo';
+import { Session, SessionId } from '@/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { SessionMetadata } from '@/auth/domain/value-objects/session-metadata.vo';
+import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 
 export interface ISessionPersistence {
   sessionId: string;

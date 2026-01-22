@@ -1,13 +1,37 @@
+import { v4 as uuidv4 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
-import { Participant } from '@/people/domain/aggregate/participant.aggregate';
-import { UserId } from '@/auth/domain/value-objects/user-id.vo';
-import { IPasswordHasher } from '../services/password.hasher.service';
+import { ValueObject } from '@/shared/domain/vo/value-objet';
+import { IPasswordHasher } from '@/auth/domain/services/password.hasher.service';
+import { RoleId } from '@/auth/domain/aggregates/role.aggregate';
+
+export class UserId extends ValueObject<string> {
+  private constructor(value: string) {
+    GeneralGuard.againstNullOrUndefined(
+      value,
+      'Id cannot be null or undefined',
+      UserId.name,
+    );
+    super(value);
+  }
+
+  public static create(): UserId {
+    return new UserId(uuidv4());
+  }
+
+  public static of(value: string): UserId {
+    GeneralGuard.againstValueIsUUID(value, UserId.name);
+    return new UserId(value);
+  }
+
+  public toString(): string {
+    return this.value;
+  }
+}
 
 export interface UserProps {
   username: string;
   password: string;
-  roleId: string;
-  participant?: Participant;
+  roleId: RoleId;
   isActive?: boolean;
   createdAt?: Date;
   lastLogin?: Date;
@@ -60,8 +84,8 @@ export class User {
     return new User(userId, props);
   }
 
-  public get _id(): string {
-    return this.id.toString();
+  public get _id(): UserId {
+    return this.id;
   }
 
   public get username(): string {
@@ -72,12 +96,8 @@ export class User {
     return this.props.password;
   }
 
-  public get role(): string {
+  public get role(): RoleId {
     return this.props.roleId;
-  }
-
-  public get participant(): Participant {
-    return this.props.participant;
   }
 
   public get isActive(): boolean {

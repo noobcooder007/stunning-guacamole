@@ -7,7 +7,7 @@ import { Permission } from '@/auth/domain/entities/permission.entity';
 import { Role } from '@/auth/domain/aggregates/role.aggregate';
 import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
-import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
+import { CreateUserAdminService } from '@/auth/infrastructure/services/create-user-admin.service';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { UnitOfWork } from '@/database/unit-of-work';
 import { DomainException } from '@/shared/domain/exceptions/domain.exception';
@@ -15,7 +15,7 @@ import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 @CommandHandler(SeedCommand)
 export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
   constructor(
-    private readonly createUserService: CreateUserService,
+    private readonly createUserAdminService: CreateUserAdminService,
     @Inject(REPOSITORY_TOKENS.ROLES)
     private readonly roleRepository: IRoleRepository,
     @Inject(REPOSITORY_TOKENS.PERMISSION)
@@ -48,25 +48,24 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
       const adminRole = Role.create({
         name: 'administrator',
         description: 'Rol dedicado a actividades de administración',
-        permissions: [addChurchPermission],
+        permissions: new Set([addChurchPermission]),
       });
       const collectorRole = Role.create({
         name: 'collector',
         description: 'Rol dedicado a actividades de colector',
-        permissions: [viewChurchPermission],
+        permissions: new Set([viewChurchPermission]),
       });
       const beneficientRole = Role.create({
         name: 'beneficient',
         description: 'Role dedicado a actividades de bienhechor',
-        permissions: [viewInvoicePermission],
+        permissions: new Set([viewInvoicePermission]),
       });
       await this.roleRepository.save([
         adminRole,
         collectorRole,
         beneficientRole,
       ]);
-      command.roleId = adminRole._id;
-      const result = await this.createUserService.execute(command);
+      const result = await this.createUserAdminService.execute(command);
       if (!result.isSuccess) {
         throw new DomainException(
           result.error.message,

@@ -16,7 +16,7 @@ export interface IRolePersistence {
 export class RoleMapper {
   public static toPersistance(role: Role): IRolePersistence {
     return {
-      id: role._id,
+      id: role._id.unpack(),
       name: role.name,
       description: role.description,
       permissions: PermissionMapper.toPersistance(
@@ -33,8 +33,10 @@ export class RoleMapper {
       description: raw.description,
       isActive: raw.isActive,
       createdAt: raw.createdAt,
-      permissions: raw.permissions.map((permission) =>
-        PermissionMapper.toDomain(permission),
+      permissions: new Set(
+        raw.permissions.map((permission) =>
+          PermissionMapper.toDomain(permission),
+        ),
       ),
     });
   }
