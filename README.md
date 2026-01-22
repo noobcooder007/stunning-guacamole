@@ -7,8 +7,8 @@
 yarn install
 ````
 
-3. Clonar el archivo ``.env.template`` en la raíz del proyecto y renombrarlo como ``.env``.
-4. Asignar el valor a las variables de entorno en el archivo ``.env``. Estás se tomarán para el contenedor de Docker por igual.
+3. Clonar el archivo ``.env.template`` y renombrarlo como ``.env.development.local``.
+4. Asignar el valor a las variables de entorno en el archivo ``.env.development.local``. Estás se tomarán para el contenedor de Docker por igual.
 5. Levantar la base de datos ejecutando el siguiente comando en la terminal.
 
 ````
