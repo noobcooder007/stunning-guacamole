@@ -22,10 +22,6 @@ export class UserId extends ValueObject<string> {
     GeneralGuard.againstValueIsUUID(value, UserId.name);
     return new UserId(value);
   }
-
-  public toString(): string {
-    return this.value;
-  }
 }
 
 export interface UserProps {

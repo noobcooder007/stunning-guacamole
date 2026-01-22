@@ -21,10 +21,6 @@ export class RefreshTokenHash extends ValueObject<string> {
     return new RefreshTokenHash(value);
   }
 
-  public toString(): string {
-    return this.value;
-  }
-
   public async compare(
     plainToken: string,
     hasher: ITokenHasher,

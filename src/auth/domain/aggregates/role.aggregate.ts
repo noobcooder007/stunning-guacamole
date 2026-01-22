@@ -23,10 +23,6 @@ export class RoleId extends ValueObject<string> {
     GeneralGuard.againstValueIsUUID(value, RoleId.name);
     return new RoleId(value);
   }
-
-  public toString(): string {
-    return this.value;
-  }
 }
 
 export interface RoleProps {
