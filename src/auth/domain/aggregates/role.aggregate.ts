@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { Permission } from '@/auth/domain/entities/permission.entity';
@@ -17,7 +17,7 @@ export class RoleId extends ValueObject<string> {
   }
 
   public static create() {
-    return new RoleId(uuidv4());
+    return new RoleId(uuidv7());
   }
 
   public static of(value: string): RoleId {

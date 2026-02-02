@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { DesactivateAssignationsEvent } from '@/community/application/events/desactivate-assignation.event';
-import { IAssignationRepository } from '@/community/application/repositories/assignation.repository';
+import { IAssignationRepository } from '@/community/domain/repositories/assignation.repository';
 
 @EventsHandler(DesactivateAssignationsEvent)
 export class DesactivateAssignationEventHandler implements IEventHandler<DesactivateAssignationsEvent> {

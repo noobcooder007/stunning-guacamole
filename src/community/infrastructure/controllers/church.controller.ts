@@ -4,15 +4,13 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
-  Put,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { CreateChurchCommand } from '@/community/application/command/create-church.command';
 import { GetChurchByIdQuery } from '@/community/application/query/get-church-by-id.query';
 import { GetChurchQueryParams } from '@/community/application/query/get-church-paginated.query';
-import { ValidPermitions } from '@/auth/infrastructure/decorators/permit-protected.decorator';
 import {
   UpdateChurchAddressCommand,
   UpdateChurchEcclesialIdentityCommand,
@@ -20,7 +18,13 @@ import {
   UpdateChurchAuxiliarPriestCommand,
   UpdateChurchPhoneNumberCommand,
 } from '@/community/application/command/update-church.command';
-import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
+import {
+  UpdateChurchAddressDto,
+  UpdateChurchEcclesialIdentityDto,
+  UpdateChurchPriestDto,
+  UpdateChurchAuxiliarPriestDto,
+  UpdateChurchPhoneNumberDto,
+} from '@/community/application/dto/update-church.dto';
 
 @Controller('church')
 export class ChurchController {
@@ -35,80 +39,82 @@ export class ChurchController {
     return await this.commandBus.execute(command);
   }
 
-  @Put(':id/identity')
+  @Patch(':id/identity')
   async updateEccesialIdentity(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() command: UpdateChurchEcclesialIdentityCommand,
+    @Body() dto: UpdateChurchEcclesialIdentityDto,
   ) {
-    if (id !== command.id) {
-      return Result.fail({
-        message: 'The id in the url and the body do not match',
-        type: ErrorType.VALIDATION,
-        entity: ChurchController.name,
-      });
-    }
-    return this.commandBus.execute(command);
+    return this.commandBus.execute(
+      new UpdateChurchEcclesialIdentityCommand(
+        id,
+        dto.name,
+        dto.vicaria,
+        dto.decanato,
+        dto.parroquia,
+        dto.capilla,
+      ),
+    );
   }
 
   // @Auth(ValidPermitions.EDIT_CHURCH)
-  @Put(':id/address')
+  @Patch(':id/address')
   async updateAddress(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() command: UpdateChurchAddressCommand,
+    @Body() dto: UpdateChurchAddressDto,
   ) {
-    if (id !== command.id) {
-      return Result.fail({
-        message: 'The id in the url and the body do not match',
-        type: ErrorType.VALIDATION,
-        entity: ChurchController.name,
-      });
-    }
-    return this.commandBus.execute(command);
+    return this.commandBus.execute(
+      new UpdateChurchAddressCommand(
+        id,
+        dto.street,
+        dto.noExt,
+        dto.noInt,
+        dto.neighborhood,
+        dto.locality,
+        dto.city,
+        dto.state,
+        dto.zipCode,
+      ),
+    );
   }
 
-  @Put(':id/priest')
+  @Patch(':id/priest')
   updatePriest(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() command: UpdateChurchPriestCommand,
+    @Body() dto: UpdateChurchPriestDto,
   ) {
-    if (id !== command.id) {
-      return Result.fail({
-        message: 'The id in the url and the body do not match',
-        type: ErrorType.VALIDATION,
-        entity: ChurchController.name,
-      });
-    }
-    return this.commandBus.execute(command);
+    return this.commandBus.execute(
+      new UpdateChurchPriestCommand(
+        id,
+        dto.firstname,
+        dto.firstLastname,
+        dto.secondLastname,
+      ),
+    );
   }
 
-  @Put(':id/auxiliar')
+  @Patch(':id/auxiliar')
   updateAuxiliarPriest(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() command: UpdateChurchAuxiliarPriestCommand,
+    @Body() dto: UpdateChurchAuxiliarPriestDto,
   ) {
-    if (id !== command.id) {
-      return Result.fail({
-        message: 'The id in the url and the body do not match',
-        type: ErrorType.VALIDATION,
-        entity: ChurchController.name,
-      });
-    }
-    return this.commandBus.execute(command);
+    return this.commandBus.execute(
+      new UpdateChurchAuxiliarPriestCommand(
+        id,
+        dto.firstname,
+        dto.firstLastname,
+        dto.secondLastname,
+      ),
+    );
   }
 
-  @Put(':id/phone')
+  @Patch(':id/phone')
   updatePhoneNumber(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() command: UpdateChurchPhoneNumberCommand,
+    @Body() dto: UpdateChurchPhoneNumberDto,
   ) {
-    if (id !== command.id) {
-      return Result.fail({
-        message: 'The id in the url and the body do not match',
-        type: ErrorType.VALIDATION,
-        entity: ChurchController.name,
-      });
-    }
-    return this.commandBus.execute(command);
+    return this.commandBus.execute(
+      new UpdateChurchPhoneNumberCommand(id, dto.phoneNumber),
+    );
   }
 
   // @Auth(ValidPermitions.LIST_CHURCH)
@@ -119,7 +125,8 @@ export class ChurchController {
 
   // @Auth(ValidPermitions.VIEW_CHURCH)
   @Get(':id')
-  async findOne(@Param() params: GetChurchByIdQuery) {
+  async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    const params = new GetChurchByIdQuery(id);
     return await this.queryBus.execute(params);
   }
 }

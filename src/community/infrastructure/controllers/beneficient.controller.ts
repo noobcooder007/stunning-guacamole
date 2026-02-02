@@ -1,7 +1,17 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { GetBeneficientQueryParams } from '@/community/application/query/get-beneficient-paginated.query';
 import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
+import { CreateBeneficientDto } from '@/community/application/dto/create-beneficient.dto';
+import { GetBeneficientByIdQuery } from '@/community/application/query/get-beneficient-by-id.query';
 
 @Controller('beneficient')
 export class BeneficientController {
@@ -11,14 +21,51 @@ export class BeneficientController {
   ) {}
 
   @Post()
-  create(@Body() command: CreateBeneficientCommand) {
-    return this.commandBus.execute(command);
+  create(@Body() dto: CreateBeneficientDto) {
+    return this.commandBus.execute(
+      new CreateBeneficientCommand(
+        dto.title,
+        dto.firstname,
+        dto.firstLastname,
+        dto.secondLastname,
+        dto.birthday,
+        dto.weddingAniversary,
+        dto.genre,
+        dto.maritalStatus,
+        dto.address.street,
+        dto.address.noExt,
+        dto.address.noInt,
+        dto.address.neighborhood,
+        dto.address.locality,
+        dto.address.city,
+        dto.address.state,
+        dto.address.zipCode,
+        dto.churchId,
+        dto.person,
+        dto.registeredName,
+        dto.rfc,
+        dto.email,
+      ),
+    );
   }
 
   @Get()
+  @Auth()
   async findAll(@Body() params: GetBeneficientQueryParams) {
     return await this.queryBus.execute(params);
   }
+
+  @Get(':id')
+  @Auth()
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.queryBus.execute(new GetBeneficientByIdQuery(id));
+  }
+
+  // @Put(':id/active')
+  // @Auth()
+  // desactivate(@Param('id', new ParseUUIDPipe()) id: string) {
+  //   return this.commandBus.execute(new DesactivateBeneficientCommand(id));
+  // }
 
   // @Get('unassigned')
   // unassignedBeneficients() {

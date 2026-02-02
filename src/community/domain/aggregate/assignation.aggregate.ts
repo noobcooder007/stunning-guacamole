@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { BeneficientId } from '@/community/domain/aggregate/beneficient.aggregate';
@@ -16,7 +16,7 @@ export class AssignationId extends ValueObject<string> {
   }
 
   public static create(): AssignationId {
-    return new AssignationId(uuidv4());
+    return new AssignationId(uuidv7());
   }
 
   public static of(value: string): AssignationId {

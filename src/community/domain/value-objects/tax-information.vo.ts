@@ -2,6 +2,7 @@ import { ValueObject } from '@/shared/domain/vo/value-objet';
 
 export interface TaxInformationProps {
   readonly rfc: string;
+  readonly rfcHash: string;
   readonly registeredName: string;
   readonly person: string;
 }
@@ -13,6 +14,10 @@ export class TaxInformation extends ValueObject<TaxInformationProps> {
 
   public get rfc() {
     return this.props.rfc;
+  }
+
+  public get rfcHash() {
+    return this.props.rfcHash;
   }
 
   public get registeredName() {
@@ -31,6 +36,7 @@ export class TaxInformation extends ValueObject<TaxInformationProps> {
     const current = this.unpack();
     const nextTaxInformation = TaxInformation.of({
       rfc: props.rfc ?? current.rfc,
+      rfcHash: props.rfcHash ?? current.rfcHash,
       registeredName: props.registeredName ?? current.registeredName,
       person: props.person ?? current.person,
     });

@@ -1,107 +1,72 @@
-import {
-  IsDate,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsPostalCode,
-  IsString,
-  IsUUID,
-  Matches,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-
 export class CreateBeneficientCommand {
-  @IsString()
-  @IsNotEmpty()
   title: string;
-
-  @IsString()
-  @IsNotEmpty()
   firstname: string;
-
-  @IsString()
-  @IsNotEmpty()
   firstLastname: string;
-
-  @IsString()
-  @IsOptional()
   secondLastname: string;
-
-  @IsDate()
-  @Type(() => Date)
-  @IsNotEmpty()
   birthday: Date;
-
-  @IsDate()
-  @Type(() => Date)
-  @IsOptional()
   weddingAniversary: Date;
-
-  @IsString()
-  @IsEnum(['M', 'F'])
-  @IsNotEmpty()
   genre: string;
-
-  @IsString()
-  @IsEnum(['Soltero', 'Casado', 'Divorciado', 'Viudo'])
-  @IsNotEmpty()
   maritalStatus: string;
-
-  @IsString()
-  @IsOptional()
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  @IsNotEmpty()
+  email?: string;
+  emailHash?: string;
   street: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Matches(/^[a-zA-Z0-9\s-]+$/, { message: 'Number exterior invalid' })
   noExt: string;
-
-  @IsString()
-  @IsOptional()
-  @Matches(/^[a-zA-Z0-9\s-]+$/, { message: 'Number interior invalid' })
   noInt: string;
-
-  @IsString()
-  @IsOptional()
   neighborhood: string;
-
-  @IsString()
-  @IsOptional()
   locality: string;
-
-  @IsString()
-  @IsNotEmpty()
   city: string;
-
-  @IsString()
-  @IsNotEmpty()
   state: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @IsPostalCode('MX')
   zipCode: string;
-
-  @IsUUID()
-  @IsOptional()
+  addressHash: string;
   churchId: string;
+  person?: string;
+  registeredName?: string;
+  rfc?: string;
+  rfcHash?: string;
 
-  @IsString()
-  @IsOptional()
-  @IsEnum(['FISICA', 'MORAL'])
-  person: string;
-
-  @IsString()
-  @IsOptional()
-  registeredName: string;
-
-  @IsString()
-  @IsOptional()
-  rfc: string;
+  constructor(
+    title: string,
+    firstname: string,
+    firstLastname: string,
+    secondLastname: string,
+    birthday: Date,
+    weddingAniversary: Date,
+    genre: string,
+    maritalStatus: string,
+    street: string,
+    noExt: string,
+    noInt: string,
+    neighborhood: string,
+    locality: string,
+    city: string,
+    state: string,
+    zipCode: string,
+    churchId: string,
+    person?: string,
+    registeredName?: string,
+    rfc?: string,
+    email?: string,
+  ) {
+    this.title = title;
+    this.firstname = firstname;
+    this.firstLastname = firstLastname;
+    this.secondLastname = secondLastname;
+    this.birthday = birthday;
+    this.weddingAniversary = weddingAniversary;
+    this.genre = genre;
+    this.maritalStatus = maritalStatus;
+    this.email = email;
+    this.street = street;
+    this.noExt = noExt;
+    this.noInt = noInt;
+    this.neighborhood = neighborhood;
+    this.locality = locality;
+    this.city = city;
+    this.state = state;
+    this.zipCode = zipCode;
+    this.churchId = churchId;
+    this.person = person;
+    this.registeredName = registeredName;
+    this.rfc = rfc;
+  }
 }

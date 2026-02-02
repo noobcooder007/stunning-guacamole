@@ -7,7 +7,7 @@ import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
 import { IPasswordHasher } from '@/auth/domain/services/password.hasher.service';
 import { JWTService } from '@/auth/application/services/jwt.service';
 import { LoginUserCommand } from '@/auth/application/commands/login-user.command';
-import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { IUserRepository } from '@/auth/application/repositories/user.repository';
 import { ISessionRepository } from '@/auth/application/repositories/session.repository';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
@@ -45,7 +45,7 @@ export class LoginUserHandler extends BaseCommandHandler<
     @Inject('IPasswordHasher')
     private readonly hasherService: IPasswordHasher,
     @Inject('ITokenHasher')
-    private readonly hasherTokenService: ITokenHasher,
+    private readonly hasherTokenService: IDataHasher,
     private readonly jwtService: JWTService,
   ) {
     super();

@@ -1,6 +1,6 @@
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
-import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 
 export class RefreshTokenHash extends ValueObject<string> {
   private constructor(value: string) {
@@ -23,7 +23,7 @@ export class RefreshTokenHash extends ValueObject<string> {
 
   public async compare(
     plainToken: string,
-    hasher: ITokenHasher,
+    hasher: IDataHasher,
   ): Promise<boolean> {
     const incomingHash = await hasher.hash(plainToken);
     return await hasher.safeCompare(incomingHash, this.value);

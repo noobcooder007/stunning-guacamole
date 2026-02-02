@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 import { ErrorType } from '@/shared/domain/dto/result.dto';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
@@ -10,7 +10,7 @@ import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
 import { AssignationId } from '@/community/domain/aggregate/assignation.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
-import { DesactivateAssignationsEvent as AssignationsDeactivatedEvent } from '@/community/application/events/desactivate-assignation.event';
+import { DesactivateAssignationsEvent } from '@/community/application/events/desactivate-assignation.event';
 
 export class CollectorId extends ValueObject<string> {
   private constructor(value: string) {
@@ -23,7 +23,7 @@ export class CollectorId extends ValueObject<string> {
   }
 
   public static create(): CollectorId {
-    return new CollectorId(uuidv4());
+    return new CollectorId(uuidv7());
   }
 
   public static of(value: string): CollectorId {
@@ -33,19 +33,24 @@ export class CollectorId extends ValueObject<string> {
 }
 
 export interface CollectorProps {
+  userId: UserId;
   firstname: string;
   firstLastname: string;
   secondLastname?: string | null;
   nss: NSS;
+  nssHash: string;
   address: Address;
-  userId: UserId;
+  addressHash: string;
   phoneNumber: PhoneNumber;
+  phoneNumberHash: string;
   telephoneNumber?: PhoneNumber;
+  telephoneNumberHash?: string;
   paymentData: PaymentData;
   assignations?: Set<AssignationId>;
   notes?: string;
   createdAt: Date;
   isActive: boolean;
+  profilePath: string;
 }
 
 export class Collector extends AggregateRoot {
@@ -84,6 +89,11 @@ export class Collector extends AggregateRoot {
       'Payment data is required',
       Collector.name,
     );
+    GeneralGuard.againstNullOrUndefined(
+      props.profilePath,
+      'Profile path is required',
+      Collector.name,
+    );
   }
 
   public static create(props: CollectorProps) {
@@ -120,16 +130,32 @@ export class Collector extends AggregateRoot {
     return this.props.nss;
   }
 
+  public get nssHash(): string {
+    return this.props.nssHash;
+  }
+
   public get address(): Address {
     return this.props.address;
+  }
+
+  public get addressHash(): string {
+    return this.props.addressHash;
   }
 
   public get phoneNumber(): PhoneNumber {
     return this.props.phoneNumber;
   }
 
+  public get phoneNumberHash(): string {
+    return this.props.phoneNumberHash;
+  }
+
   public get telephoneNumber(): PhoneNumber | null {
     return this.props.telephoneNumber;
+  }
+
+  public get telephoneNumberHash(): string | null {
+    return this.props.telephoneNumberHash;
   }
 
   public get paymentData(): PaymentData {
@@ -150,6 +176,10 @@ export class Collector extends AggregateRoot {
 
   public get isActive(): boolean {
     return this.props.isActive;
+  }
+
+  public get profilePath(): string {
+    return this.props.profilePath;
   }
 
   public addAssignation(
@@ -184,7 +214,7 @@ export class Collector extends AggregateRoot {
     );
     this.props.assignations.clear();
     this.apply(
-      new AssignationsDeactivatedEvent(
+      new DesactivateAssignationsEvent(
         this.id.unpack(),
         assignationsAffected,
         'Collector desactivated',
@@ -201,11 +231,27 @@ export class Collector extends AggregateRoot {
       );
     this.props.assignations.delete(assignationId);
     this.apply(
-      new AssignationsDeactivatedEvent(
+      new DesactivateAssignationsEvent(
         this.id.unpack(),
         [assignationId.unpack()],
         reason,
       ),
     );
+  }
+
+  public async updateNSSHash(nssHash: string) {
+    this.props.nssHash = nssHash;
+  }
+
+  public async updateAddressHash(addressHash: string) {
+    this.props.addressHash = addressHash;
+  }
+
+  public async updatePhoneNumberHash(phoneNumberHash: string) {
+    this.props.phoneNumberHash = phoneNumberHash;
+  }
+
+  public async updateTelephoneNumberHash(telephoneNumberHash: string) {
+    this.props.telephoneNumberHash = telephoneNumberHash;
   }
 }

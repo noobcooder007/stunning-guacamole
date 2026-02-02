@@ -13,6 +13,8 @@ import { CollectorResponse } from '@/community/application/dto/collector.respons
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { AssignationId } from '@/community/domain/aggregate/assignation.aggregate';
 import { IAssignationPersistence } from '@/community/infrastructure/persistence/mappers/assignation.mapper';
+import { AddressResponseDto } from '@/community/application/dto/address.response';
+import { PaymentDataResponseDto } from '@/community/application/dto/payment-data.response';
 
 export interface ICollectorPersistence {
   id: string;
@@ -20,6 +22,7 @@ export interface ICollectorPersistence {
   firstLastname: string;
   secondLastname?: string;
   nss: string;
+  nssHash: string;
   street: string;
   noExt: string;
   noInt?: string;
@@ -28,16 +31,20 @@ export interface ICollectorPersistence {
   city: string;
   state: string;
   zipCode: string;
+  addressHash: string;
   userId: string;
   phoneNumber: string;
+  phoneNumberHash: string;
   telephoneNumber?: string;
+  telephoneNumberHash?: string;
   commissionPercent: number;
-  bank: string;
-  reference: string;
+  bank?: string;
+  reference?: string;
   notes?: string;
   createdAt: Date;
   isActive: boolean;
   assignations?: IAssignationPersistence[];
+  profilePath: string;
 }
 
 export class CollectorMapper {
@@ -48,6 +55,7 @@ export class CollectorMapper {
       firstLastname: collector.firstLastname,
       secondLastname: collector.secondLastname,
       nss: collector.nss.value,
+      nssHash: collector.nssHash,
       notes: collector.notes,
       street: collector.address.street,
       noExt: collector.address.numeration.noExt,
@@ -57,14 +65,18 @@ export class CollectorMapper {
       city: collector.address.city,
       state: collector.address.state,
       zipCode: collector.address.zipCode.value,
+      addressHash: collector.addressHash,
       phoneNumber: collector.phoneNumber.unpack(),
+      phoneNumberHash: collector.phoneNumberHash,
       telephoneNumber: collector.telephoneNumber?.unpack(),
+      telephoneNumberHash: collector.telephoneNumberHash,
       commissionPercent: collector.paymentData.commissionPercent,
       bank: collector.paymentData.bank,
       reference: collector.paymentData.reference,
       userId: collector.userId.unpack(),
       createdAt: collector.createdAt,
       isActive: collector.isActive,
+      profilePath: collector.profilePath,
     };
   }
 
@@ -78,7 +90,9 @@ export class CollectorMapper {
       firstLastname: raw.firstLastname,
       secondLastname: raw.secondLastname,
       nss: NSS.of(raw.nss),
+      nssHash: raw.nssHash,
       phoneNumber: PhoneNumber.of(raw.phoneNumber),
+      phoneNumberHash: raw.phoneNumberHash,
       paymentData: PaymentData.of({
         commissionPercent: raw.commissionPercent,
         bank: raw.bank,
@@ -97,8 +111,10 @@ export class CollectorMapper {
         state: raw.state,
         zipCode: ZipCode.of(raw.zipCode),
       }),
+      addressHash: raw.addressHash,
       createdAt: new Date(),
       isActive: true,
+      profilePath: raw.profilePath,
     });
   }
 
@@ -109,6 +125,7 @@ export class CollectorMapper {
       firstLastname: raw.firstLastname,
       secondLastname: raw.secondLastname,
       nss: NSS.of(raw.nss),
+      nssHash: raw.nssHash,
       address: Address.of({
         street: raw.street,
         numeration: Numeration.of({
@@ -121,9 +138,11 @@ export class CollectorMapper {
         state: raw.state,
         zipCode: ZipCode.of(raw.zipCode),
       }),
+      addressHash: raw.addressHash,
       createdAt: raw.createdAt,
       isActive: raw.isActive,
       phoneNumber: PhoneNumber.of(raw.phoneNumber),
+      phoneNumberHash: raw.phoneNumberHash,
       paymentData: PaymentData.of({
         bank: raw.bank,
         commissionPercent: raw.commissionPercent,
@@ -136,6 +155,7 @@ export class CollectorMapper {
       telephoneNumber: raw.telephoneNumber
         ? PhoneNumber.of(raw.telephoneNumber)
         : null,
+      profilePath: raw.profilePath,
     });
   }
 
@@ -144,26 +164,69 @@ export class CollectorMapper {
   ): CollectorResponse {
     const response = new CollectorResponse();
     response.id = collectorModel.id;
+    response.userId = collectorModel.userId;
     response.firstname = collectorModel.firstname;
     response.firstLastname = collectorModel.firstLastname;
     response.secondLastname = collectorModel.secondLastname;
     response.nss = collectorModel.nss;
-    response.street = collectorModel.street;
-    response.noExt = collectorModel.noExt;
-    response.noInt = collectorModel.noInt;
-    response.neighborhood = collectorModel.neighborhood;
-    response.locality = collectorModel.locality;
-    response.city = collectorModel.city;
-    response.state = collectorModel.state;
-    response.zipCode = collectorModel.zipCode;
+    const addressResponse = new AddressResponseDto();
+    addressResponse.street = collectorModel.street;
+    addressResponse.noExt = collectorModel.noExt;
+    addressResponse.noInt = collectorModel.noInt;
+    addressResponse.neighborhood = collectorModel.neighborhood;
+    addressResponse.locality = collectorModel.locality;
+    addressResponse.city = collectorModel.city;
+    addressResponse.state = collectorModel.state;
+    addressResponse.zipCode = collectorModel.zipCode;
+    response.address = addressResponse;
     response.phoneNumber = collectorModel.phoneNumber;
-    response.telephoneNumber = collectorModel.telephoneNumber;
-    response.commissionPercent = collectorModel.commissionPercent;
-    response.bank = collectorModel.bank;
-    response.reference = collectorModel.reference;
+    response.telephoneNumber = collectorModel.telephoneNumber
+      ? collectorModel.telephoneNumber
+      : null;
+    const paymentDataResponse = new PaymentDataResponseDto();
+    paymentDataResponse.bank = collectorModel.bank;
+    paymentDataResponse.commissionPercent = collectorModel.commissionPercent;
+    paymentDataResponse.reference = collectorModel.reference;
+    response.paymentData = paymentDataResponse;
     response.notes = collectorModel.notes;
     response.createdAt = collectorModel.createdAt;
     response.isActive = collectorModel.isActive;
+    response.profilePath = collectorModel.profilePath;
+    return response;
+  }
+
+  public static fromDomainToResponse(collector: Collector): CollectorResponse {
+    const response = new CollectorResponse();
+    response.id = collector._id.unpack();
+    response.userId = collector.userId.unpack();
+    response.firstname = collector.firstname;
+    response.firstLastname = collector.firstLastname;
+    response.secondLastname = collector.secondLastname;
+    response.nss = collector.nss.unpack();
+    const addressResponse = new AddressResponseDto();
+    addressResponse.street = collector.address.street;
+    addressResponse.noExt = collector.address.numeration.noExt;
+    addressResponse.noInt = collector.address.numeration.noInt;
+    addressResponse.neighborhood = collector.address.neighborhood;
+    addressResponse.locality = collector.address.locality;
+    addressResponse.city = collector.address.city;
+    addressResponse.state = collector.address.state;
+    addressResponse.zipCode = collector.address.zipCode.unpack();
+    response.address = addressResponse;
+    response.phoneNumber = collector.phoneNumber.unpack();
+    response.telephoneNumber = collector.telephoneNumber
+      ? collector.telephoneNumber.unpack()
+      : null;
+    const paymentDataResponse = new PaymentDataResponseDto();
+    paymentDataResponse.bank = collector.paymentData.bank;
+    paymentDataResponse.commissionPercent =
+      collector.paymentData.commissionPercent;
+    paymentDataResponse.reference = collector.paymentData.reference;
+    response.paymentData = paymentDataResponse;
+    response.notes = collector.notes;
+    response.createdAt = collector.createdAt;
+    response.isActive = collector.isActive;
+    response.profilePath = collector.profilePath;
     return response;
   }
 }

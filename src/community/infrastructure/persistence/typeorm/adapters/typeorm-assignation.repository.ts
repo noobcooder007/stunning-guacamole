@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, In, Not } from 'typeorm';
 import { BaseRepository } from '@/database/base.repository';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
-import { IAssignationRepository } from '@/community/application/repositories/assignation.repository';
+import { IAssignationRepository } from '@/community/domain/repositories/assignation.repository';
 import { Assignation } from '@/community/domain/aggregate/assignation.aggregate';
 import { AssignationMapper } from '@/community/infrastructure/persistence/mappers/assignation.mapper';
 
@@ -71,6 +71,19 @@ export class TypeORMAssignationRepository
       where: {
         collectorId: Not(collectorId),
         beneficientId: In(beneficientIds),
+        isActive: true,
+      },
+    });
+    if (!assignations) {
+      return [];
+    }
+    return assignations.map((a) => AssignationMapper.toDomain(a));
+  }
+
+  async findActivesByIds(beneficientsIds: string[]): Promise<Assignation[]> {
+    const assignations = await this.repository.find({
+      where: {
+        id: In(beneficientsIds),
         isActive: true,
       },
     });

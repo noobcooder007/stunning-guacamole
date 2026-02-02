@@ -4,7 +4,7 @@ import { UpdateChurchCommand } from '@/community/application/command/update-chur
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
-import { IChurchRepository } from '@/community/application/repositories/church.repository';
+import { IChurchRepository } from '@/community/domain/repositories/church.repository';
 
 @CommandHandler(UpdateChurchCommand)
 export class UpdateChurchHandler extends BaseCommandHandler<

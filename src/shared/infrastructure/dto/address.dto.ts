@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -5,8 +6,7 @@ import {
   IsOptional,
   IsPostalCode,
 } from 'class-validator';
-import { IsExactlyOneLocation } from '../validators/address.validator';
-import { Transform } from 'class-transformer';
+import { IsExactlyOneLocation } from '@/shared/infrastructure/validators/address.validator';
 
 @IsExactlyOneLocation()
 export class AddressDto {

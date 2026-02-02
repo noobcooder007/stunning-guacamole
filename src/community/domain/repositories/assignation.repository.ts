@@ -17,4 +17,5 @@ export abstract class IAssignationRepository {
     collectorId: string,
     beneficientIds: string[],
   ): Promise<Assignation[]>;
+  abstract findActivesByIds(beneficientsIds: string[]): Promise<Assignation[]>;
 }

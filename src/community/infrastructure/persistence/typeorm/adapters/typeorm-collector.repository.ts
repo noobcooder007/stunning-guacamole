@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { BaseRepository } from '@/database/base.repository';
-import { ICollectorRepository } from '@/community/application/repositories/collector.repository';
+import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
 import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
@@ -24,11 +24,16 @@ export class TypeORMCollectorRepository
           secondLastname: collector.secondLastname,
         },
         {
-          street: collector.address.street,
-          noExt: collector.address.numeration.noExt,
-          city: collector.address.city,
-          state: collector.address.state,
-          zipCode: collector.address.zipCode.value,
+          addressHash: collector.addressHash,
+        },
+        {
+          phoneNumberHash: collector.phoneNumberHash,
+        },
+        {
+          telephoneNumberHash: collector.telephoneNumberHash,
+        },
+        {
+          nssHash: collector.nssHash,
         },
       ],
     });

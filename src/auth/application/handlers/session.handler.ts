@@ -8,7 +8,7 @@ import {
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
 import { JWTService } from '@/auth/application/services/jwt.service';
-import { SessionCommand } from '@/auth/application/commands/session.command';
+import { RefreshSessionCommand } from '@/auth/application/commands/refresh-session.command';
 import { ISessionRepository } from '@/auth/application/repositories/session.repository';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
@@ -18,7 +18,7 @@ import { IRoleRepository } from '@/auth/application/repositories/role.repository
 import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
-import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { Session } from '@/auth/domain/aggregates/session.aggregate';
 
 export interface TokenResult {
@@ -33,9 +33,9 @@ export interface TokenData {
   sessionIdFromRequest: string;
 }
 
-@CommandHandler(SessionCommand)
+@CommandHandler(RefreshSessionCommand)
 export class SessionHandler extends BaseCommandHandler<
-  SessionCommand,
+  RefreshSessionCommand,
   AuthResponse
 > {
   constructor(
@@ -48,14 +48,14 @@ export class SessionHandler extends BaseCommandHandler<
     @Inject(REPOSITORY_TOKENS.SESSION)
     private readonly sessionRepository: ISessionRepository,
     @Inject('ITokenHasher')
-    private readonly hasherService: ITokenHasher,
+    private readonly hasherService: IDataHasher,
     private readonly jwtService: JWTService,
   ) {
     super();
   }
 
   protected async process(
-    command: SessionCommand,
+    command: RefreshSessionCommand,
     context?: CommandMetadata,
   ): Promise<Result<AuthResponse>> {
     const resultTokenData = await this.verifyTokenWithSession(command, context);
@@ -114,7 +114,7 @@ export class SessionHandler extends BaseCommandHandler<
   }
 
   private async verifyTokenWithSession(
-    command: SessionCommand,
+    command: RefreshSessionCommand,
     context: CommandMetadata,
   ): Promise<Result<TokenData>> {
     const { sessionId: sessionIdFromRequest } = command;

@@ -1,46 +1,55 @@
-import { Expose } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
+import { MaskHelper } from '@/shared/infrastructure/utils/mask-helper.util';
+import { AddressResponseDto } from '@/community/application/dto/address.response';
+import { PaymentDataResponseDto } from '@/community/application/dto/payment-data.response';
 
+@Exclude()
 export class CollectorResponse {
   @Expose()
   id: string;
+  userId: string;
   @Expose()
   firstname: string;
   @Expose()
   firstLastname: string;
   @Expose()
   secondLastname: string;
-  @Expose()
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   nss: string;
   @Expose()
-  street: string;
+  get maskedNSS(): string {
+    return MaskHelper.mask(this.nss, 4);
+  }
   @Expose()
-  noExt: string;
-  @Expose()
-  noInt: string;
-  @Expose()
-  neighborhood: string;
-  @Expose()
-  locality: string;
-  @Expose()
-  city: string;
-  @Expose()
-  state: string;
-  @Expose()
-  zipCode: string;
-  @Expose()
+  @Type(() => AddressResponseDto)
+  address: AddressResponseDto;
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   phoneNumber: string;
   @Expose()
+  get maskedPhoneNumber(): string {
+    return MaskHelper.mask(this.phoneNumber, 2);
+  }
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   telephoneNumber: string;
   @Expose()
-  commissionPercent: number;
+  get maskedTelephoneNumber(): string {
+    return MaskHelper.mask(this.telephoneNumber, 2);
+  }
   @Expose()
-  bank: string;
-  @Expose()
-  reference: string;
+  @Type(() => PaymentDataResponseDto)
+  paymentData: PaymentDataResponseDto;
   @Expose()
   notes: string;
   @Expose()
   createdAt: Date;
   @Expose()
   isActive: boolean;
+  @Expose()
+  profilePath: string;
+  @Expose()
+  get profilePictureUrl(): string {
+    const host = process.env.APP_URL || 'http://localhost:4321';
+    if (!this.profilePath) return null;
+    return `${host}/public/profile-pictures/${this.profilePath}`;
+  }
 }

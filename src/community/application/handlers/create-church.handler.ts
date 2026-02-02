@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
-import { IChurchRepository } from '@/community/application/repositories/church.repository';
+import { IChurchRepository } from '@/community/domain/repositories/church.repository';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { CreateChurchCommand } from '../command/create-church.command';
 import { Result } from '@/shared/domain/dto/result.dto';

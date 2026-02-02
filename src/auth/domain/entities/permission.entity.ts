@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 
@@ -13,7 +13,7 @@ export class PermissionId extends ValueObject<string> {
   }
 
   public static create() {
-    return new PermissionId(uuidv4());
+    return new PermissionId(uuidv7());
   }
 
   public static of(value: string): PermissionId {

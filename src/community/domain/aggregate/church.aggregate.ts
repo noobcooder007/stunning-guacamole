@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { Priest } from '@/community/domain/value-objects/priest.vo';
@@ -30,7 +30,7 @@ export class ChurchId extends ValueObject<string> {
   }
 
   public static create(): ChurchId {
-    return new ChurchId(uuidv4());
+    return new ChurchId(uuidv7());
   }
 
   public static of(value: string): ChurchId {

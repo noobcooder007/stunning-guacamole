@@ -1,10 +1,11 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
-import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 
-export class TokenHasher implements ITokenHasher {
-  async hash(token: string): Promise<string> {
+export class TokenHasher implements IDataHasher {
+  async hash(token: string, usePepper = false): Promise<string> {
     const digest = createHash('sha256');
-    digest.update(token, 'utf8');
+    const secret = usePepper ? process.env.PEPPER : '';
+    digest.update(`${token}${secret}`, 'utf8');
     return digest.digest('base64');
   }
 

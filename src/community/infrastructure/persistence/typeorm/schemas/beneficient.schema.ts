@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToOne,
@@ -10,10 +11,12 @@ import {
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
 import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/schemas/church.schema';
 import { IBeneficientPersistence } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
+import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 
 @Entity('beneficient')
+@Index(['state', 'city'])
+@Index(['createdAt'])
 @Unique(['firstname', 'firstLastname', 'secondLastname'])
-@Unique(['street', 'noExt', 'city', 'state', 'zipCode'])
 export class BeneficientSchema implements IBeneficientPersistence {
   @PrimaryColumn('uuid')
   id: string;
@@ -56,21 +59,58 @@ export class BeneficientSchema implements IBeneficientPersistence {
   @JoinColumn({ name: 'churchId' })
   church: ChurchSchema;
 
-  @Column('text')
+  @Column('text', {
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
+  })
   street: string;
 
-  @Column('text')
+  @Column('text', {
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
+  })
   noExt: string;
 
   @Column('text', {
     nullable: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
   })
   noInt: string;
 
   @Column('text', {
     nullable: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
   })
   neighborhood: string;
+
+  @Column('text', {
+    nullable: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
+  })
+  locality: string;
 
   @Column('text')
   city: string;
@@ -82,15 +122,27 @@ export class BeneficientSchema implements IBeneficientPersistence {
   zipCode: string;
 
   @Column('text', {
-    nullable: true,
+    unique: true,
   })
-  locality: string;
+  addressHash: string;
+
+  @Column('text', {
+    nullable: true,
+    unique: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
+  })
+  email: string;
 
   @Column('text', {
     nullable: true,
     unique: true,
   })
-  email: string;
+  emailHash: string;
 
   @Column('enum', {
     enum: ['FISICA', 'MORAL'],
@@ -107,8 +159,20 @@ export class BeneficientSchema implements IBeneficientPersistence {
   @Column('text', {
     unique: true,
     nullable: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
   })
   rfc: string;
+
+  @Column('text', {
+    unique: true,
+    nullable: true,
+  })
+  rfcHash: string;
 
   @Column('timestamp with time zone')
   createdAt: Date;

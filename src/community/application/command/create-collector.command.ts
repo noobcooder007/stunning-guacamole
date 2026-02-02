@@ -1,100 +1,73 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsPhoneNumber,
-  IsNumber,
-  IsArray,
-  IsUUID,
-  Matches,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
-
 export class CreateCollectorCommand {
-  @IsString()
-  @MinLength(4)
-  @MaxLength(50)
   username: string;
-
-  @IsString()
-  @MinLength(8)
-  @MaxLength(50)
   password: string;
-
-  @IsString()
-  @IsNotEmpty()
   firstname: string;
-
-  @IsString()
-  @IsNotEmpty()
   firstLastname: string;
-
-  @IsString()
-  @IsOptional()
   secondLastname?: string;
-
-  @IsString()
-  @IsNotEmpty()
   nss: string;
-
-  @IsString()
-  @IsNotEmpty()
+  nssHash: string;
   street: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @Matches(/^[a-zA-Z0-9\s-]+$/, { message: 'Number exterior invalid' })
   noExt: string;
-
-  @IsString()
-  @IsOptional()
-  @Matches(/^[a-zA-Z0-9\s-]+$/, { message: 'Number interior invalid' })
   noInt?: string;
-
-  @IsString()
-  @IsOptional()
   neighborhood?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  city: string;
-
-  @IsString()
-  @IsNotEmpty()
-  state: string;
-
-  @IsString()
-  @IsNotEmpty()
-  zipCode: string;
-
-  @IsString()
-  @IsOptional()
   locality?: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @IsPhoneNumber('MX')
+  city: string;
+  state: string;
+  zipCode: string;
+  addressHash: string;
   phoneNumber: string;
-
-  @IsNumber()
-  @IsNotEmpty()
+  phoneNumberHash: string;
+  telephoneNumber?: string;
+  telephoneNumberHash?: string;
   commissionPercent: number;
-
-  @IsString()
-  @IsNotEmpty()
   bank: string;
-
-  @IsString()
-  @IsNotEmpty()
   reference: string;
-
-  @IsString()
-  @IsOptional()
   notes: string;
+  profilePath: string;
 
-  @IsArray()
-  @IsUUID('all', { each: true })
-  @IsOptional()
-  beneficients: string[];
+  constructor(
+    username: string,
+    password: string,
+    firstname: string,
+    firstLastname: string,
+    nss: string,
+    street: string,
+    noExt: string,
+    city: string,
+    state: string,
+    zipCode: string,
+    phoneNumber: string,
+    commissionPercent: number,
+    bank: string,
+    reference: string,
+    notes: string,
+    profilePath: string,
+    secondLastname?: string,
+    noInt?: string,
+    neighborhood?: string,
+    locality?: string,
+    telephoneNumber?: string,
+  ) {
+    this.username = username;
+    this.password = password;
+    this.firstname = firstname;
+    this.firstLastname = firstLastname;
+    this.secondLastname = secondLastname;
+    this.nss = nss;
+    this.street = street;
+    this.noExt = noExt;
+    this.noInt = noInt;
+    this.neighborhood = neighborhood;
+    this.city = city;
+    this.state = state;
+    this.zipCode = zipCode;
+    this.locality = locality;
+    this.phoneNumber = phoneNumber;
+    this.telephoneNumber = telephoneNumber;
+    this.commissionPercent = commissionPercent;
+    this.bank = bank;
+    this.reference = reference;
+    this.notes = notes;
+    this.profilePath = profilePath;
+  }
 }

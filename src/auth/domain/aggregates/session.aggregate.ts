@@ -1,8 +1,8 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
-import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { SessionMetadata } from '@/auth/domain/value-objects/session-metadata.vo';
@@ -19,7 +19,7 @@ export class SessionId extends ValueObject<string> {
   }
 
   public static create() {
-    return new SessionId(uuidv4());
+    return new SessionId(uuidv7());
   }
 
   public static of(value: string): SessionId {
@@ -138,7 +138,7 @@ export class Session extends AggregateRoot {
   async validateToken(
     plainToken: string,
     userAgent: string,
-    hasher: ITokenHasher,
+    hasher: IDataHasher,
   ): Promise<boolean> {
     if (
       !this.revoked ||

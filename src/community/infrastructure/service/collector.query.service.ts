@@ -3,8 +3,8 @@ import { DataSource } from 'typeorm';
 import { BaseQueryService } from '@/shared/application/query/base-query.service';
 import { Paginated } from '@/shared/domain/dto/paginated.result.dto';
 import { PaginationMetaDto } from '@/shared/domain/dto/pagination.meta.dto';
-import { CollectorSchema } from '../persistence/typeorm/schemas/collector.schema';
-import { CollectorMapper } from '../persistence/mappers/collector.mapper';
+import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
+import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
 import { GetCollectorQueryParams } from '@/community/application/query/get-collector-paginated.query';
 
 @Injectable()

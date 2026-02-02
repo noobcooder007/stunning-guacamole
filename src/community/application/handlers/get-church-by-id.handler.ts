@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { QueryHandler } from '@nestjs/cqrs';
-import { IChurchRepository } from '@/community/application/repositories/church.repository';
+import { IChurchRepository } from '@/community/domain/repositories/church.repository';
 import { GetChurchByIdQuery } from '@/community/application/query/get-church-by-id.query';
 import { ChurchMapper } from '@/community/infrastructure/persistence/mappers/church.mapper';
 import { BaseQueryHandler } from '@/shared/application/handler/base-query.handler';

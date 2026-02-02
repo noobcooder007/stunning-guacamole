@@ -1,7 +1,4 @@
-import { IsOptional, IsString, IsUUID } from 'class-validator';
-
 export abstract class UpdateChurchCommand {
-  @IsUUID()
   public readonly id: string;
   constructor(id: string) {
     this.id = id;
@@ -9,41 +6,15 @@ export abstract class UpdateChurchCommand {
 }
 
 export class UpdateChurchAddressCommand extends UpdateChurchCommand {
-  @IsString()
-  @IsOptional()
   public readonly street: string;
-
-  @IsString()
-  @IsOptional()
   public readonly noExt: string;
-
-  @IsString()
-  @IsOptional()
   public readonly noInt: string;
-
-  @IsString()
-  @IsOptional()
   public readonly neighborhood: string;
-
-  @IsString()
-  @IsOptional()
   public readonly locality: string;
-
-  @IsString()
-  @IsOptional()
   public readonly city: string;
-
-  @IsString()
-  @IsOptional()
   public readonly state: string;
-
-  @IsString()
-  @IsOptional()
   public readonly zipCode: string;
 
-  @IsString()
-  @IsOptional()
-  id: string;
   constructor(
     id: string,
     street: string,
@@ -68,16 +39,8 @@ export class UpdateChurchAddressCommand extends UpdateChurchCommand {
 }
 
 export class UpdateChurchPriestCommand extends UpdateChurchCommand {
-  @IsString()
-  @IsOptional()
   public readonly firstname: string;
-
-  @IsString()
-  @IsOptional()
   public readonly firstLastname: string;
-
-  @IsString()
-  @IsOptional()
   public readonly secondLastname: string;
 
   constructor(
@@ -94,16 +57,8 @@ export class UpdateChurchPriestCommand extends UpdateChurchCommand {
 }
 
 export class UpdateChurchAuxiliarPriestCommand extends UpdateChurchCommand {
-  @IsString()
-  @IsOptional()
   public readonly firstname: string;
-
-  @IsString()
-  @IsOptional()
   public readonly firstLastname: string;
-
-  @IsString()
-  @IsOptional()
   public readonly secondLastname: string;
 
   constructor(
@@ -120,24 +75,10 @@ export class UpdateChurchAuxiliarPriestCommand extends UpdateChurchCommand {
 }
 
 export class UpdateChurchEcclesialIdentityCommand extends UpdateChurchCommand {
-  @IsString()
-  @IsOptional()
   public readonly name: string;
-
-  @IsString()
-  @IsOptional()
   public readonly vicaria: string;
-
-  @IsString()
-  @IsOptional()
   public readonly decanato: string;
-
-  @IsString()
-  @IsOptional()
   public readonly parroquia: string;
-
-  @IsString()
-  @IsOptional()
   public readonly capilla: string;
 
   constructor(
@@ -158,8 +99,6 @@ export class UpdateChurchEcclesialIdentityCommand extends UpdateChurchCommand {
 }
 
 export class UpdateChurchPhoneNumberCommand extends UpdateChurchCommand {
-  @IsString()
-  @IsOptional()
   public readonly phoneNumber: string;
 
   constructor(id: string, phoneNumber: string) {

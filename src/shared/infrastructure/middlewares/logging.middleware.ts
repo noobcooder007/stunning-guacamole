@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { transactionStorage } from '@/database/transactional-context'; // Importa tu storage del UOW
 
 @Injectable()
@@ -12,7 +12,7 @@ export class LoggerMiddleware implements NestMiddleware {
     const startTime = Date.now();
 
     // 1. Obtener o generar el Trace ID
-    const traceId = req.headers['x-trace-id']?.toString() || uuidv4();
+    const traceId = req.headers['x-trace-id']?.toString() || uuidv7();
 
     // 2. Adjuntarlo a la respuesta para el cliente
     res.setHeader('x-trace-id', traceId);

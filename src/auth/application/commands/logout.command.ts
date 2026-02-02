@@ -1,6 +1,7 @@
-import { IsUUID } from 'class-validator';
-
 export class LogoutCommand {
-  @IsUUID()
   sessionId: string;
+
+  constructor(sessionId: string) {
+    this.sessionId = sessionId;
+  }
 }

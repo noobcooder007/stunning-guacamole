@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   OneToMany,
   OneToOne,
@@ -9,11 +10,13 @@ import {
 } from 'typeorm';
 import { UserSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/user.schema';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
-import { ICollectorPersistence } from '../../mappers/collector.mapper';
+import { ICollectorPersistence } from '@/community/infrastructure/persistence/mappers/collector.mapper';
+import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 
 @Entity('collector')
+@Index(['state', 'city'])
+@Index(['createdAt'])
 @Unique(['firstname', 'firstLastname', 'secondLastname'])
-@Unique(['street', 'noExt', 'city', 'state', 'zipCode'])
 export class CollectorSchema implements ICollectorPersistence {
   @PrimaryColumn('uuid')
   id: string;
@@ -41,56 +44,135 @@ export class CollectorSchema implements ICollectorPersistence {
 
   @Column('text', {
     unique: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
   })
   nss: string;
 
-  @Column('text')
+  @Column('text', {
+    unique: true,
+  })
+  nssHash: string;
+
+  @Column('text', {
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
+  })
   street: string;
 
-  @Column('text')
+  @Column('text', {
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
+  })
   noExt: string;
 
   @Column('text', {
     nullable: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
   })
   noInt: string;
 
   @Column('text', {
     nullable: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
   })
   neighborhood: string;
+
+  @Column('text', {
+    nullable: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
+  })
+  locality: string;
 
   @Column('text')
   city: string;
 
   @Column('text')
   state: string;
+
   @Column('text')
   zipCode: string;
 
   @Column('text', {
-    nullable: true,
+    select: false,
+    unique: true,
   })
-  locality: string;
+  addressHash: string;
 
   @Column('text', {
     unique: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
   })
   phoneNumber: string;
 
   @Column('text', {
+    select: false,
+    unique: true,
+  })
+  phoneNumberHash: string;
+
+  @Column('text', {
     unique: true,
     nullable: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
   })
   telephoneNumber: string;
+
+  @Column('text', {
+    nullable: true,
+    select: false,
+    unique: true,
+  })
+  telephoneNumberHash: string;
 
   @Column('int')
   commissionPercent: number;
 
-  @Column('text')
+  @Column('text', {
+    nullable: true,
+  })
   bank: string;
 
-  @Column('text')
+  @Column('text', {
+    nullable: true,
+  })
   reference: string;
 
   @Column('text', {
@@ -110,4 +192,9 @@ export class CollectorSchema implements ICollectorPersistence {
 
   @Column('timestamp with time zone')
   createdAt: Date;
+
+  @Column('text', {
+    nullable: true,
+  })
+  profilePath: string;
 }

@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { IPasswordHasher } from '@/auth/domain/services/password.hasher.service';
@@ -16,7 +16,7 @@ export class UserId extends ValueObject<string> {
   }
 
   public static create(): UserId {
-    return new UserId(uuidv4());
+    return new UserId(uuidv7());
   }
 
   public static of(value: string): UserId {

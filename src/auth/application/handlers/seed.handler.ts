@@ -1,16 +1,17 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
-import { SeedCommand } from '@/auth/application/commands/seed.command';
+import { UnitOfWork } from '@/database/unit-of-work';
 import { Result } from '@/shared/domain/dto/result.dto';
+import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
+import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { Permission } from '@/auth/domain/entities/permission.entity';
 import { Role } from '@/auth/domain/aggregates/role.aggregate';
+import { SeedCommand } from '@/auth/application/commands/seed.command';
 import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
-import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
-import { UnitOfWork } from '@/database/unit-of-work';
-import { DomainException } from '@/shared/domain/exceptions/domain.exception';
+import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
 
 @CommandHandler(SeedCommand)
 export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
@@ -71,7 +72,13 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
         collectorRole,
         beneficientRole,
       ]);
-      const result = await this.createUserService.execute(command);
+      const result = await this.createUserService.execute(
+        new CreateUserCommand(
+          command.username,
+          command.password,
+          'superadministrator',
+        ),
+      );
       if (!result.isSuccess) {
         throw new DomainException(
           result.error.message,

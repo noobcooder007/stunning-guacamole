@@ -1,6 +1,8 @@
-import { Expose, Transform } from 'class-transformer';
-import { Address } from '@/community/domain/value-objects/address.vo';
+import { Exclude, Expose, Type } from 'class-transformer';
+import { AddressResponseDto } from './address.response';
+import { MaskHelper } from '@/shared/infrastructure/utils/mask-helper.util';
 
+@Exclude()
 export class BeneficientResponse {
   @Expose()
   id: string;
@@ -21,15 +23,24 @@ export class BeneficientResponse {
   @Expose()
   weddingAniversary: Date | null;
   @Expose()
-  @Transform(({ value }) => {
-    return value instanceof Address ? value.toJSON() : value;
-  })
-  address: Address;
+  @Type(() => AddressResponseDto)
+  address: AddressResponseDto;
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
+  email: string | null;
   @Expose()
-  //   @Transform(({ value }) => {
-  //     return value instanceof PromiseDonation ? value.toJSON() : value;
-  //   })
-  // promiseDonation: PromiseDonation | null;
+  get emailMasked() {
+    return MaskHelper.maskEmail(this.email);
+  }
+  @Expose()
+  person: string | null;
+  @Expose()
+  registeredName: string | null;
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
+  rfc: string | null;
+  @Expose()
+  get rfcMasked() {
+    return MaskHelper.mask(this.rfc, 4, 'X');
+  }
   @Expose()
   createdAt: Date;
   @Expose()

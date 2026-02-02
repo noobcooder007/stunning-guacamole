@@ -1,12 +1,8 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { v4 as uuidv4 } from 'uuid';
+import { v7 as uuidv7 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
-import {
-  Address,
-  Numeration,
-} from '@/community/domain/value-objects/address.vo';
+import { Address } from '@/community/domain/value-objects/address.vo';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
-import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 import { TaxInformation } from '@/community/domain/value-objects/tax-information.vo';
 
@@ -21,7 +17,7 @@ export class BeneficientId extends ValueObject<string> {
   }
 
   public static create() {
-    return new BeneficientId(uuidv4());
+    return new BeneficientId(uuidv7());
   }
 
   public static of(value: string): BeneficientId {
@@ -31,21 +27,23 @@ export class BeneficientId extends ValueObject<string> {
 }
 
 export interface BeneficientProps {
-  readonly title: string;
-  readonly firstname: string;
-  readonly firstLastname: string;
-  readonly secondLastname: string;
-  readonly birthday: Date;
-  readonly weddingAniversary?: Date | null;
-  readonly genre: string;
-  readonly maritalStatus: string;
-  readonly address: Address;
-  readonly church: ChurchId;
-  readonly email?: string;
-  readonly taxInformation?: TaxInformation;
-  readonly createdAt: Date;
-  readonly isActive: boolean;
-  readonly reasonDeactivated?: string;
+  title: string;
+  firstname: string;
+  firstLastname: string;
+  secondLastname: string;
+  birthday: Date;
+  weddingAniversary?: Date | null;
+  genre: string;
+  maritalStatus: string;
+  address: Address;
+  addressHash: string;
+  church: ChurchId;
+  email?: string;
+  emailHash?: string;
+  taxInformation?: TaxInformation;
+  createdAt: Date;
+  isActive: boolean;
+  reasonDeactivated?: string;
 }
 
 export class Beneficient extends AggregateRoot {
@@ -147,12 +145,20 @@ export class Beneficient extends AggregateRoot {
     return this.props.address;
   }
 
+  public get addressHash(): string {
+    return this.props.addressHash;
+  }
+
   public get church(): ChurchId {
     return this.props.church;
   }
 
   public get email(): string | null {
     return this.props.email;
+  }
+
+  public get emailHash(): string | null {
+    return this.props.emailHash;
   }
 
   public get taxInformation(): TaxInformation | null {
@@ -169,31 +175,6 @@ export class Beneficient extends AggregateRoot {
 
   public get reasonDeactivated(): string | null {
     return this.props.reasonDeactivated;
-  }
-
-  public updateFields(changes: any) {
-    const updatedAddress = Address.of({
-      street: changes.street ?? this.props.address.street,
-      numeration: Numeration.of({
-        noExt: changes.noExt ?? this.props.address.numeration.noExt,
-        noInt: changes.noInt ?? this.props.address.numeration.noInt,
-      }),
-      neighborhood: changes.neighborhood ?? this.props.address.neighborhood,
-      locality: changes.locality ?? this.props.address.locality,
-      city: changes.city ?? this.props.address.city,
-      state: changes.state ?? this.props.address.state,
-      zipCode: ZipCode.of(changes.zipCode ?? this.props.address.zipCode),
-    });
-    this.props = {
-      ...this.props,
-      ...changes,
-      address: updatedAddress.equals(this.props.address)
-        ? this.props.address
-        : updatedAddress,
-      reasonDeactivated: this.props.reasonDeactivated,
-      createdAt: this.props.createdAt,
-      isActive: this.props.isActive,
-    };
   }
 
   public deactivate(reason: string) {

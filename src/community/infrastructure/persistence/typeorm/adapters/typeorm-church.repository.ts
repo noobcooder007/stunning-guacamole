@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { BaseRepository } from '@/database/base.repository';
-import { IChurchRepository } from '@/community/application/repositories/church.repository';
+import { IChurchRepository } from '@/community/domain/repositories/church.repository';
 import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/schemas/church.schema';
 import { Church } from '@/community/domain/aggregate/church.aggregate';
 import { ChurchMapper } from '@/community/infrastructure/persistence/mappers/church.mapper';

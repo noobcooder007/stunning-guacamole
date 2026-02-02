@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { BcryptHasher } from './infrastructure/security/bcrypt.hasher';
-import { TokenHasher } from './infrastructure/security/safe-compare';
+import { BcryptHasher } from '@/shared/infrastructure/security/bcrypt.hasher';
+import { TokenHasher } from '@/shared/infrastructure/security/token-hasher';
+import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 
 @Module({
   providers: [
+    TokenHasher,
     {
       provide: 'IPasswordHasher',
       useClass: BcryptHasher,
@@ -12,7 +14,17 @@ import { TokenHasher } from './infrastructure/security/safe-compare';
       provide: 'ITokenHasher',
       useClass: TokenHasher,
     },
+    {
+      provide: 'IBlindIndexHasher',
+      useClass: TokenHasher,
+    },
+    EncryptionService,
   ],
-  exports: ['IPasswordHasher', 'ITokenHasher'],
+  exports: [
+    'IPasswordHasher',
+    'ITokenHasher',
+    'IBlindIndexHasher',
+    EncryptionService,
+  ],
 })
 export class SharedModule {}

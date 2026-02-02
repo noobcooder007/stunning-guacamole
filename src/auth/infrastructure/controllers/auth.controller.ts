@@ -2,15 +2,19 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ConfigService } from '@nestjs/config';
 import { CookieOptions, Response } from 'express';
-import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
-import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
-import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
-import { GetContext } from '@/auth/infrastructure/decorators/get-context.decorator';
-import { LoginUserCommand } from '@/auth/application/commands/login-user.command';
-import { ValidPermitions } from '@/auth/infrastructure/decorators/permit-protected.decorator';
-import { SessionCommand } from '@/auth/application/commands/session.command';
-import { LogoutCommand } from '@/auth/application/commands/logout.command';
 import { Result } from '@/shared/domain/dto/result.dto';
+import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
+import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
+import { GetContext } from '@/auth/infrastructure/decorators/get-context.decorator';
+import { ValidPermitions } from '@/auth/infrastructure/decorators/permit-protected.decorator';
+import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
+import { LoginUserCommand } from '@/auth/application/commands/login-user.command';
+import { RefreshSessionCommand } from '@/auth/application/commands/refresh-session.command';
+import { LogoutCommand } from '@/auth/application/commands/logout.command';
+import { CreateUserDto } from '@/auth/application/dto/create-user.dto';
+import { LoginUserDto } from '@/auth/application/dto/login.dto';
+import { RefreshSessionDto } from '@/auth/application/dto/refresh-session.dto';
+import { LogoutDto } from '@/auth/application/dto/logout.dto';
 
 export const getCookieOptions = (
   configService: ConfigService,
@@ -33,10 +37,11 @@ export class AuthController {
   // Establecer cookie secure: false y sameSite: 'lax' para desarrollo
   @Post('login')
   async login(
-    @Body() command: LoginUserCommand,
+    @Body() dto: LoginUserDto,
     @GetContext() context: CommandMetadata,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const command = new LoginUserCommand(dto.username, dto.password);
     (command as any).metadata = context;
     const result = await this.commandBus.execute(command);
     if (!result.isSuccess)
@@ -55,16 +60,19 @@ export class AuthController {
 
   @Auth(ValidPermitions.ADD_USER)
   @Post('register')
-  register(@Body() command: CreateUserCommand) {
-    this.commandBus.execute(command);
+  register(@Body() dto: CreateUserDto) {
+    this.commandBus.execute(
+      new CreateUserCommand(dto.username, dto.password, dto.role),
+    );
   }
 
   @Post('refresh')
   async session(
-    @Body() command: SessionCommand,
+    @Body() dto: RefreshSessionDto,
     @GetContext() context: CommandMetadata,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const command = new RefreshSessionCommand(dto.sessionId);
     (command as any).metadata = context;
     const result = await this.commandBus.execute(command);
     if (!result.isSuccess) {
@@ -87,10 +95,11 @@ export class AuthController {
 
   @Post('logout')
   async logout(
-    @Body() command: LogoutCommand,
+    @Body() dto: LogoutDto,
     @GetContext() context: CommandMetadata,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const command = new LogoutCommand(dto.sessionId);
     (command as any).metadata = context;
     const result = await this.commandBus.execute(command);
     res.clearCookie('session', {

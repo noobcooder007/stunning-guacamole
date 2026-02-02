@@ -22,7 +22,7 @@ export class CreateUserService {
   async execute(data: CreateUserCommand) {
     const [user, role] = await Promise.all([
       this.userRepository.findOneByUsername(data.username),
-      this.roleRepository.findByName('collector'),
+      this.roleRepository.findByName(data.role),
     ]);
     if (user) {
       return Result.fail({
@@ -38,9 +38,11 @@ export class CreateUserService {
         entity: Role.name,
       });
     const hashedPassword = await this.passwordHasher.hash(data.password);
-    data.password = hashedPassword;
-    const { username, password } = data;
-    const userToSave = User.create({ username, password, roleId: role._id });
+    const userToSave = User.create({
+      username: data.username,
+      password: hashedPassword,
+      roleId: role._id,
+    });
     const userId = await this.userRepository.save(userToSave);
     return Result.ok(userId);
   }

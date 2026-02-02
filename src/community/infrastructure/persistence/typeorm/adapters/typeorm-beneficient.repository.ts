@@ -3,7 +3,7 @@ import { DataSource, In } from 'typeorm';
 import { Beneficient } from '@/community/domain/aggregate/beneficient.aggregate';
 import { BaseRepository } from '@/database/base.repository';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
-import { IBeneficientRepository } from '@/community/application/repositories/beneficient.repository';
+import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { BeneficientMapper } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
 
 @Injectable()
@@ -47,11 +47,13 @@ export class TypeORMBeneficientRepository
           secondLastname: beneficient.secondLastname,
         },
         {
-          street: beneficient.address.street,
-          noExt: beneficient.address.numeration.noExt,
-          city: beneficient.address.city,
-          state: beneficient.address.state,
-          zipCode: beneficient.address.zipCode.value,
+          addressHash: beneficient.addressHash,
+        },
+        {
+          emailHash: beneficient.emailHash,
+        },
+        {
+          rfcHash: beneficient.taxInformation.rfcHash,
         },
       ],
     });

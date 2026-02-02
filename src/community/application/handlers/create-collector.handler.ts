@@ -1,16 +1,16 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
-import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
-import { CreateCollectorCommand } from '../command/create-collector.command';
-import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { UnitOfWork } from '@/database/unit-of-work';
+import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { Result } from '@/shared/domain/dto/result.dto';
-import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
-import { ICollectorRepository } from '@/community/application/repositories/collector.repository';
+import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
+import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { ConflictException } from '@/shared/domain/exceptions/conflict-exception.exception';
+import { CreateCollectorCommand } from '@/community/application/command/create-collector.command';
+import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
 import { CreateCollectorResponse } from '@/community/application/dto/create-collector.response';
+import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
 import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
-import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 
 @CommandHandler(CreateCollectorCommand)
 export class CreateCollectorHandler extends BaseCommandHandler<
@@ -22,6 +22,8 @@ export class CreateCollectorHandler extends BaseCommandHandler<
     @Inject(REPOSITORY_TOKENS.COLLECTOR)
     private readonly collectorRepository: ICollectorRepository,
     private readonly createUserService: CreateUserService,
+    @Inject('IBlindIndexHasher')
+    private readonly hasher: IDataHasher,
   ) {
     super();
   }
@@ -37,12 +39,25 @@ export class CreateCollectorHandler extends BaseCommandHandler<
         role: 'collector',
       });
       if (!resultCreateUser.isSuccess) {
-        throw new DomainException(
+        throw new ConflictException(
           resultCreateUser.error.message,
-          CreateCollectorHandler.name,
-          resultCreateUser.error.type,
+          resultCreateUser.error.entity,
         );
       }
+      const [nssHash, addressHash, phoneNumberHash, telephoneNumberHash] =
+        await Promise.all([
+          this.hasher.hash(command.nss, true),
+          this.hasher.hash(
+            `${command.street}|${command.noExt}|${command.noInt}|${command.neighborhood}|${command.locality}|${command.city}|${command.state}|${command.zipCode}|`,
+            true,
+          ),
+          this.hasher.hash(command.phoneNumber, true),
+          this.hasher.hash(command.telephoneNumber, true),
+        ]);
+      command.nssHash = nssHash;
+      command.addressHash = addressHash;
+      command.phoneNumberHash = phoneNumberHash;
+      command.telephoneNumberHash = telephoneNumberHash;
       const collectorToSave = CollectorMapper.commandToDomain(
         command,
         resultCreateUser.value as string,
@@ -52,7 +67,7 @@ export class CreateCollectorHandler extends BaseCommandHandler<
       if (collectorExists) {
         throw new ConflictException(
           'Collector already exists',
-          CreateCollectorHandler.name,
+          CollectorMapper.name,
         );
       }
       await this.collectorRepository.save(collectorToSave);

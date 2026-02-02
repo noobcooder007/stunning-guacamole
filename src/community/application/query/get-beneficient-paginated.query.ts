@@ -8,4 +8,10 @@ export class GetBeneficientQueryParams extends PaginationDto {
   firstLastname: string;
   @IsOptional()
   secondLastname: string;
+  @IsOptional()
+  city: string;
+  @IsOptional()
+  state: string;
+  @IsOptional()
+  zipCode: string;
 }

@@ -6,7 +6,7 @@ import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { LogoutCommand } from '@/auth/application/commands/logout.command';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { ISessionRepository } from '@/auth/application/repositories/session.repository';
-import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
+import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 
 @CommandHandler(LogoutCommand)
 export class LogoutHandler extends BaseCommandHandler<LogoutCommand, void> {
@@ -14,7 +14,7 @@ export class LogoutHandler extends BaseCommandHandler<LogoutCommand, void> {
     @Inject(REPOSITORY_TOKENS.SESSION)
     private readonly sessionRepository: ISessionRepository,
     @Inject('ITokenHasher')
-    private readonly hasherService: ITokenHasher,
+    private readonly hasherService: IDataHasher,
   ) {
     super();
   }

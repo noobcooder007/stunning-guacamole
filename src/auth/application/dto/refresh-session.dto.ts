@@ -1,6 +1,6 @@
 import { IsUUID } from 'class-validator';
 
-export class SessionCommand {
+export class RefreshSessionDto {
   @IsUUID()
   sessionId: string;
 }
