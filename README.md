@@ -4,7 +4,7 @@
 2. Instalar dependencias usando pnpm, se recomienda este manejador de paquetes ya que el repositorio fue creado de esta manera.
 
 ````
-yarn install
+pnpm install
 ````
 
 3. Clonar el archivo ``.env.template`` y renombrarlo como ``.env.development.local``.
