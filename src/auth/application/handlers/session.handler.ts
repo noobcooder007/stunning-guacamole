@@ -19,12 +19,13 @@ import { IPermissionRepository } from '@/auth/application/repositories/permissio
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { ITokenHasher } from '@/auth/domain/services/token-hasher.service';
-import { Role } from '@/auth/domain/aggregates/role.aggregate';
+import { Session } from '@/auth/domain/aggregates/session.aggregate';
 
 export interface TokenResult {
   rawAccessToken: string;
   rawRefreshToken: string;
   sessionId: string;
+  roleName: string;
 }
 
 export interface TokenData {
@@ -65,22 +66,25 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
-    const user = await this.userRepository.findOneById(
-      resultTokenData.value.userId,
-    );
-    if (!user) {
+    const userId = resultTokenData.value.userId;
+    const [user, currentSession] = await Promise.all([
+      this.userRepository.findOneById(userId),
+      this.sessionRepository.findOneByUserIdAndSessionId(
+        userId,
+        resultTokenData.value.sessionIdFromRequest,
+      ),
+    ]);
+    if (!user || !currentSession) {
       return Result.fail({
         type: ErrorType.NOT_FOUND,
-        message: 'User desactivated or not found',
+        message: 'User or session not found',
         entity: SessionHandler.name,
       });
     }
-    const role = await this.roleRepository.findById(user.role.unpack());
     const resultTokenResult = await this.generateTokens(
       user,
-      role,
+      currentSession,
       context,
-      resultTokenData.value.sessionIdFromRequest,
     );
     if (!resultTokenResult.isSuccess) {
       return Result.fail({
@@ -92,7 +96,7 @@ export class SessionHandler extends BaseCommandHandler<
     const session = new AuthResponse({
       user: new UserDto({
         username: user.username,
-        role: role.name,
+        role: resultTokenResult.value.roleName,
       }),
       tokens: new SessionDto({
         accessToken: resultTokenResult.value.rawAccessToken,
@@ -130,23 +134,10 @@ export class SessionHandler extends BaseCommandHandler<
 
   private async generateTokens(
     user: User,
-    role: Role,
+    currentSession: Session,
     context: CommandMetadata,
-    sessionIdFromRequest: string,
   ): Promise<Result<TokenResult>> {
     const rawRefreshToken = context.refreshToken;
-    const currentSession =
-      await this.sessionRepository.findOneByUserIdAndSessionId(
-        user._id.unpack(),
-        sessionIdFromRequest,
-      );
-    if (!currentSession) {
-      return Result.fail({
-        type: ErrorType.UNAUTHORIZED,
-        message: 'Invalid token (maybe was used or expired)',
-        entity: SessionHandler.name,
-      });
-    }
     const isValid = await currentSession.validateToken(
       rawRefreshToken,
       context.userAgent,
@@ -161,16 +152,17 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
-    const permissions = await this.permissionRepository.findByRoleId(
-      role._id.unpack(),
-    );
+    const [role, permissions] = await Promise.all([
+      this.roleRepository.findById(user.role.unpack()),
+      this.permissionRepository.findByRoleId(user.role.unpack()),
+    ]);
     const newAccessToken = this.jwtService.createAccessToken({
       id: user._id.unpack(),
       rights: permissions.map((p) => p.name),
     });
     const newRawRefreshToken = this.jwtService.createRefreshToken({
       id: user._id.unpack(),
-      sessionId: sessionIdFromRequest,
+      sessionId: currentSession.sessionId.unpack(),
     });
     const newHashedsession = await this.hasherService.hash(newRawRefreshToken);
     const refreshTokenHash = RefreshTokenHash.of(newHashedsession);
@@ -184,6 +176,7 @@ export class SessionHandler extends BaseCommandHandler<
       rawAccessToken: newAccessToken,
       rawRefreshToken: newRawRefreshToken,
       sessionId: currentSession.sessionId.unpack(),
+      roleName: role.name,
     });
   }
 }

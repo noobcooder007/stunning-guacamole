@@ -1,3 +1,4 @@
+import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 as uuidv4 } from 'uuid';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
@@ -33,11 +34,12 @@ export interface RoleProps {
   createdAt?: Date;
 }
 
-export class Role {
-  constructor(
+export class Role extends AggregateRoot {
+  private constructor(
     private readonly id: RoleId,
     private props: RoleProps,
   ) {
+    super();
     GeneralGuard.againstNullOrUndefined(props.name, 'Name is required', 'Role');
     GeneralGuard.againstNullOrUndefined(
       props.description,

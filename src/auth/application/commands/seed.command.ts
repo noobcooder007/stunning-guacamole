@@ -1,8 +1,6 @@
-import { IsOptional } from 'class-validator';
 import {
   IsNotEmpty,
   IsString,
-  IsUUID,
   Matches,
   MaxLength,
   MinLength,
@@ -22,7 +20,9 @@ export class SeedCommand {
   @MinLength(6)
   @MaxLength(50)
   password: string;
-  @IsUUID()
-  @IsOptional()
-  roleId: string;
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(50)
+  role: string;
 }

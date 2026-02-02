@@ -4,7 +4,7 @@ import { IUserRepository } from '@/auth/application/repositories/user.repository
 import { UserSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/user.schema';
 import { BaseRepository } from '@/database/base.repository';
 import { User } from '@/auth/domain/aggregates/user.aggregate';
-import { UserMapper } from '../../mappers/user.mapper';
+import { UserMapper } from '@/auth/infrastructure/persistence/mappers/user.mapper';
 
 @Injectable()
 export class TypeORMUserRepository
@@ -37,8 +37,8 @@ export class TypeORMUserRepository
     return userModel ? UserMapper.fromModelToDomain(userModel) : null;
   }
 
-  async save(user: User): Promise<User> {
+  async save(user: User): Promise<string> {
     await this.repository.save(UserMapper.toPersistance(user));
-    return user;
+    return user._id.unpack();
   }
 }

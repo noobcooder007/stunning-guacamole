@@ -1,8 +1,6 @@
-import { IsOptional } from 'class-validator';
 import {
   IsNotEmpty,
   IsString,
-  IsUUID,
   Matches,
   MaxLength,
   MinLength,
@@ -22,7 +20,7 @@ export class CreateUserCommand {
   @MinLength(6)
   @MaxLength(50)
   password: string;
-  @IsUUID()
-  @IsOptional()
-  roleId: string;
+  @IsString()
+  @IsNotEmpty()
+  role: string;
 }

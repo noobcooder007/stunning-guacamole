@@ -15,8 +15,6 @@ import { LoginUserHandler } from '@/auth/application/handlers/login-user.handler
 import { SessionHandler } from '@/auth/application/handlers/session.handler';
 import { SeedController } from '@/auth/infrastructure/controllers/seed.controller';
 import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
-import { CreateUserAdminService } from '@/auth/infrastructure/services/create-user-admin.service';
-import { CreateUserCollectorService } from '@/auth/infrastructure/services/create-user-collector.service';
 import { JWTService } from '@/auth/application/services/jwt.service';
 import { LogoutHandler } from '@/auth/application/handlers/logout.handler';
 import { SeedHandler } from '@/auth/application/handlers/seed.handler';
@@ -48,8 +46,6 @@ import { SeedHandler } from '@/auth/application/handlers/seed.handler';
     JwtStrategy,
     JWTService,
     CreateUserService,
-    CreateUserAdminService,
-    CreateUserCollectorService,
     LoginUserHandler,
     SessionHandler,
     LogoutHandler,
@@ -61,8 +57,6 @@ import { SeedHandler } from '@/auth/application/handlers/seed.handler';
     PassportModule,
     JwtModule,
     CreateUserService,
-    CreateUserAdminService,
-    CreateUserCollectorService,
   ],
 })
 export class AuthModule {}

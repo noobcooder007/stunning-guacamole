@@ -7,7 +7,7 @@ import { Permission } from '@/auth/domain/entities/permission.entity';
 import { Role } from '@/auth/domain/aggregates/role.aggregate';
 import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
-import { CreateUserAdminService } from '@/auth/infrastructure/services/create-user-admin.service';
+import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { UnitOfWork } from '@/database/unit-of-work';
 import { DomainException } from '@/shared/domain/exceptions/domain.exception';
@@ -15,7 +15,7 @@ import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 @CommandHandler(SeedCommand)
 export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
   constructor(
-    private readonly createUserAdminService: CreateUserAdminService,
+    private readonly createUserService: CreateUserService,
     @Inject(REPOSITORY_TOKENS.ROLES)
     private readonly roleRepository: IRoleRepository,
     @Inject(REPOSITORY_TOKENS.PERMISSION)
@@ -45,6 +45,11 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
         viewChurchPermission,
         viewInvoicePermission,
       ]);
+      const superAdmin = Role.create({
+        name: 'superadministrator',
+        description: 'Rol dedicado a actividades de administración',
+        permissions: new Set([addChurchPermission]),
+      });
       const adminRole = Role.create({
         name: 'administrator',
         description: 'Rol dedicado a actividades de administración',
@@ -61,11 +66,12 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
         permissions: new Set([viewInvoicePermission]),
       });
       await this.roleRepository.save([
+        superAdmin,
         adminRole,
         collectorRole,
         beneficientRole,
       ]);
-      const result = await this.createUserAdminService.execute(command);
+      const result = await this.createUserService.execute(command);
       if (!result.isSuccess) {
         throw new DomainException(
           result.error.message,

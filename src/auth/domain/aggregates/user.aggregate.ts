@@ -1,3 +1,4 @@
+import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 as uuidv4 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
@@ -33,11 +34,12 @@ export interface UserProps {
   lastLogin?: Date;
 }
 
-export class User {
+export class User extends AggregateRoot {
   private constructor(
     private readonly id: UserId,
     private props: UserProps,
   ) {
+    super();
     GeneralGuard.againstNullOrUndefined(
       props.username,
       'Username is required',

@@ -1,3 +1,4 @@
+import { AggregateRoot } from '@nestjs/cqrs';
 import { v4 as uuidv4 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
@@ -42,8 +43,9 @@ export interface SessionProps {
   revoked?: boolean;
 }
 
-export class Session {
-  constructor(private props: SessionProps) {
+export class Session extends AggregateRoot {
+  private constructor(private props: SessionProps) {
+    super();
     GeneralGuard.againstNullOrUndefined(
       props.sessionId,
       'Session id cannot be null or undefined',

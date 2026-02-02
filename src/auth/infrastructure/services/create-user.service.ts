@@ -5,9 +5,8 @@ import { IPasswordHasher } from '@/auth/domain/services/password.hasher.service'
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
-import { User, UserId } from '@/auth/domain/aggregates/user.aggregate';
+import { User } from '@/auth/domain/aggregates/user.aggregate';
 import { Role } from '@/auth/domain/aggregates/role.aggregate';
-import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 
 @Injectable()
 export class CreateUserService {
@@ -21,15 +20,17 @@ export class CreateUserService {
   ) {}
 
   async execute(data: CreateUserCommand) {
-    const exists = await this.userRepository.findOneByUsername(data.username);
-    if (exists) {
+    const [user, role] = await Promise.all([
+      this.userRepository.findOneByUsername(data.username),
+      this.roleRepository.findByName('collector'),
+    ]);
+    if (user) {
       return Result.fail({
         type: ErrorType.CONFLICT,
         message: 'User already exists',
         entity: User.name,
       });
     }
-    const role = await this.roleRepository.findById(data.roleId);
     if (!role)
       return Result.fail({
         type: ErrorType.NOT_FOUND,
@@ -38,18 +39,9 @@ export class CreateUserService {
       });
     const hashedPassword = await this.passwordHasher.hash(data.password);
     data.password = hashedPassword;
-    try {
-      const { username, password } = data;
-      const user = User.create({ username, password, roleId: role._id });
-      await this.userRepository.save(user);
-      return Result.ok<UserId>(user._id);
-    } catch (err) {
-      if (err instanceof DomainException)
-        return Result.fail({
-          type: ErrorType.VALIDATION,
-          message: err.message,
-          entity: User.name,
-        });
-    }
+    const { username, password } = data;
+    const userToSave = User.create({ username, password, roleId: role._id });
+    const userId = await this.userRepository.save(userToSave);
+    return Result.ok(userId);
   }
 }

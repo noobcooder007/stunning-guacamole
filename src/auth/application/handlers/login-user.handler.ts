@@ -20,12 +20,12 @@ import { SessionId } from '@/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { SessionMetadata } from '@/auth/domain/value-objects/session-metadata.vo';
-import { Role } from '@/auth/domain/aggregates/role.aggregate';
 
 export interface TokenResult {
   rawAccessToken: string;
   rawRefreshToken: string;
   sessionId: string;
+  role: string;
 }
 
 @CommandHandler(LoginUserCommand)
@@ -55,23 +55,31 @@ export class LoginUserHandler extends BaseCommandHandler<
     command: LoginUserCommand,
     context?: CommandMetadata,
   ): Promise<Result<AuthResponse>> {
-    const { isSuccess, error, value: user } = await this.validateUser(command);
-    if (!isSuccess) {
+    const user = await this.userRepository.findOneByUsername(command.username);
+    if (!user) {
       return Result.fail({
-        type: error.type,
-        message: error.message,
+        type: ErrorType.UNAUTHORIZED,
+        message: 'Invalid credentials',
         entity: LoginUserHandler.name,
       });
     }
-    const role = await this.roleRepository.findById(user.role.unpack());
-    const { rawAccessToken, rawRefreshToken, sessionId } =
-      await this.generateTokens(user, role, context);
-    user.updateLastLogin();
-    this.userRepository.save(user);
+    const isValidPassword = await user.validatePassword(
+      this.hasherService,
+      command.password,
+    );
+    if (!isValidPassword) {
+      return Result.fail({
+        type: ErrorType.UNAUTHORIZED,
+        message: 'Invalid credentials',
+        entity: LoginUserHandler.name,
+      });
+    }
+    const { rawAccessToken, rawRefreshToken, sessionId, role } =
+      await this.generateTokens(user, context);
     const session = new AuthResponse({
       user: new UserDto({
         username: user.username,
-        role: role.name,
+        role: role,
       }),
       tokens: new SessionDto({
         accessToken: rawAccessToken,
@@ -88,37 +96,17 @@ export class LoginUserHandler extends BaseCommandHandler<
     return Result.ok<AuthResponse>(session);
   }
 
-  private async validateUser(command: LoginUserCommand): Promise<Result<User>> {
-    const { username, password } = command;
-    const user = await this.userRepository.findOneByUsername(username);
-    if (!user)
-      return Result.fail({
-        type: ErrorType.UNAUTHORIZED,
-        message: 'Invalid credentials',
-        entity: LoginUserHandler.name,
-      });
-    const isValidUser = await user.validatePassword(
-      this.hasherService,
-      password,
-    );
-    if (!isValidUser)
-      return Result.fail({
-        type: ErrorType.UNAUTHORIZED,
-        message: 'Invalid credentials or account disabled',
-        entity: LoginUserHandler.name,
-      });
-    return Result.ok(user);
-  }
-
   private async generateTokens(
     user: User,
-    role: Role,
     context: CommandMetadata,
   ): Promise<TokenResult> {
     const sessionId = SessionId.create();
-    const permissions = await this.permissionRepository.findByRoleId(
-      role._id.unpack(),
-    );
+    user.updateLastLogin();
+    const [role, permissions] = await Promise.all([
+      this.roleRepository.findById(user.role.unpack()),
+      this.permissionRepository.findByRoleId(user.role.unpack()),
+      this.userRepository.save(user),
+    ]);
     const rawAccessToken = this.jwtService.createAccessToken({
       id: user._id.unpack(),
       rights: permissions.map((p) => p.name),
@@ -149,6 +137,7 @@ export class LoginUserHandler extends BaseCommandHandler<
       rawAccessToken,
       rawRefreshToken,
       sessionId: session.sessionId.unpack(),
+      role: role.name,
     };
   }
 }

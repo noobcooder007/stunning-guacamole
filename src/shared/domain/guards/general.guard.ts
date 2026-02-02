@@ -65,6 +65,17 @@ export class GeneralGuard {
     }
   }
 
+  public static againstArrayLengthIsLessThan(
+    length: number,
+    value: number = 0,
+    message: string,
+    entity: string,
+  ) {
+    if (length <= value) {
+      throw new InvalidAttributeException(message, entity);
+    }
+  }
+
   public static againstValueIsUUID(value: string, entity: string) {
     const uuidRegex =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;

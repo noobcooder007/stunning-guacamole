@@ -5,6 +5,7 @@ import { TypeORMPermissionRepository } from '@/auth/infrastructure/persistence/t
 import { TypeORMSessionRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-session-repository';
 import { TypeORMRoleRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-role-repository';
 import { TypeORMUserRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-user-repository';
+import { TypeORMAssignationRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-assignation.repository';
 
 export const REPOSITORY_TOKENS = {
   USER: 'IUserRepository',
@@ -14,6 +15,7 @@ export const REPOSITORY_TOKENS = {
   CHURCH: 'IChurchRepository',
   COLLECTOR: 'ICollectorRepository',
   BENEFICIENT: 'IBeneficientRepository',
+  ASSIGNATION: 'IAssignationRepository',
 };
 
 export const DATABASE_REPOSITORIES = [
@@ -44,5 +46,9 @@ export const DATABASE_REPOSITORIES = [
   {
     provide: REPOSITORY_TOKENS.BENEFICIENT,
     useClass: TypeORMBeneficientRepository,
+  },
+  {
+    provide: REPOSITORY_TOKENS.ASSIGNATION,
+    useClass: TypeORMAssignationRepository,
   },
 ];

@@ -4,9 +4,9 @@ import { IsNumber, IsOptional, Min } from 'class-validator';
 export class PaginationDto {
   @IsOptional()
   @IsNumber()
-  @Min(1)
+  @Min(0)
   @Type(() => Number)
-  offset: number = 1;
+  offset: number = 0;
   @IsOptional()
   @IsNumber()
   @Min(10)
