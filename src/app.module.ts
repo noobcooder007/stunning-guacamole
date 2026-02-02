@@ -8,7 +8,7 @@ import { LoggerMiddleware } from '@/shared/infrastructure/middlewares/logging.mi
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}.local`,
+      envFilePath: `.env.development.local`,
       isGlobal: true,
     }),
     DatabaseModule,
