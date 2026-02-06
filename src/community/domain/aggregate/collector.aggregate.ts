@@ -1,7 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { v7 as uuidv7 } from 'uuid';
-import { DomainException } from '@/shared/domain/exceptions/domain.exception';
-import { ErrorType } from '@/shared/domain/dto/result.dto';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { Address } from '@/community/domain/value-objects/address.vo';
@@ -10,7 +8,7 @@ import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
 import { AssignationId } from '@/community/domain/aggregate/assignation.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
-import { DesactivateAssignationsEvent } from '@/community/application/events/desactivate-assignation.event';
+import { CollectorDesactivatedEvent } from '@/community/application/events/collector-desactivated.event';
 
 export class CollectorId extends ValueObject<string> {
   private constructor(value: string) {
@@ -207,35 +205,11 @@ export class Collector extends AggregateRoot {
     ]);
   }
 
-  public desactivate() {
+  public deactivate() {
+    if (!this.props.isActive) return;
     this.props.isActive = false;
-    const assignationsAffected = Array.from(this.props.assignations).map((a) =>
-      a.unpack(),
-    );
-    this.props.assignations.clear();
     this.apply(
-      new DesactivateAssignationsEvent(
-        this.id.unpack(),
-        assignationsAffected,
-        'Collector desactivated',
-      ),
-    );
-  }
-
-  public removeAssignation(assignationId: AssignationId, reason: string) {
-    if (!this.props.assignations.has(assignationId))
-      throw new DomainException(
-        'Assignation not found',
-        Collector.name,
-        ErrorType.VALIDATION,
-      );
-    this.props.assignations.delete(assignationId);
-    this.apply(
-      new DesactivateAssignationsEvent(
-        this.id.unpack(),
-        [assignationId.unpack()],
-        reason,
-      ),
+      new CollectorDesactivatedEvent(this.id.unpack(), 'Collector deactivated'),
     );
   }
 

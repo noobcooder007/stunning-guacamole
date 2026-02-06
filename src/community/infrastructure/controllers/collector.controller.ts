@@ -17,9 +17,10 @@ import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { profileMulterOptions } from '@/shared/infrastructure/interceptors/multer.constants';
 import { validateImageFile } from '@/shared/infrastructure/utils/file-validator.util';
 import { CreateCollectorCommand } from '@/community/application/command/create-collector.command';
+import { DeactivateCollectorCommand } from '@/community/application/command/deactivate-collector.command';
 import { GetCollectorQueryParams } from '@/community/application/query/get-collector-paginated.query';
-import { CreateCollectorDto } from '@/community/application/dto/create-collector.dto';
 import { GetCollectorByIdQuery } from '@/community/application/query/get-collector-by-id.query';
+import { CreateCollectorDto } from '@/community/application/dto/create-collector.dto';
 
 @Controller('collector')
 export class CollectorController {
@@ -87,5 +88,17 @@ export class CollectorController {
   @Auth()
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.queryBus.execute(new GetCollectorByIdQuery(id));
+  }
+
+  @Post(':id/deactivate')
+  @Auth()
+  desactivate(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.commandBus.execute(new DeactivateCollectorCommand(id));
+  }
+
+  @Post(':id/reactivate')
+  @Auth()
+  reactivate(@Param('id', new ParseUUIDPipe()) id: string) {
+    return;
   }
 }

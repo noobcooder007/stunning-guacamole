@@ -92,4 +92,17 @@ export class TypeORMAssignationRepository
     }
     return assignations.map((a) => AssignationMapper.toDomain(a));
   }
+
+  async findActivesByCollectorId(collectorId: string): Promise<Assignation[]> {
+    const assignations = await this.repository.find({
+      where: {
+        collectorId: collectorId,
+        isActive: true,
+      },
+    });
+    if (!assignations) {
+      return [];
+    }
+    return assignations.map((a) => AssignationMapper.toDomain(a));
+  }
 }

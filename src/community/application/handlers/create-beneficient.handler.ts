@@ -5,10 +5,16 @@ import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
-import { BeneficientMapper } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
 import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { IChurchRepository } from '@/community/domain/repositories/church.repository';
 import { CreateBeneficientResponse } from '@/community/application/dto/create-beneficient.response';
+import { Beneficient } from '@/community/domain/aggregate/beneficient.aggregate';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
+import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
+import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 
 @CommandHandler(CreateBeneficientCommand)
 export class CreateBeneficientHandler extends BaseCommandHandler<
@@ -48,9 +54,8 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
     command.addressHash = addressHash;
     command.emailHash = emailHash;
     command.rfcHash = rfcHash;
-    const beneficient = BeneficientMapper.commandToDomain(command);
     const [exists] = await Promise.all([
-      this.beneficientRepository.exists(beneficient),
+      this.beneficientRepository.exists({ ...command }),
     ]);
     if (exists) {
       return Result.fail({
@@ -59,6 +64,24 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
         entity: CreateBeneficientHandler.name,
       });
     }
+    const beneficient = Beneficient.create({
+      ...command,
+      address: Address.of({
+        street: command.street,
+        numeration: Numeration.of({
+          noExt: command.noExt,
+          noInt: command.noInt,
+        }),
+        neighborhood: command.neighborhood,
+        locality: command.locality,
+        city: command.city,
+        state: command.state,
+        zipCode: ZipCode.of(command.zipCode),
+      }),
+      church: ChurchId.of(command.churchId),
+      createdAt: undefined,
+      isActive: false,
+    });
     await this.beneficientRepository.save(beneficient);
     return Result.ok({
       id: beneficient._id.unpack(),

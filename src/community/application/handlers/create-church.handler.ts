@@ -31,6 +31,23 @@ export class CreateChurchHandler extends BaseCommandHandler<
   protected async process(
     command: CreateChurchCommand,
   ): Promise<Result<{ id: string }>> {
+    const exists = await this.churchRepository.exists({
+      vicaria: command.ecclesialIdentity.vicaria,
+      decanato: command.ecclesialIdentity.decanato,
+      parroquia: command.ecclesialIdentity.parroquia,
+      capilla: command.ecclesialIdentity.capilla,
+      street: command.address.street,
+      noExt: command.address.noExt,
+      city: command.address.city,
+      state: command.address.state,
+      zipCode: command.address.zipCode,
+    });
+    if (exists) {
+      throw new ConflictException(
+        'Church already exists',
+        CreateChurchHandler.name,
+      );
+    }
     const church = Church.create({
       ecclesialIdentity: EcclesialIdentity.of({
         name: command.ecclesialIdentity.name,
@@ -64,13 +81,6 @@ export class CreateChurchHandler extends BaseCommandHandler<
       isActive: true,
       createdAt: new Date(),
     });
-    const exists = await this.churchRepository.exists(church);
-    if (exists) {
-      throw new ConflictException(
-        'Church already exists',
-        CreateChurchHandler.name,
-      );
-    }
     await this.churchRepository.save(church);
     return Result.ok({
       id: church._id.unpack(),

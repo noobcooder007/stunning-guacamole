@@ -11,6 +11,16 @@ import { ICollectorRepository } from '@/community/domain/repositories/collector.
 import { CreateCollectorResponse } from '@/community/application/dto/create-collector.response';
 import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
 import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
+import { Collector } from '@/community/domain/aggregate/collector.aggregate';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
+import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
+import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
+import { NSS } from '@/community/domain/value-objects/nss.vo';
+import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
+import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 
 @CommandHandler(CreateCollectorCommand)
 export class CreateCollectorHandler extends BaseCommandHandler<
@@ -58,18 +68,55 @@ export class CreateCollectorHandler extends BaseCommandHandler<
       command.addressHash = addressHash;
       command.phoneNumberHash = phoneNumberHash;
       command.telephoneNumberHash = telephoneNumberHash;
-      const collectorToSave = CollectorMapper.commandToDomain(
-        command,
-        resultCreateUser.value as string,
-      );
-      const collectorExists =
-        await this.collectorRepository.exists(collectorToSave);
+      const collectorExists = await this.collectorRepository.exists({
+        firstname: command.firstname,
+        firstLastname: command.firstLastname,
+        secondLastname: command.secondLastname,
+        addressHash: command.addressHash,
+        phoneNumberHash: command.phoneNumberHash,
+        telephoneNumberHash: command.telephoneNumberHash,
+        nssHash: command.nssHash,
+      });
       if (collectorExists) {
         throw new ConflictException(
           'Collector already exists',
           CollectorMapper.name,
         );
       }
+      const collectorToSave = Collector.create({
+        firstname: command.firstname,
+        firstLastname: command.firstLastname,
+        secondLastname: command.secondLastname,
+        address: Address.of({
+          street: command.street,
+          numeration: Numeration.of({
+            noExt: command.noExt,
+            noInt: command.noInt,
+          }),
+          neighborhood: command.neighborhood,
+          locality: command.locality,
+          city: command.city,
+          state: command.state,
+          zipCode: ZipCode.of(command.zipCode),
+        }),
+        addressHash: command.addressHash,
+        phoneNumber: PhoneNumber.of(command.phoneNumber),
+        phoneNumberHash: command.phoneNumberHash,
+        telephoneNumber: PhoneNumber.of(command.telephoneNumber),
+        telephoneNumberHash: command.telephoneNumberHash,
+        nss: NSS.of(command.nss),
+        nssHash: command.nssHash,
+        paymentData: PaymentData.of({
+          commissionPercent: command.commissionPercent,
+          bank: command.bank,
+          reference: command.reference,
+        }),
+        notes: command.notes,
+        profilePath: command.profilePath,
+        userId: UserId.of(resultCreateUser.value as string),
+        createdAt: undefined,
+        isActive: false,
+      });
       await this.collectorRepository.save(collectorToSave);
       collectorId = collectorToSave._id.unpack();
     });

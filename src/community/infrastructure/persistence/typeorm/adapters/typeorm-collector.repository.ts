@@ -1,10 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, FindOptionsWhere } from 'typeorm';
 import { BaseRepository } from '@/database/base.repository';
 import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
 import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
+
+export interface CollectorFilters {
+  id?: string;
+  firstname?: string;
+  firstLastname?: string;
+  secondLastname?: string | null;
+  addressHash?: string;
+  phoneNumberHash?: string;
+  telephoneNumberHash?: string;
+  nssHash?: string;
+}
 
 @Injectable()
 export class TypeORMCollectorRepository
@@ -15,28 +26,39 @@ export class TypeORMCollectorRepository
     super(datasource, CollectorSchema);
   }
 
-  async exists(collector: Collector): Promise<boolean> {
-    const exists = await this.repository.findOne({
-      where: [
-        {
-          firstname: collector.firstname,
-          firstLastname: collector.firstLastname,
-          secondLastname: collector.secondLastname,
-        },
-        {
-          addressHash: collector.addressHash,
-        },
-        {
-          phoneNumberHash: collector.phoneNumberHash,
-        },
-        {
-          telephoneNumberHash: collector.telephoneNumberHash,
-        },
-        {
-          nssHash: collector.nssHash,
-        },
-      ],
-    });
+  async exists(filters: CollectorFilters): Promise<boolean> {
+    if (filters.id) {
+      return await this.repository.exists({ where: { id: filters.id } });
+    }
+    const where: FindOptionsWhere<CollectorSchema>[] = [];
+    if (filters.firstname && filters.firstLastname && filters.secondLastname) {
+      where.push({
+        firstname: filters.firstname,
+        firstLastname: filters.firstLastname,
+        secondLastname: filters.secondLastname,
+      });
+    }
+    if (filters.addressHash) {
+      where.push({
+        addressHash: filters.addressHash,
+      });
+    }
+    if (filters.phoneNumberHash) {
+      where.push({
+        phoneNumberHash: filters.phoneNumberHash,
+      });
+    }
+    if (filters.telephoneNumberHash) {
+      where.push({
+        telephoneNumberHash: filters.telephoneNumberHash,
+      });
+    }
+    if (filters.nssHash) {
+      where.push({
+        nssHash: filters.nssHash,
+      });
+    }
+    const exists = await this.repository.exists({ where });
     return !!exists;
   }
 

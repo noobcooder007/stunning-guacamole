@@ -1,10 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
-import {
-  AuthResponse,
-  SessionDto,
-  UserDto,
-} from '@/auth/application/dto/auth.response';
+import { AuthResponse } from '@/auth/application/dto/auth.response';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
 import { JWTService } from '@/auth/application/services/jwt.service';
@@ -93,23 +89,22 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
-    const session = new AuthResponse({
-      user: new UserDto({
-        username: user.username,
-        role: resultTokenResult.value.roleName,
-      }),
-      tokens: new SessionDto({
-        accessToken: resultTokenResult.value.rawAccessToken,
-        refreshToken: resultTokenResult.value.rawRefreshToken,
-        expiresIn: Number(
-          new Date(Date.now() + this.jwtService.ACCESSTOKENVALIDITYMS),
-        ),
-        refreshExpiresIn: Number(
-          new Date(Date.now() + this.jwtService.REFRESHTOKENVALIDITYMS),
-        ),
-        sessionId: resultTokenResult.value.sessionId.toString(),
-      }),
-    });
+    const session = new AuthResponse();
+    session.user = {
+      username: user.username,
+      role: resultTokenResult.value.roleName,
+    };
+    session.tokens = {
+      accessToken: resultTokenResult.value.rawAccessToken,
+      refreshToken: resultTokenResult.value.rawRefreshToken,
+      expiresIn: Number(
+        new Date(Date.now() + this.jwtService.ACCESSTOKENVALIDITYMS),
+      ),
+      refreshExpiresIn: Number(
+        new Date(Date.now() + this.jwtService.REFRESHTOKENVALIDITYMS),
+      ),
+      sessionId: resultTokenResult.value.sessionId.toString(),
+    };
     return Result.ok<AuthResponse>(session);
   }
 

@@ -3,7 +3,6 @@ import {
   Address,
   Numeration,
 } from '@/community/domain/value-objects/address.vo';
-import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
 import { BeneficientResponse } from '@/community/application/dto/beneficient.response';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
@@ -73,43 +72,6 @@ export class BeneficientMapper {
       isActive: beneficient.isActive,
       reasonDeactivated: beneficient.reasonDeactivated,
     };
-  }
-
-  static commandToDomain(raw: CreateBeneficientCommand): Beneficient {
-    return Beneficient.create({
-      title: raw.title,
-      firstname: raw.firstname,
-      firstLastname: raw.firstLastname,
-      secondLastname: raw.secondLastname,
-      birthday: raw.birthday,
-      genre: raw.genre,
-      maritalStatus: raw.maritalStatus,
-      address: Address.of({
-        street: raw.street,
-        numeration: Numeration.of({
-          noExt: raw.noExt,
-          noInt: raw.noInt,
-        }),
-        neighborhood: raw.neighborhood,
-        locality: raw.locality,
-        city: raw.city,
-        state: raw.state,
-        zipCode: ZipCode.of(raw.zipCode),
-      }),
-      addressHash: raw.addressHash,
-      createdAt: new Date(),
-      isActive: true,
-      weddingAniversary: raw.weddingAniversary,
-      church: ChurchId.of(raw.churchId),
-      email: raw.email,
-      emailHash: raw.emailHash,
-      taxInformation: TaxInformation.of({
-        person: raw.person,
-        registeredName: raw.registeredName,
-        rfc: raw.rfc,
-        rfcHash: raw.rfcHash,
-      }),
-    });
   }
 
   static toDomain(raw: IBeneficientPersistence): Beneficient {

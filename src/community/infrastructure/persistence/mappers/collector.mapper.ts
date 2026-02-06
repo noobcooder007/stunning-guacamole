@@ -3,7 +3,6 @@ import {
   Address,
   Numeration,
 } from '@/community/domain/value-objects/address.vo';
-import { CreateCollectorCommand } from '@/community/application/command/create-collector.command';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
@@ -78,44 +77,6 @@ export class CollectorMapper {
       isActive: collector.isActive,
       profilePath: collector.profilePath,
     };
-  }
-
-  public static commandToDomain(
-    raw: CreateCollectorCommand,
-    userId: string,
-  ): Collector {
-    return Collector.create({
-      userId: UserId.of(userId),
-      firstname: raw.firstname,
-      firstLastname: raw.firstLastname,
-      secondLastname: raw.secondLastname,
-      nss: NSS.of(raw.nss),
-      nssHash: raw.nssHash,
-      phoneNumber: PhoneNumber.of(raw.phoneNumber),
-      phoneNumberHash: raw.phoneNumberHash,
-      paymentData: PaymentData.of({
-        commissionPercent: raw.commissionPercent,
-        bank: raw.bank,
-        reference: raw.reference,
-      }),
-      notes: raw.notes,
-      address: Address.of({
-        street: raw.street,
-        numeration: Numeration.of({
-          noExt: raw.noExt,
-          noInt: raw.noInt,
-        }),
-        neighborhood: raw.neighborhood,
-        locality: raw.locality,
-        city: raw.city,
-        state: raw.state,
-        zipCode: ZipCode.of(raw.zipCode),
-      }),
-      addressHash: raw.addressHash,
-      createdAt: new Date(),
-      isActive: true,
-      profilePath: raw.profilePath,
-    });
   }
 
   public static toDomain(raw: ICollectorPersistence): Collector {

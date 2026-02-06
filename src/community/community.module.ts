@@ -21,6 +21,7 @@ import { GetBeneficientByIdHandler } from '@/community/application/handlers/get-
 import { GetBeneficientPaginatedHandler } from '@/community/application/handlers/get-beneficient-paginated.handler';
 import { GetCollectorByIdHandler } from '@/community/application/handlers/get-collector-by-id.handler';
 import { GetCollectorPaginatedHandler } from '@/community/application/handlers/get-collector-paginated.handler';
+import { DeactivateCollectorHanlder } from '@/community/application/handlers/desactivate-collector.handler';
 import { CreateChurchHandler } from '@/community/application/handlers/create-church.handler';
 import { CreateBeneficientHandler } from '@/community/application/handlers/create-beneficient.handler';
 import { CreateCollectorHandler } from '@/community/application/handlers/create-collector.handler';
@@ -55,6 +56,7 @@ import { DesactivateAssignationEventHandler } from '@/community/application/hand
     GetBeneficientByIdHandler,
     GetCollectorPaginatedHandler,
     GetCollectorByIdHandler,
+    DeactivateCollectorHanlder,
     GetChurchPaginatedHandler,
     GetChurchByIdHandler,
     UpdateChurchHandler,

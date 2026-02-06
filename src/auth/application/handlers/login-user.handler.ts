@@ -1,7 +1,7 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { Session } from '@/auth/domain/aggregates/session.aggregate';
-import { AuthResponse, SessionDto } from '@/auth/application/dto/auth.response';
+import { AuthResponse } from '@/auth/application/dto/auth.response';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
 import { IPasswordHasher } from '@/auth/domain/services/password.hasher.service';
@@ -15,7 +15,6 @@ import { IPermissionRepository } from '@/auth/application/repositories/permissio
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { User } from '@/auth/domain/aggregates/user.aggregate';
-import { UserDto } from '@/auth/application/dto/auth.response';
 import { SessionId } from '@/auth/domain/aggregates/session.aggregate';
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
@@ -76,23 +75,22 @@ export class LoginUserHandler extends BaseCommandHandler<
     }
     const { rawAccessToken, rawRefreshToken, sessionId, role } =
       await this.generateTokens(user, context);
-    const session = new AuthResponse({
-      user: new UserDto({
-        username: user.username,
-        role: role,
-      }),
-      tokens: new SessionDto({
-        accessToken: rawAccessToken,
-        refreshToken: rawRefreshToken,
-        expiresIn: Number(
-          new Date(Date.now() + this.jwtService.ACCESSTOKENVALIDITYMS),
-        ),
-        refreshExpiresIn: Number(
-          new Date(Date.now() + this.jwtService.REFRESHTOKENVALIDITYMS),
-        ),
-        sessionId: sessionId.toString(),
-      }),
-    });
+    const session = new AuthResponse();
+    session.user = {
+      username: user.username,
+      role: role,
+    };
+    session.tokens = {
+      accessToken: rawAccessToken,
+      refreshToken: rawRefreshToken,
+      expiresIn: Number(
+        new Date(Date.now() + this.jwtService.ACCESSTOKENVALIDITYMS),
+      ),
+      refreshExpiresIn: Number(
+        new Date(Date.now() + this.jwtService.REFRESHTOKENVALIDITYMS),
+      ),
+      sessionId: sessionId.toString(),
+    };
     return Result.ok<AuthResponse>(session);
   }
 

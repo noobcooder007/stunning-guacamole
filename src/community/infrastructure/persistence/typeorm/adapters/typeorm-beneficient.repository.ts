@@ -1,10 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, In } from 'typeorm';
+import { DataSource, FindOptionsWhere, In } from 'typeorm';
 import { Beneficient } from '@/community/domain/aggregate/beneficient.aggregate';
 import { BaseRepository } from '@/database/base.repository';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { BeneficientMapper } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
+
+export interface BeneficientFilters {
+  firstname?: string;
+  firstLastname?: string;
+  secondLastname?: string;
+  addressHash?: string;
+  emailHash?: string;
+  rfcHash?: string;
+}
 
 @Injectable()
 export class TypeORMBeneficientRepository
@@ -38,25 +47,19 @@ export class TypeORMBeneficientRepository
     });
   }
 
-  async exists(beneficient: Beneficient): Promise<boolean> {
-    const exists = await this.repository.findOne({
-      where: [
-        {
-          firstname: beneficient.firstname,
-          firstLastname: beneficient.firstLastname,
-          secondLastname: beneficient.secondLastname,
-        },
-        {
-          addressHash: beneficient.addressHash,
-        },
-        {
-          emailHash: beneficient.emailHash,
-        },
-        {
-          rfcHash: beneficient.taxInformation.rfcHash,
-        },
-      ],
-    });
+  async exists(filters: BeneficientFilters): Promise<boolean> {
+    const where: FindOptionsWhere<BeneficientSchema>[] = [];
+    if (filters.firstname && filters.firstLastname && filters.secondLastname) {
+      where.push({
+        firstname: filters.firstname,
+        firstLastname: filters.firstLastname,
+        secondLastname: filters.secondLastname,
+      });
+    }
+    if (filters.addressHash) where.push({ addressHash: filters.addressHash });
+    if (filters.emailHash) where.push({ emailHash: filters.emailHash });
+    if (filters.rfcHash) where.push({ rfcHash: filters.rfcHash });
+    const exists = await this.repository.exists({ where });
     return !!exists;
   }
 

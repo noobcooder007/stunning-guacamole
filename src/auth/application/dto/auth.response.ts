@@ -5,9 +5,6 @@ export class UserDto {
   username: string;
   @Expose()
   role: string;
-  constructor(partial: Partial<UserDto>) {
-    Object.assign(this, partial);
-  }
 }
 
 export class SessionDto {
@@ -21,9 +18,6 @@ export class SessionDto {
   refreshExpiresIn: number;
   @Expose()
   sessionId: string;
-  constructor(partial: Partial<SessionDto>) {
-    Object.assign(this, partial);
-  }
 }
 
 export class AuthResponse {
@@ -33,7 +27,4 @@ export class AuthResponse {
   @Expose()
   @Type(() => SessionDto)
   tokens: SessionDto;
-  constructor(partial: Partial<AuthResponse>) {
-    Object.assign(this, partial);
-  }
 }

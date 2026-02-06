@@ -18,7 +18,7 @@ export class AssignmentController {
     );
   }
 
-  @Post('desactivate')
+  @Post('deactivate')
   @Auth()
   desactivateAssignations(@Body() dto: DesactivateAssignationsDto) {
     return this.commandBus.execute(
