@@ -21,14 +21,15 @@ import { GetBeneficientByIdHandler } from '@/community/application/handlers/get-
 import { GetBeneficientPaginatedHandler } from '@/community/application/handlers/get-beneficient-paginated.handler';
 import { GetCollectorByIdHandler } from '@/community/application/handlers/get-collector-by-id.handler';
 import { GetCollectorPaginatedHandler } from '@/community/application/handlers/get-collector-paginated.handler';
-import { DeactivateCollectorHanlder } from '@/community/application/handlers/desactivate-collector.handler';
+import { DeactivateCollectorHanlder } from '@/community/application/handlers/deactivate-collector.handler';
 import { CreateChurchHandler } from '@/community/application/handlers/create-church.handler';
 import { CreateBeneficientHandler } from '@/community/application/handlers/create-beneficient.handler';
 import { CreateCollectorHandler } from '@/community/application/handlers/create-collector.handler';
 import { UpdateChurchHandler } from '@/community/application/handlers/update-church.handler';
-import { AssignBeneficientToCollectorHandler } from '@/community/application/handlers/assign-beneficient-to-collector.handler';
+import { AssignBeneficientsToCollectorHandler } from '@/community/application/handlers/assign-beneficients-to-collector.handler';
 import { DesactivateAssignationHandler } from '@/community/application/handlers/desactivate-assignation.handler';
 import { DesactivateAssignationEventHandler } from '@/community/application/handlers/desactivate-assignation-event.handler';
+import { ReassignBeneficientsToCollectorHandler } from '@/community/application/handlers/reassign-beneficients-to-collector.handler';
 
 @Module({
   imports: [
@@ -60,8 +61,9 @@ import { DesactivateAssignationEventHandler } from '@/community/application/hand
     GetChurchPaginatedHandler,
     GetChurchByIdHandler,
     UpdateChurchHandler,
-    AssignBeneficientToCollectorHandler,
+    AssignBeneficientsToCollectorHandler,
     DesactivateAssignationHandler,
+    ReassignBeneficientsToCollectorHandler,
     DesactivateAssignationEventHandler,
     BeneficientQueryService,
     CollectorQueryService,

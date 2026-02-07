@@ -24,7 +24,7 @@ export class DesactivateAssignationHandler extends BaseCommandHandler<
     command: DesactivateAssignationsCommand,
   ): Promise<Result<void>> {
     await this.uow.runInTransaction(async () => {
-      const result = await this.assignationService.desactivateAssignations(
+      const result = await this.assignationService.deactivate(
         command.desactivateAssignations,
       );
       if (!result.isSuccess) {

@@ -9,7 +9,7 @@ import { IAssignamentService } from '@/community/domain/services/assignament.ser
 import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 
 @CommandHandler(AssignBeneficientsCommand)
-export class AssignBeneficientToCollectorHandler extends BaseCommandHandler<
+export class AssignBeneficientsToCollectorHandler extends BaseCommandHandler<
   AssignBeneficientsCommand,
   AssignationReportResponse
 > {
@@ -26,7 +26,7 @@ export class AssignBeneficientToCollectorHandler extends BaseCommandHandler<
   ): Promise<Result<AssignationReportResponse, IErrorResult>> {
     let assignationReport: AssignationReportResponse;
     await this.uow.runInTransaction(async () => {
-      const result = await this.assignationService.assignBeneficientToCollector(
+      const result = await this.assignationService.createOrReactivate(
         command.collectorId,
         command.beneficientsIds,
       );

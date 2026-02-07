@@ -1,17 +1,18 @@
 import { IErrorResult, Result } from '@/shared/domain/dto/result.dto';
 import { AssignationReportResponse } from '@/community/application/dto/assignation-report.response';
 
-export interface IDesactivateAssignation {
+export interface IDeactivateAssignation {
   assignationId: string;
   reason: string;
 }
 
 export abstract class IAssignamentService {
-  abstract assignBeneficientToCollector(
+  abstract createOrReactivate(
     collectorId: string,
     beneficientsIds: string[],
+    options?: { validateCollector?: boolean },
   ): Promise<Result<AssignationReportResponse, IErrorResult>>;
-  abstract desactivateAssignations(
-    assignations: IDesactivateAssignation[],
+  abstract deactivate(
+    assignations: IDeactivateAssignation[],
   ): Promise<Result<void, IErrorResult>>;
 }

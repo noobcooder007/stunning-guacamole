@@ -26,6 +26,10 @@ export class TypeORMCollectorRepository
     super(datasource, CollectorSchema);
   }
 
+  async isActive(id: string): Promise<boolean> {
+    return await this.repository.exists({ where: { id, isActive: true } });
+  }
+
   async exists(filters: CollectorFilters): Promise<boolean> {
     if (filters.id) {
       return await this.repository.exists({ where: { id: filters.id } });

@@ -29,10 +29,10 @@ export class DeactivateCollectorHanlder extends BaseCommandHandler<
     const collectorExists = await this.collectorRepository.exists({
       id: command.collectorId,
     });
-    if (!collectorExists) {
+    if (collectorExists) {
       return Result.fail({
         type: ErrorType.NOT_FOUND,
-        message: 'Collector not found',
+        message: 'Collector not found or deactivated',
         entity: DeactivateCollectorHanlder.name,
       });
     }

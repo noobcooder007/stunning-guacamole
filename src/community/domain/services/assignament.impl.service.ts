@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   IAssignamentService,
-  IDesactivateAssignation,
+  IDeactivateAssignation,
 } from '@/community/domain/services/assignament.service';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import {
@@ -18,6 +18,7 @@ import { IAssignationRepository } from '@/community/domain/repositories/assignat
 import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
 import { AssignationReportResponse } from '@/community/application/dto/assignation-report.response';
+import { Collector } from '@/community/domain/aggregate/collector.aggregate';
 
 @Injectable()
 export class AssignamentService implements IAssignamentService {
@@ -32,10 +33,22 @@ export class AssignamentService implements IAssignamentService {
     private readonly assignationRepository: IAssignationRepository,
   ) {}
 
-  async assignBeneficientToCollector(
+  async createOrReactivate(
     collectorId: string,
     beneficientsIds: string[],
+    { validateCollector = true }: { validateCollector?: boolean } = {},
   ): Promise<Result<AssignationReportResponse, IErrorResult>> {
+    if (validateCollector) {
+      const isTargetActive =
+        await this.collectorRepository.isActive(collectorId);
+      if (!isTargetActive) {
+        return Result.fail({
+          message: 'Collector not found',
+          type: ErrorType.NOT_FOUND,
+          entity: Collector.name,
+        });
+      }
+    }
     const beneficientsExists =
       await this.beneficientRepository.inIds(beneficientsIds);
     if (beneficientsExists.length !== beneficientsIds.length)
@@ -150,8 +163,8 @@ export class AssignamentService implements IAssignamentService {
     });
   }
 
-  async desactivateAssignations(
-    assignationsToDesactivate: IDesactivateAssignation[],
+  async deactivate(
+    assignationsToDesactivate: IDeactivateAssignation[],
   ): Promise<Result<void, IErrorResult>> {
     const ids = assignationsToDesactivate.map((a) => a.assignationId);
     const assignations = await this.assignationRepository.findActivesByIds(ids);

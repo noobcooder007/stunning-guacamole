@@ -5,6 +5,7 @@ import { Assignation } from '@/community/domain/aggregate/assignation.aggregate'
 export abstract class IAssignationRepository {
   abstract save(assignation: Assignation): Promise<void>;
   abstract save(assignations: Assignation[]): Promise<void>;
+  abstract findActivesByIds(ids: string[]): Promise<Assignation[]>;
   abstract findByCollectorIdWithAssignations(
     collectorId: string,
     beneficientsIds: string[],
@@ -17,7 +18,9 @@ export abstract class IAssignationRepository {
     collectorId: string,
     beneficientIds: string[],
   ): Promise<Assignation[]>;
-  abstract findActivesByIds(beneficientsIds: string[]): Promise<Assignation[]>;
+  abstract findActivesByBeneficientsIds(
+    beneficientsIds: string[],
+  ): Promise<Assignation[]>;
   abstract findActivesByCollectorId(
     collectorId: string,
   ): Promise<Assignation[]>;

@@ -4,6 +4,7 @@ import { CollectorFilters } from '@/community/infrastructure/persistence/typeorm
 
 @Injectable()
 export abstract class ICollectorRepository {
+  abstract isActive(id: string): Promise<boolean>;
   abstract exists(collector: CollectorFilters): Promise<boolean>;
   abstract findById(id: string): Promise<Collector | null>;
   abstract findByIdWithAssignations(id: string): Promise<Collector | null>;

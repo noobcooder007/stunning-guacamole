@@ -1,5 +1,5 @@
 import { Exclude, Expose, Type } from 'class-transformer';
-import { AddressResponseDto } from './address.response';
+import { AddressResponseDto } from '@/community/application/dto/address.response';
 import { MaskHelper } from '@/shared/infrastructure/utils/mask-helper.util';
 
 @Exclude()

@@ -1,4 +1,4 @@
-interface IDesactivateAssignation {
+export interface IDesactivateAssignation {
   assignationId: string;
   reason: string;
 }
