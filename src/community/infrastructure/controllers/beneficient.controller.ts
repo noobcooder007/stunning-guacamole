@@ -12,6 +12,7 @@ import { GetBeneficientQueryParams } from '@/community/application/query/get-ben
 import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
 import { CreateBeneficientDto } from '@/community/application/dto/create-beneficient.dto';
 import { GetBeneficientByIdQuery } from '@/community/application/query/get-beneficient-by-id.query';
+import { GetBeneficientQueryDto } from '../../application/dto/get-beneficients-query.dto';
 
 @Controller('beneficient')
 export class BeneficientController {
@@ -51,8 +52,19 @@ export class BeneficientController {
 
   @Get()
   @Auth()
-  async findAll(@Body() params: GetBeneficientQueryParams) {
-    return await this.queryBus.execute(params);
+  async findAll(@Body() params: GetBeneficientQueryDto) {
+    return await this.queryBus.execute(
+      new GetBeneficientQueryParams(
+        params.firstname,
+        params.firstLastname,
+        params.secondLastname,
+        params.city,
+        params.state,
+        params.zipCode,
+        params.offset,
+        params.limit,
+      ),
+    );
   }
 
   @Get(':id')

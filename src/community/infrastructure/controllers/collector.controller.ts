@@ -21,6 +21,7 @@ import { DeactivateCollectorCommand } from '@/community/application/command/deac
 import { GetCollectorQueryParams } from '@/community/application/query/get-collector-paginated.query';
 import { GetCollectorByIdQuery } from '@/community/application/query/get-collector-by-id.query';
 import { CreateCollectorDto } from '@/community/application/dto/create-collector.dto';
+import { GetCollectorsQueryDto } from '@/community/application/dto/get-collectors-query.dto';
 
 @Controller('collector')
 export class CollectorController {
@@ -80,8 +81,19 @@ export class CollectorController {
 
   @Get()
   @Auth()
-  findAll(@Body() params: GetCollectorQueryParams) {
-    return this.queryBus.execute(params);
+  findAll(@Body() params: GetCollectorsQueryDto) {
+    return this.queryBus.execute(
+      new GetCollectorQueryParams(
+        params.firstname,
+        params.firstLastname,
+        params.secondLastname,
+        params.city,
+        params.state,
+        params.zipCode,
+        params.offset,
+        params.limit,
+      ),
+    );
   }
 
   @Get(':id')

@@ -1,17 +1,30 @@
-import { IsOptional } from 'class-validator';
-import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
+export class GetCollectorQueryParams {
+  readonly firstname: string;
+  readonly firstLastname: string;
+  readonly secondLastname: string;
+  readonly city: string;
+  readonly state: string;
+  readonly zipCode: string;
+  readonly offset: number;
+  readonly limit: number;
 
-export class GetCollectorQueryParams extends PaginationDto {
-  @IsOptional()
-  firstname: string;
-  @IsOptional()
-  firstLastname: string;
-  @IsOptional()
-  secondLastname: string;
-  @IsOptional()
-  city: string;
-  @IsOptional()
-  state: string;
-  @IsOptional()
-  zipCode: string;
+  constructor(
+    firstname: string,
+    firstLastname: string,
+    secondLastname: string,
+    city: string,
+    state: string,
+    zipCode: string,
+    offset: number,
+    limit: number,
+  ) {
+    this.firstname = firstname;
+    this.firstLastname = firstLastname;
+    this.secondLastname = secondLastname;
+    this.city = city;
+    this.state = state;
+    this.zipCode = zipCode;
+    this.offset = offset;
+    this.limit = limit;
+  }
 }
