@@ -37,7 +37,7 @@ export class CreateChurchHandler extends BaseCommandHandler<
       parroquia: command.ecclesialIdentity.parroquia,
       capilla: command.ecclesialIdentity.capilla,
       street: command.address.street,
-      noExt: command.address.noExt,
+      noExt: command.address.numeration.noExt,
       city: command.address.city,
       state: command.address.state,
       zipCode: command.address.zipCode,
@@ -59,8 +59,8 @@ export class CreateChurchHandler extends BaseCommandHandler<
       address: Address.of({
         street: command.address.street,
         numeration: Numeration.of({
-          noExt: command.address.noExt,
-          noInt: command.address.noInt,
+          noExt: command.address.numeration.noExt,
+          noInt: command.address.numeration.noInt,
         }),
         neighborhood: command.address.neighborhood,
         city: command.address.city,

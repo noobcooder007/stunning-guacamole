@@ -51,7 +51,7 @@ export class CollectorController {
       dto.firstLastname,
       dto.nss,
       dto.address.street,
-      dto.address.noExt,
+      dto.address.numeration.noExt,
       dto.address.city,
       dto.address.state,
       dto.address.zipCode,
@@ -61,7 +61,7 @@ export class CollectorController {
       dto.reference,
       dto.notes,
       dto.secondLastname,
-      dto.address.noInt,
+      dto.address.numeration.noInt,
       dto.address.neighborhood,
       dto.address.locality,
     );
