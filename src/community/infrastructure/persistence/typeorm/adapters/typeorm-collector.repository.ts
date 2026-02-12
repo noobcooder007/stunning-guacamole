@@ -73,6 +73,13 @@ export class TypeORMCollectorRepository
     return collectorModel ? CollectorMapper.toDomain(collectorModel) : null;
   }
 
+  async findInactiveById(id: string): Promise<Collector | null> {
+    const collectorModel = await this.repository.findOne({
+      where: { id, isActive: false },
+    });
+    return collectorModel ? CollectorMapper.toDomain(collectorModel) : null;
+  }
+
   async findByIdWithAssignations(id: string): Promise<Collector | null> {
     const collectorModel = await this.repository
       .createQueryBuilder('collector')

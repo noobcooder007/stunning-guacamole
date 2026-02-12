@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
@@ -12,7 +13,7 @@ import { GetBeneficientQueryParams } from '@/community/application/query/get-ben
 import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
 import { CreateBeneficientDto } from '@/community/application/dto/create-beneficient.dto';
 import { GetBeneficientByIdQuery } from '@/community/application/query/get-beneficient-by-id.query';
-import { GetBeneficientQueryDto } from '../../application/dto/get-beneficients-query.dto';
+import { GetBeneficientsQueryDto } from '../../application/dto/get-beneficients-query.dto';
 
 @Controller('beneficient')
 export class BeneficientController {
@@ -52,7 +53,7 @@ export class BeneficientController {
 
   @Get()
   @Auth()
-  async findAll(@Body() params: GetBeneficientQueryDto) {
+  async findAll(@Query() params: GetBeneficientsQueryDto) {
     return await this.queryBus.execute(
       new GetBeneficientQueryParams(
         params.firstname,
@@ -61,7 +62,7 @@ export class BeneficientController {
         params.city,
         params.state,
         params.zipCode,
-        params.offset,
+        params.page,
         params.limit,
       ),
     );

@@ -13,7 +13,7 @@ import { AssignationSchema } from '@/community/infrastructure/persistence/typeor
 import { ICollectorPersistence } from '@/community/infrastructure/persistence/mappers/collector.mapper';
 import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 
-@Entity('collector')
+@Entity('collectors')
 @Index(['state', 'city'])
 @Index(['createdAt'])
 @Unique(['firstname', 'firstLastname', 'secondLastname'])

@@ -27,7 +27,9 @@ export abstract class BaseQueryService {
     page: number = 1,
     limit: number = 10,
   ): SelectQueryBuilder<T> {
-    const skip = (page - 1) * limit;
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.max(limit, 1);
+    const skip = (safePage - 1) * safeLimit;
     return qb.skip(skip).take(limit);
   }
 

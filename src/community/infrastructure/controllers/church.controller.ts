@@ -6,11 +6,13 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateChurchCommand } from '@/community/application/command/create-church.command';
 import { GetChurchByIdQuery } from '@/community/application/query/get-church-by-id.query';
 import { GetChurchQueryParams } from '@/community/application/query/get-church-paginated.query';
+import { GetChurchesQueryDto } from '../../application/dto/get-churches-query.dto';
 import {
   UpdateChurchAddressCommand,
   UpdateChurchEcclesialIdentityCommand,
@@ -119,8 +121,18 @@ export class ChurchController {
 
   // @Auth(ValidPermitions.LIST_CHURCH)
   @Get()
-  async findAll(@Body() pagination: GetChurchQueryParams) {
-    return await this.queryBus.execute(pagination);
+  async findAll(@Query() query: GetChurchesQueryDto) {
+    return await this.queryBus.execute(
+      new GetChurchQueryParams(
+        query.name,
+        query.capilla,
+        query.parroquia,
+        query.decanato,
+        query.vicaria,
+        query.page,
+        query.limit,
+      ),
+    );
   }
 
   // @Auth(ValidPermitions.VIEW_CHURCH)

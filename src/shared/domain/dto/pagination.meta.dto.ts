@@ -10,7 +10,7 @@ export class PaginationMetaDto {
     this.page = page;
     this.limit = limit;
     this.itemCount = itemCount;
-    this.pageCount = Math.ceil(this.itemCount / this.limit);
+    this.pageCount = itemCount > 0 ? Math.ceil(this.itemCount / this.limit) : 0;
     this.hasPreviousPage = this.page > 1;
     this.hasNextPage = this.page < this.pageCount;
   }

@@ -13,7 +13,7 @@ import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/sch
 import { IBeneficientPersistence } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
 import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 
-@Entity('beneficient')
+@Entity('beneficients')
 @Index(['state', 'city'])
 @Index(['createdAt'])
 @Unique(['firstname', 'firstLastname', 'secondLastname'])

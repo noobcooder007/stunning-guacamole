@@ -33,7 +33,9 @@ export class TypeORMBeneficientRepository
     const beneficientModel = await this.repository.findOne({
       where: { id },
     });
-    return BeneficientMapper.toDomain(beneficientModel);
+    return beneficientModel
+      ? BeneficientMapper.toDomain(beneficientModel)
+      : null;
   }
 
   async findAll(offset: number, limit: number): Promise<Beneficient[] | []> {

@@ -1,9 +1,11 @@
-import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
-import { IsOptional } from 'class-validator';
-
-export class GetChurchQueryParams extends PaginationDto {
-  @IsOptional()
-  name: string;
-  @IsOptional()
-  capilla: string;
+export class GetChurchQueryParams {
+  constructor(
+    readonly name?: string,
+    readonly capilla?: string,
+    readonly parroquia?: string,
+    readonly decanato?: string,
+    readonly vicaria?: string,
+    readonly page?: number,
+    readonly limit?: number,
+  ) {}
 }

@@ -15,6 +15,7 @@ import { AssignamentService } from '@/community/domain/services/assignament.impl
 import { ChurchQueryService } from '@/community/infrastructure/service/church.query.service';
 import { BeneficientQueryService } from '@/community/infrastructure/service/beneficient.query.service';
 import { CollectorQueryService } from '@/community/infrastructure/service/collector.query.service';
+import { AssignationQueryService } from '@/community/infrastructure/service/assignation.query.service';
 import { GetChurchByIdHandler } from '@/community/application/handlers/get-church-by-id.handler';
 import { GetChurchPaginatedHandler } from '@/community/application/handlers/get-church-paginated.handler';
 import { GetBeneficientByIdHandler } from '@/community/application/handlers/get-beneficient-by-id.handler';
@@ -22,6 +23,7 @@ import { GetBeneficientPaginatedHandler } from '@/community/application/handlers
 import { GetCollectorByIdHandler } from '@/community/application/handlers/get-collector-by-id.handler';
 import { GetCollectorPaginatedHandler } from '@/community/application/handlers/get-collector-paginated.handler';
 import { DeactivateCollectorHanlder } from '@/community/application/handlers/deactivate-collector.handler';
+import { ReactivateCollectorHandler } from '@/community/application/handlers/reactivate-collector.handler';
 import { CreateChurchHandler } from '@/community/application/handlers/create-church.handler';
 import { CreateBeneficientHandler } from '@/community/application/handlers/create-beneficient.handler';
 import { CreateCollectorHandler } from '@/community/application/handlers/create-collector.handler';
@@ -30,6 +32,8 @@ import { AssignBeneficientsToCollectorHandler } from '@/community/application/ha
 import { DesactivateAssignationHandler } from '@/community/application/handlers/desactivate-assignation.handler';
 import { DesactivateAssignationEventHandler } from '@/community/application/handlers/desactivate-assignation-event.handler';
 import { ReassignBeneficientsToCollectorHandler } from '@/community/application/handlers/reassign-beneficients-to-collector.handler';
+import { GetActivesAssignationsHandler } from '@/community/application/handlers/get-actives-assignations.handler';
+import { GetOrphansAssignationsQueryHandler } from './application/handlers/get-orphans-assignations.handler';
 
 @Module({
   imports: [
@@ -58,6 +62,7 @@ import { ReassignBeneficientsToCollectorHandler } from '@/community/application/
     GetCollectorPaginatedHandler,
     GetCollectorByIdHandler,
     DeactivateCollectorHanlder,
+    ReactivateCollectorHandler,
     GetChurchPaginatedHandler,
     GetChurchByIdHandler,
     UpdateChurchHandler,
@@ -65,9 +70,12 @@ import { ReassignBeneficientsToCollectorHandler } from '@/community/application/
     DesactivateAssignationHandler,
     ReassignBeneficientsToCollectorHandler,
     DesactivateAssignationEventHandler,
+    GetActivesAssignationsHandler,
+    GetOrphansAssignationsQueryHandler,
     BeneficientQueryService,
     CollectorQueryService,
     ChurchQueryService,
+    AssignationQueryService,
     {
       provide: 'IAssignamentService',
       useClass: AssignamentService,

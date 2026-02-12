@@ -14,15 +14,13 @@ export class ChurchQueryService extends BaseQueryService {
   }
 
   async searchChurches(query: GetChurchQueryParams): Promise<Paginated<any>> {
-    const { offset, limit, ...filters } = query;
+    const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(ChurchSchema, 'church');
     this.applyFilters(qb, 'church', filters);
-    const [items, total] = await Promise.all([
-      qb.clone().limit(limit).offset(offset).getMany(),
-      qb.clone().getCount(),
-    ]);
+    this.applyPagination(qb, page, limit);
+    const [items, total] = await qb.getManyAndCount();
 
-    const meta = new PaginationMetaDto(offset, limit, total);
+    const meta = new PaginationMetaDto(page, limit, total);
     return new Paginated(
       items?.map((item) => ChurchMapper.fromModelToResponse(item)),
       meta,

@@ -1,16 +1,22 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { AssignBeneficientsCommand } from '@/community/application/command/assign-beneficients.command';
 import { ReassignBeneficientsCommand } from '@/community/application/command/reassign-beneficients.command';
 import { DesactivateAssignationsCommand } from '@/community/application/command/desactivate-assignations.command';
+import { GetActiveAssignationsQuery } from '@/community/application/query/get-active-assignations.query';
+import { GetOrphansAssignationsQuery } from '@/community/application/query/get-orphans-assignations.query';
 import { AssignBeneficientsDto } from '@/community/application/dto/assign-beneficients.dto';
-import { DesactivateAssignationsDto } from '@/community/application/dto/desactivate-assignations.dto';
 import { ReassignAssignationsDto } from '@/community/application/dto/reassign-assignations.dto';
+import { DesactivateAssignationsDto } from '@/community/application/dto/desactivate-assignations.dto';
+import { GetActiveAssignationsQueryDto } from '@/community/application/dto/get-active-assignations-query.dto';
 
 @Controller('assignment')
 export class AssignmentController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Post()
   @Auth()
@@ -37,5 +43,19 @@ export class AssignmentController {
     return this.commandBus.execute(
       new DesactivateAssignationsCommand(dto.desactivateAssignations),
     );
+  }
+
+  @Get('actives')
+  @Auth()
+  getActives(@Query() query: GetActiveAssignationsQueryDto) {
+    return this.queryBus.execute(
+      new GetActiveAssignationsQuery(query.collectorId),
+    );
+  }
+
+  @Get('orphans')
+  @Auth()
+  getOrphans() {
+    return this.queryBus.execute(new GetOrphansAssignationsQuery());
   }
 }

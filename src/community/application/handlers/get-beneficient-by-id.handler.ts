@@ -29,7 +29,7 @@ export class GetBeneficientByIdHandler extends BaseQueryHandler<
     if (!beneficient) {
       return Result.fail({
         type: ErrorType.NOT_FOUND,
-        message: 'The church was not found',
+        message: 'The beneficient was not found',
         entity: GetBeneficientByIdHandler.name,
       });
     }

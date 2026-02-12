@@ -1,7 +1,16 @@
-import { Column, Entity, OneToMany, PrimaryColumn, Unique } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryColumn,
+  Unique,
+} from 'typeorm';
 import { BeneficientSchema } from './beneficient.schema';
 
 @Entity('churches')
+@Index(['name'])
+@Index(['createdAt'])
 @Unique(['vicaria', 'decanato', 'parroquia', 'capilla'])
 @Unique(['street', 'noExt', 'city', 'state', 'zipCode'])
 export class ChurchSchema {

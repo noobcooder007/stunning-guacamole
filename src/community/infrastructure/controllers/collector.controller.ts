@@ -8,6 +8,7 @@ import {
   ParseFilePipeBuilder,
   ParseUUIDPipe,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { profileMulterOptions } from '@/shared/infrastructure/interceptors/multe
 import { validateImageFile } from '@/shared/infrastructure/utils/file-validator.util';
 import { CreateCollectorCommand } from '@/community/application/command/create-collector.command';
 import { DeactivateCollectorCommand } from '@/community/application/command/deactivate-collector.command';
+import { ReactivateCollectorCommand } from '@/community/application/command/reactivate-collector.command';
 import { GetCollectorQueryParams } from '@/community/application/query/get-collector-paginated.query';
 import { GetCollectorByIdQuery } from '@/community/application/query/get-collector-by-id.query';
 import { CreateCollectorDto } from '@/community/application/dto/create-collector.dto';
@@ -81,17 +83,17 @@ export class CollectorController {
 
   @Get()
   @Auth()
-  findAll(@Body() params: GetCollectorsQueryDto) {
+  findAll(@Query() query: GetCollectorsQueryDto) {
     return this.queryBus.execute(
       new GetCollectorQueryParams(
-        params.firstname,
-        params.firstLastname,
-        params.secondLastname,
-        params.city,
-        params.state,
-        params.zipCode,
-        params.offset,
-        params.limit,
+        query.firstname,
+        query.firstLastname,
+        query.secondLastname,
+        query.city,
+        query.state,
+        query.zipCode,
+        query.page,
+        query.limit,
       ),
     );
   }
@@ -111,6 +113,6 @@ export class CollectorController {
   @Post(':id/reactivate')
   @Auth()
   reactivate(@Param('id', new ParseUUIDPipe()) id: string) {
-    return;
+    return this.commandBus.execute(new ReactivateCollectorCommand(id));
   }
 }

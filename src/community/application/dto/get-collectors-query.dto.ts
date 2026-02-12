@@ -1,17 +1,23 @@
 import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class GetCollectorsQueryDto extends PaginationDto {
   @IsOptional()
-  firstname: string;
+  @IsString()
+  firstname?: string;
   @IsOptional()
-  firstLastname: string;
+  @IsString()
+  firstLastname?: string;
   @IsOptional()
-  secondLastname: string;
+  @IsString()
+  secondLastname?: string;
   @IsOptional()
-  city: string;
+  @IsString()
+  city?: string;
   @IsOptional()
-  state: string;
+  @IsString()
+  state?: string;
   @IsOptional()
-  zipCode: string;
+  @IsString()
+  zipCode?: string;
 }

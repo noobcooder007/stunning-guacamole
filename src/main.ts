@@ -18,7 +18,7 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.use(cookieParser.default());
   app.enableCors({
-    origin: 'http://localhost:4200',
+    origin: configService.get('FRONTEND_URL'),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

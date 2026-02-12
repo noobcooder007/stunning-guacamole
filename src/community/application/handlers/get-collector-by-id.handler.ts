@@ -29,7 +29,7 @@ export class GetCollectorByIdHandler extends BaseQueryHandler<
     if (!collector) {
       return Result.fail({
         type: ErrorType.NOT_FOUND,
-        message: 'The church was not found',
+        message: 'The collector was not found',
         entity: GetCollectorByIdHandler.name,
       });
     }

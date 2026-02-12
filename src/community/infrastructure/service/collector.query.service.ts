@@ -16,15 +16,13 @@ export class CollectorQueryService extends BaseQueryService {
   async searchCollectors(
     query: GetCollectorQueryParams,
   ): Promise<Paginated<any>> {
-    const { offset, limit, ...filters } = query;
+    const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(CollectorSchema, 'collector');
     this.applyFilters(qb, 'collector', filters);
-    const [items, total] = await Promise.all([
-      qb.clone().limit(limit).offset(offset).getMany(),
-      qb.clone().getCount(),
-    ]);
+    this.applyPagination(qb, page, limit);
+    const [items, total] = await qb.getManyAndCount();
 
-    const meta = new PaginationMetaDto(offset, limit, total);
+    const meta = new PaginationMetaDto(page, limit, total);
     return new Paginated(
       items.map((item) => CollectorMapper.fromModelToResponse(item)),
       meta,

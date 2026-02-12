@@ -213,6 +213,11 @@ export class Collector extends AggregateRoot {
     );
   }
 
+  public reactivate() {
+    if (this.props.isActive) return;
+    this.props.isActive = true;
+  }
+
   public async updateNSSHash(nssHash: string) {
     this.props.nssHash = nssHash;
   }
