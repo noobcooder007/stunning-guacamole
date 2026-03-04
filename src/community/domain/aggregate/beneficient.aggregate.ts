@@ -41,8 +41,8 @@ export interface BeneficientProps {
   email?: string;
   emailHash?: string;
   taxInformation?: TaxInformation;
-  createdAt: Date;
-  isActive: boolean;
+  createdAt?: Date;
+  isActive?: boolean;
   reasonDeactivated?: string;
 }
 

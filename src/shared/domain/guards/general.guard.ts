@@ -98,4 +98,23 @@ export class GeneralGuard {
       throw new InvalidAttributeException('IP is not valid', entity);
     }
   }
+
+  public static againstStartDateBeforeNow(value: Date, entity: string) {
+    const startDate = new Date(value);
+    const now = new Date();
+    const startDay = Date.UTC(
+      startDate.getUTCFullYear(),
+      startDate.getUTCMonth(),
+      startDate.getUTCDate(),
+    );
+    const today = Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+    );
+
+    if (startDay < today) {
+      throw new InvalidAttributeException('Start date is before now', entity);
+    }
+  }
 }

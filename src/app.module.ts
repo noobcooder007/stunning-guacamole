@@ -1,8 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@/database/database.module';
 import { AuthModule } from '@/auth/auth.module';
 import { CommunityModule } from '@/community/community.module';
-import { DatabaseModule } from '@/database/database.module';
+import { DonationModule } from '@/donation/donation.module';
 import { LoggerMiddleware } from '@/shared/infrastructure/middlewares/logging.middleware';
 
 @Module({
@@ -14,6 +15,7 @@ import { LoggerMiddleware } from '@/shared/infrastructure/middlewares/logging.mi
     DatabaseModule,
     AuthModule,
     CommunityModule,
+    DonationModule,
   ],
   controllers: [],
   providers: [],

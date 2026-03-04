@@ -60,10 +60,12 @@ export class CollectorController {
       dto.bank,
       dto.reference,
       dto.notes,
+      file.filename,
       dto.secondLastname,
       dto.address.numeration.noInt,
       dto.address.neighborhood,
       dto.address.locality,
+      dto.telephoneNumber,
     );
     command.profilePath = file.filename;
     try {
@@ -82,7 +84,7 @@ export class CollectorController {
   }
 
   @Get()
-  @Auth()
+  // @Auth()
   findAll(@Query() query: GetCollectorsQueryDto) {
     return this.queryBus.execute(
       new GetCollectorQueryParams(

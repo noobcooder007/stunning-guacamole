@@ -62,7 +62,9 @@ export class CreateCollectorHandler extends BaseCommandHandler<
             true,
           ),
           this.hasher.hash(command.phoneNumber, true),
-          this.hasher.hash(command.telephoneNumber, true),
+          command.telephoneNumber
+            ? this.hasher.hash(command.telephoneNumber, true)
+            : null,
         ]);
       command.nssHash = nssHash;
       command.addressHash = addressHash;
@@ -102,7 +104,9 @@ export class CreateCollectorHandler extends BaseCommandHandler<
         addressHash: command.addressHash,
         phoneNumber: PhoneNumber.of(command.phoneNumber),
         phoneNumberHash: command.phoneNumberHash,
-        telephoneNumber: PhoneNumber.of(command.telephoneNumber),
+        telephoneNumber: command.telephoneNumber
+          ? PhoneNumber.of(command.telephoneNumber)
+          : null,
         telephoneNumberHash: command.telephoneNumberHash,
         nss: NSS.of(command.nss),
         nssHash: command.nssHash,
@@ -114,8 +118,6 @@ export class CreateCollectorHandler extends BaseCommandHandler<
         notes: command.notes,
         profilePath: command.profilePath,
         userId: UserId.of(resultCreateUser.value as string),
-        createdAt: undefined,
-        isActive: false,
       });
       await this.collectorRepository.save(collectorToSave);
       collectorId = collectorToSave._id.unpack();

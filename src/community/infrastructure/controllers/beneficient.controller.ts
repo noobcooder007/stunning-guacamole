@@ -52,7 +52,7 @@ export class BeneficientController {
   }
 
   @Get()
-  @Auth()
+  // @Auth()
   async findAll(@Query() params: GetBeneficientsQueryDto) {
     return await this.queryBus.execute(
       new GetBeneficientQueryParams(

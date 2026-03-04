@@ -15,6 +15,7 @@ import {
 } from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
+import { TaxInformation } from '@/community/domain/value-objects/tax-information.vo';
 
 @CommandHandler(CreateBeneficientCommand)
 export class CreateBeneficientHandler extends BaseCommandHandler<
@@ -79,8 +80,14 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
         zipCode: ZipCode.of(command.zipCode),
       }),
       church: ChurchId.of(command.churchId),
-      createdAt: undefined,
-      isActive: false,
+      taxInformation: command.person
+        ? TaxInformation.of({
+            person: command.person,
+            registeredName: command.registeredName,
+            rfc: command.rfc,
+            rfcHash: command.rfcHash,
+          })
+        : null,
     });
     await this.beneficientRepository.save(beneficient);
     return Result.ok({

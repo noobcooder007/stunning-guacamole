@@ -12,6 +12,7 @@ import { AssignationSchema } from '@/community/infrastructure/persistence/typeor
 import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/schemas/church.schema';
 import { IBeneficientPersistence } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
 import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
+import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
 
 @Entity('beneficients')
 @Index(['state', 'city'])
@@ -189,4 +190,7 @@ export class BeneficientSchema implements IBeneficientPersistence {
 
   @OneToOne(() => AssignationSchema, (assignation) => assignation.beneficient)
   assignation: AssignationSchema;
+
+  @OneToOne(() => PromiseDonationSchema, (promise) => promise.beneficient)
+  promiseDonation: PromiseDonationSchema;
 }

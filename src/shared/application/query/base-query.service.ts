@@ -41,10 +41,29 @@ export abstract class BaseQueryService {
     alias: string,
     filters: Record<string, any>,
   ): void {
+    const entityMetadata = qb.connection.getMetadata(
+      qb.expressionMap.mainAlias!.target,
+    );
     Object.keys(filters).forEach((key) => {
       const value = filters[key];
       if (value === undefined || value === null || value === '') return;
-      qb.andWhere(`${alias}.${key} ILIKE :${key}`, { [key]: `%${value}%` });
+      const columnMetadata = entityMetadata.columns.find(
+        (col) => col.propertyName === key,
+      );
+      const type = columnMetadata.type;
+      const isEnum = type === 'enum' || type === 'simple-enum';
+      const isBoolean = type === 'boolean' || typeof value === 'boolean';
+      if (isEnum) {
+        qb.andWhere(`${alias}.${key}::text ILIKE :${key}`, {
+          [key]: `%${value}%`,
+        });
+      } else if (isBoolean) {
+        qb.andWhere(`${alias}.${key} = :${key}`, { [key]: value });
+      } else {
+        qb.andWhere(`${alias}.${key} ILIKE :${key}`, {
+          [key]: `%${value}%`,
+        });
+      }
     });
   }
 }

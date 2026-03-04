@@ -11,6 +11,7 @@ import { BeneficientSchema } from '@/community/infrastructure/persistence/typeor
 import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/schemas/church.schema';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
+import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
 
 @Global()
 @Module({
@@ -39,6 +40,8 @@ import { AssignationSchema } from '@/community/infrastructure/persistence/typeor
       BeneficientSchema,
       CollectorSchema,
       AssignationSchema,
+      PromiseDonationSchema,
+      // ReceiptSchema,
     ]),
   ],
   providers: [UnitOfWork, ...DATABASE_REPOSITORIES],

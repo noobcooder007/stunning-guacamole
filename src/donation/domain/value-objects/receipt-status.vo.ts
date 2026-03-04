@@ -1,4 +1,4 @@
-export class InvoiceStatus {
+export class ReceiptStatus {
   private _value: string;
 
   constructor(value: string) {

@@ -28,7 +28,7 @@ export class BeneficientResponse {
   @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   email: string | null;
   @Expose()
-  get emailMasked() {
+  get maskedEmail() {
     return MaskHelper.maskEmail(this.email);
   }
   @Expose()
@@ -38,7 +38,7 @@ export class BeneficientResponse {
   @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   rfc: string | null;
   @Expose()
-  get rfcMasked() {
+  get maskedRFC() {
     return MaskHelper.mask(this.rfc, 4, 'X');
   }
   @Expose()

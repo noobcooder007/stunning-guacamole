@@ -46,8 +46,8 @@ export interface CollectorProps {
   paymentData: PaymentData;
   assignations?: Set<AssignationId>;
   notes?: string;
-  createdAt: Date;
-  isActive: boolean;
+  createdAt?: Date;
+  isActive?: boolean;
   profilePath: string;
 }
 
@@ -96,7 +96,12 @@ export class Collector extends AggregateRoot {
 
   public static create(props: CollectorProps) {
     const id = CollectorId.create();
-    return new Collector(id, props);
+    const data: CollectorProps = {
+      ...props,
+      createdAt: new Date(),
+      isActive: true,
+    };
+    return new Collector(id, data);
   }
 
   public static recreate(id: string, props: CollectorProps) {
