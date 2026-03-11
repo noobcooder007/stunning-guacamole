@@ -6,6 +6,7 @@ import { PaginationMetaDto } from '@/shared/domain/dto/pagination.meta.dto';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
 import { GetCollectorQueryParams } from '@/community/application/query/get-collector-paginated.query';
+import { CollectorResponse } from '@/community/application/dto/collector.response';
 
 @Injectable()
 export class CollectorQueryService extends BaseQueryService {
@@ -15,7 +16,7 @@ export class CollectorQueryService extends BaseQueryService {
 
   async searchCollectors(
     query: GetCollectorQueryParams,
-  ): Promise<Paginated<any>> {
+  ): Promise<Paginated<CollectorResponse>> {
     const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(CollectorSchema, 'collector');
     this.applyFilters(qb, 'collector', filters);

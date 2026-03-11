@@ -6,6 +6,7 @@ import { PaginationMetaDto } from '@/shared/domain/dto/pagination.meta.dto';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { BeneficientMapper } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
 import { GetBeneficientQueryParams } from '@/community/application/query/get-beneficient-paginated.query';
+import { BeneficientResponse } from '@/community/application/dto/beneficient.response';
 
 @Injectable()
 export class BeneficientQueryService extends BaseQueryService {
@@ -15,7 +16,7 @@ export class BeneficientQueryService extends BaseQueryService {
 
   async searchBeneficients(
     query: GetBeneficientQueryParams,
-  ): Promise<Paginated<any>> {
+  ): Promise<Paginated<BeneficientResponse>> {
     const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(BeneficientSchema, 'beneficient');
     this.applyFilters(qb, 'beneficient', filters);

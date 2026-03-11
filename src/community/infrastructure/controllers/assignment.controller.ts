@@ -46,7 +46,7 @@ export class AssignmentController {
   }
 
   @Get('actives')
-  @Auth()
+  // @Auth()
   getActives(@Query() query: GetActiveAssignationsQueryDto) {
     return this.queryBus.execute(
       new GetActiveAssignationsQuery(query.collectorId),

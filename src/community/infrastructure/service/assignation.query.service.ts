@@ -5,6 +5,10 @@ import { BaseQueryService } from '@/shared/application/query/base-query.service'
 import { ActiveAssignationsResponse } from '@/community/application/dto/active-assignations.response';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
 import { OrphansAssignationsResponse } from '@/community/application/dto/orphans-assignations.response';
+import { Paginated } from '@/shared/domain/dto/paginated.result.dto';
+import { PaginationMetaDto } from '@/shared/domain/dto/pagination.meta.dto';
+import { AssignationMapper } from '../persistence/mappers/assignation.mapper';
+import { GetActiveAssignationsQuery } from '@/community/application/query/get-active-assignations.query';
 
 @Injectable()
 export class AssignationQueryService extends BaseQueryService {
@@ -13,24 +17,21 @@ export class AssignationQueryService extends BaseQueryService {
   }
 
   async getActivesWithBeneficients(
-    collectorId: string,
-  ): Promise<Result<ActiveAssignationsResponse[], IErrorResult>> {
+    query: GetActiveAssignationsQuery,
+  ): Promise<Paginated<ActiveAssignationsResponse>> {
+    const { page, limit, collectorId } = query;
     const qb = this.getQueryBuilder(AssignationSchema, 'assignation')
       .where('assignation.collectorId = :collectorId', { collectorId })
       .andWhere('assignation.isActive = :isActive', { isActive: true })
-      .leftJoinAndSelect('assignation.beneficient', 'beneficient');
-    const assignations = await qb.getMany();
-    const response = assignations.map((assignation) => {
-      return {
-        id: assignation.id,
-        beneficient: {
-          id: assignation.beneficient.id,
-          fullname: `${assignation.beneficient.firstname} ${assignation.beneficient.firstLastname} ${assignation.beneficient.secondLastname}`,
-        },
-        reasonDeactivated: assignation.reasonDeactivated,
-      } as ActiveAssignationsResponse;
-    });
-    return Result.ok(response);
+      .leftJoinAndSelect('assignation.beneficient', 'beneficient')
+      .leftJoinAndSelect('assignation.collector', 'collector');
+    this.applyPagination(qb, page, limit);
+    const [assignations, total] = await qb.getManyAndCount();
+    const meta = new PaginationMetaDto(page, limit, total);
+    return new Paginated(
+      assignations.map((item) => AssignationMapper.toResponse(item)),
+      meta,
+    );
   }
 
   async getOrphans(): Promise<
@@ -69,11 +70,15 @@ export class AssignationQueryService extends BaseQueryService {
         id: assignation.id,
         beneficient: {
           id: assignation.beneficient.id,
-          fullname: `${assignation.beneficient.firstname} ${assignation.beneficient.firstLastname} ${assignation.beneficient.secondLastname}`,
+          firstname: assignation.beneficient.firstname,
+          firstLastname: assignation.beneficient.firstLastname,
+          secondLastname: assignation.beneficient.secondLastname,
         },
         lastCollector: {
           id: assignation.collector.id,
-          fullname: `${assignation.collector.firstname} ${assignation.collector.firstLastname} ${assignation.collector.secondLastname}`,
+          firstname: assignation.collector.firstname,
+          firstLastname: assignation.collector.firstLastname,
+          secondLastname: assignation.collector.secondLastname,
         },
         reasonDeactivated: assignation.reasonDeactivated,
       } as OrphansAssignationsResponse;

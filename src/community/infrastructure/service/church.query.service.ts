@@ -6,6 +6,7 @@ import { ChurchSchema } from '../persistence/typeorm/schemas/church.schema';
 import { ChurchMapper } from '../persistence/mappers/church.mapper';
 import { GetChurchQueryParams } from '@/community/application/query/get-church-paginated.query';
 import { PaginationMetaDto } from '@/shared/domain/dto/pagination.meta.dto';
+import { ChurchResponse } from '@/community/application/dto/church.response';
 
 @Injectable()
 export class ChurchQueryService extends BaseQueryService {
@@ -13,7 +14,9 @@ export class ChurchQueryService extends BaseQueryService {
     super(dataSource);
   }
 
-  async searchChurches(query: GetChurchQueryParams): Promise<Paginated<any>> {
+  async searchChurches(
+    query: GetChurchQueryParams,
+  ): Promise<Paginated<ChurchResponse>> {
     const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(ChurchSchema, 'church');
     this.applyFilters(qb, 'church', filters);

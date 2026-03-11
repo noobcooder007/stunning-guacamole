@@ -1,3 +1,7 @@
 export class GetActiveAssignationsQuery {
-  constructor(public readonly collectorId: string) {}
+  constructor(
+    readonly collectorId: string,
+    readonly page?: number,
+    readonly limit?: number,
+  ) {}
 }

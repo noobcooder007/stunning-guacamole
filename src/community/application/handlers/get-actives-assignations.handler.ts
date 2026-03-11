@@ -1,15 +1,16 @@
 import { QueryHandler } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
-import { IErrorResult, Result } from '@/shared/domain/dto/result.dto';
 import { BaseQueryHandler } from '@/shared/application/handler/base-query.handler';
 import { GetActiveAssignationsQuery } from '@/community/application/query/get-active-assignations.query';
 import { ActiveAssignationsResponse } from '@/community/application/dto/active-assignations.response';
 import { AssignationQueryService } from '@/community/infrastructure/service/assignation.query.service';
+import { Paginated } from '@/shared/domain/dto/paginated.result.dto';
+import { Result } from '@/shared/domain/dto/result.dto';
 
 @QueryHandler(GetActiveAssignationsQuery)
 export class GetActivesAssignationsHandler extends BaseQueryHandler<
   GetActiveAssignationsQuery,
-  ActiveAssignationsResponse[]
+  Paginated<ActiveAssignationsResponse>
 > {
   constructor(
     public readonly datasource: DataSource,
@@ -20,10 +21,12 @@ export class GetActivesAssignationsHandler extends BaseQueryHandler<
 
   protected async handle(
     query: GetActiveAssignationsQuery,
-  ): Promise<Result<ActiveAssignationsResponse[], IErrorResult>> {
-    const response = await this.assignationsService.getActivesWithBeneficients(
-      query.collectorId,
-    );
-    return response;
+  ): Promise<Result<Paginated<ActiveAssignationsResponse>>> {
+    const response = await this.assignationsService.getActivesWithBeneficients({
+      page: query.page,
+      limit: query.limit,
+      collectorId: query.collectorId,
+    });
+    return Result.ok(response);
   }
 }

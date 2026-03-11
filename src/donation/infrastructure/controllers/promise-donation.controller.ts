@@ -34,7 +34,7 @@ export class PromiseDonationController {
   }
 
   @Get()
-  @Auth()
+  // @Auth()
   async findAll(@Query() query: GetPromiseDonationsQueryDto) {
     return await this.queryBus.execute(
       new GetPromiseDonationQueryParams(

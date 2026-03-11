@@ -53,11 +53,12 @@ export abstract class BaseQueryService {
       const type = columnMetadata.type;
       const isEnum = type === 'enum' || type === 'simple-enum';
       const isBoolean = type === 'boolean' || typeof value === 'boolean';
+      const isNumeric = type === 'number' || typeof value === 'number';
       if (isEnum) {
         qb.andWhere(`${alias}.${key}::text ILIKE :${key}`, {
           [key]: `%${value}%`,
         });
-      } else if (isBoolean) {
+      } else if (isBoolean || isNumeric) {
         qb.andWhere(`${alias}.${key} = :${key}`, { [key]: value });
       } else {
         qb.andWhere(`${alias}.${key} ILIKE :${key}`, {
