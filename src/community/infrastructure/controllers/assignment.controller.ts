@@ -49,7 +49,11 @@ export class AssignmentController {
   // @Auth()
   getActives(@Query() query: GetActiveAssignationsQueryDto) {
     return this.queryBus.execute(
-      new GetActiveAssignationsQuery(query.collectorId),
+      new GetActiveAssignationsQuery(
+        query.collectorId,
+        query.page,
+        query.limit,
+      ),
     );
   }
 
