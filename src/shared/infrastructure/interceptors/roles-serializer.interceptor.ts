@@ -13,6 +13,10 @@ export class RolesSerializerInterceptor extends ClassSerializerInterceptor {
     const request = context.switchToHttp().getRequest();
     return next.handle().pipe(
       map((response) => {
+        if (response === undefined || response === null) {
+          return response;
+        }
+
         const user = request.user;
         const groups = [user?.role || 'public'];
 

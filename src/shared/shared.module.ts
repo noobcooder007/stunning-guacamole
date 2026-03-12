@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { BcryptHasher } from '@/shared/infrastructure/security/bcrypt.hasher';
 import { TokenHasher } from '@/shared/infrastructure/security/token-hasher';
 import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
+import { PDFService } from '@/shared/application/service/pdf.service';
 
 @Module({
   providers: [
@@ -18,12 +19,17 @@ import { EncryptionService } from '@/shared/infrastructure/services/encryption.s
       provide: 'IBlindIndexHasher',
       useClass: TokenHasher,
     },
+    {
+      provide: 'IPrinterService',
+      useClass: PDFService,
+    },
     EncryptionService,
   ],
   exports: [
     'IPasswordHasher',
     'ITokenHasher',
     'IBlindIndexHasher',
+    'IPrinterService',
     EncryptionService,
   ],
 })
