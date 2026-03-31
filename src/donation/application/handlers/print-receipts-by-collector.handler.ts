@@ -1,9 +1,9 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import Stream from 'stream';
+import { Result } from '@/shared/domain/dto/result.dto';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
-import { Result } from '@/shared/domain/dto/result.dto';
 import { PrintReceiptsByCollectorCommand } from '@/donation/application/command/print-receipts-by-collector.command';
 import { IReceiptRepository } from '@/donation/domain/repositories/receipt.repository';
 import { IPrinterService } from '@/shared/infrastructure/services/print.service';
