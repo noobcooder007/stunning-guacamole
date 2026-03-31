@@ -85,7 +85,7 @@ export class Assignation extends AggregateRoot {
     return this.props.reasonDeactivate;
   }
 
-  public desactivate(reason: string) {
+  public deactivate(reason: string) {
     this.props.isActive = false;
     this.props.updatedAt = new Date();
     this.props.reasonDeactivate = reason;

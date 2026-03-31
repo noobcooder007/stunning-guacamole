@@ -5,6 +5,7 @@ import { Address } from '@/community/domain/value-objects/address.vo';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 import { TaxInformation } from '@/community/domain/value-objects/tax-information.vo';
+import { BeneficientDeactivatedEvent } from '@/community/application/events/beneficient-deactivated.event';
 
 export class BeneficientId extends ValueObject<string> {
   private constructor(value: string) {
@@ -203,5 +204,6 @@ export class Beneficient extends AggregateRoot {
       isActive: false,
       reasonDeactivated: reason,
     };
+    this.apply(new BeneficientDeactivatedEvent(this.id.unpack(), reason));
   }
 }

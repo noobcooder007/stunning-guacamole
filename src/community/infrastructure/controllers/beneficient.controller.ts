@@ -14,6 +14,8 @@ import { CreateBeneficientCommand } from '@/community/application/command/create
 import { CreateBeneficientDto } from '@/community/application/dto/create-beneficient.dto';
 import { GetBeneficientByIdQuery } from '@/community/application/query/get-beneficient-by-id.query';
 import { GetBeneficientsQueryDto } from '../../application/dto/get-beneficients-query.dto';
+import { DeactivateBeneficientCommand } from '@/community/application/command/deactivate-beneficient.command';
+import { DeactivateBeneficientDto } from '@/community/application/dto/deactivate-beneficient.dto';
 
 @Controller('beneficient')
 export class BeneficientController {
@@ -77,11 +79,13 @@ export class BeneficientController {
     return this.queryBus.execute(new GetBeneficientByIdQuery(id));
   }
 
-  // @Put(':id/active')
-  // @Auth()
-  // desactivate(@Param('id', new ParseUUIDPipe()) id: string) {
-  //   return this.commandBus.execute(new DesactivateBeneficientCommand(id));
-  // }
+  @Post('deactivate')
+  @Auth()
+  deactivate(@Body() dto: DeactivateBeneficientDto) {
+    return this.commandBus.execute(
+      new DeactivateBeneficientCommand(dto.beneficientId, dto.reason),
+    );
+  }
 
   // @Get('unassigned')
   // unassignedBeneficients() {

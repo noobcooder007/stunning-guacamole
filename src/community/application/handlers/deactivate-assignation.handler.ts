@@ -4,12 +4,12 @@ import { UnitOfWork } from '@/database/unit-of-work';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { Result } from '@/shared/domain/dto/result.dto';
 import { IAssignamentService } from '@/community/domain/services/assignament.service';
-import { DesactivateAssignationsCommand } from '@/community/application/command/desactivate-assignations.command';
+import { DeactivateAssignationsCommand } from '@/community/application/command/deactivate-assignations.command';
 import { DomainException } from '@/shared/domain/exceptions/domain.exception';
 
-@CommandHandler(DesactivateAssignationsCommand)
+@CommandHandler(DeactivateAssignationsCommand)
 export class DesactivateAssignationHandler extends BaseCommandHandler<
-  DesactivateAssignationsCommand,
+  DeactivateAssignationsCommand,
   void
 > {
   constructor(
@@ -21,11 +21,11 @@ export class DesactivateAssignationHandler extends BaseCommandHandler<
   }
 
   protected async process(
-    command: DesactivateAssignationsCommand,
+    command: DeactivateAssignationsCommand,
   ): Promise<Result<void>> {
     await this.uow.runInTransaction(async () => {
       const result = await this.assignationService.deactivate(
-        command.desactivateAssignations,
+        command.deactivateAssignations,
       );
       if (!result.isSuccess) {
         throw new DomainException(
@@ -35,7 +35,7 @@ export class DesactivateAssignationHandler extends BaseCommandHandler<
         );
       }
       this.logger.log(
-        `[${this.traceId}] Assignations were desactivated with success`,
+        `[${this.traceId}] Assignations were deactivated with success`,
       );
     });
     return Result.ok();

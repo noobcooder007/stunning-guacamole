@@ -8,7 +8,7 @@ import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
 import { AssignationId } from '@/community/domain/aggregate/assignation.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
-import { CollectorDesactivatedEvent } from '@/community/application/events/collector-desactivated.event';
+import { CollectorDeactivatedEvent } from '@/community/application/events/collector-deactivated.event';
 
 export class CollectorId extends ValueObject<string> {
   private constructor(value: string) {
@@ -219,7 +219,7 @@ export class Collector extends AggregateRoot {
     if (!this.props.isActive) return;
     this.props.isActive = false;
     this.apply(
-      new CollectorDesactivatedEvent(this.id.unpack(), 'Collector deactivated'),
+      new CollectorDeactivatedEvent(this.id.unpack(), 'Collector deactivated'),
     );
   }
 

@@ -29,4 +29,13 @@ export class TypeORMPromiseDonationRepository
     if (!promiseModel) return null;
     return PromiseDonationMapper.toDomain(promiseModel);
   }
+
+  async findByBeneficientId(id: string): Promise<PromiseDonation | null> {
+    const promiseModel = await this.repository.findOneBy({
+      beneficientId: id,
+      isActive: true,
+    });
+    if (!promiseModel) return null;
+    return PromiseDonationMapper.toDomain(promiseModel);
+  }
 }

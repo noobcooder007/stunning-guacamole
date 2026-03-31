@@ -108,7 +108,7 @@ export class Role extends AggregateRoot {
     this.props.permissions = new Set(list);
   }
 
-  public desactivate() {
+  public deactivate() {
     this.props.isActive = false;
   }
 }

@@ -29,11 +29,13 @@ import { CreateBeneficientHandler } from '@/community/application/handlers/creat
 import { CreateCollectorHandler } from '@/community/application/handlers/create-collector.handler';
 import { UpdateChurchHandler } from '@/community/application/handlers/update-church.handler';
 import { AssignBeneficientsToCollectorHandler } from '@/community/application/handlers/assign-beneficients-to-collector.handler';
-import { DesactivateAssignationHandler } from '@/community/application/handlers/desactivate-assignation.handler';
-import { DesactivateAssignationEventHandler } from '@/community/application/handlers/desactivate-assignation-event.handler';
+import { DesactivateAssignationHandler } from '@/community/application/handlers/deactivate-assignation.handler';
+import { DeactivateAssignationEventHandler } from '@/community/application/handlers/deactivate-assignation-event.handler';
 import { ReassignBeneficientsToCollectorHandler } from '@/community/application/handlers/reassign-beneficients-to-collector.handler';
 import { GetActivesAssignationsHandler } from '@/community/application/handlers/get-actives-assignations.handler';
 import { GetOrphansAssignationsQueryHandler } from './application/handlers/get-orphans-assignations.handler';
+import { DeactivateBeneficientHanlder } from './application/handlers/deactivate-beneficient.handler';
+import { DeactivatePromiseDonationHandler } from '@/donation/application/handlers/deactivate-promise-donation.handler';
 
 @Module({
   imports: [
@@ -59,6 +61,7 @@ import { GetOrphansAssignationsQueryHandler } from './application/handlers/get-o
     CreateChurchHandler,
     GetBeneficientPaginatedHandler,
     GetBeneficientByIdHandler,
+    DeactivateBeneficientHanlder,
     GetCollectorPaginatedHandler,
     GetCollectorByIdHandler,
     DeactivateCollectorHanlder,
@@ -69,9 +72,10 @@ import { GetOrphansAssignationsQueryHandler } from './application/handlers/get-o
     AssignBeneficientsToCollectorHandler,
     DesactivateAssignationHandler,
     ReassignBeneficientsToCollectorHandler,
-    DesactivateAssignationEventHandler,
+    DeactivateAssignationEventHandler,
     GetActivesAssignationsHandler,
     GetOrphansAssignationsQueryHandler,
+    DeactivatePromiseDonationHandler,
     BeneficientQueryService,
     CollectorQueryService,
     ChurchQueryService,

@@ -84,7 +84,7 @@ export class CollectorController {
   }
 
   @Get()
-  // @Auth()
+  @Auth()
   findAll(@Query() query: GetCollectorsQueryDto) {
     return this.queryBus.execute(
       new GetCollectorQueryParams(
@@ -108,7 +108,7 @@ export class CollectorController {
 
   @Post(':id/deactivate')
   @Auth()
-  desactivate(@Param('id', new ParseUUIDPipe()) id: string) {
+  deactivate(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.commandBus.execute(new DeactivateCollectorCommand(id));
   }
 

@@ -179,7 +179,7 @@ export class AssignamentService implements IAssignamentService {
     );
     assignations.forEach((a) => {
       const reason = assignationDeactivateReason.get(a._id.unpack());
-      a.desactivate(reason);
+      a.deactivate(reason);
     });
     await this.assignationRepository.save(assignations);
     return Result.ok();

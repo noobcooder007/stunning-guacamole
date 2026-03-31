@@ -7,7 +7,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-export class DesactivateAssignationDto {
+export class DeactivateAssignationDto {
   @IsNotEmpty()
   @IsUUID()
   assignationId: string;
@@ -16,9 +16,9 @@ export class DesactivateAssignationDto {
   reason: string;
 }
 
-export class DesactivateAssignationsDto {
+export class DeactivateAssignationsDto {
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => DesactivateAssignationDto)
-  desactivateAssignations: DesactivateAssignationDto[];
+  @Type(() => DeactivateAssignationDto)
+  deactivateAssignations: DeactivateAssignationDto[];
 }

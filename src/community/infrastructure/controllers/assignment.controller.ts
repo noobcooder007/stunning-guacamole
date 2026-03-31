@@ -3,12 +3,12 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { AssignBeneficientsCommand } from '@/community/application/command/assign-beneficients.command';
 import { ReassignBeneficientsCommand } from '@/community/application/command/reassign-beneficients.command';
-import { DesactivateAssignationsCommand } from '@/community/application/command/desactivate-assignations.command';
+import { DeactivateAssignationsCommand } from '@/community/application/command/deactivate-assignations.command';
 import { GetActiveAssignationsQuery } from '@/community/application/query/get-active-assignations.query';
 import { GetOrphansAssignationsQuery } from '@/community/application/query/get-orphans-assignations.query';
 import { AssignBeneficientsDto } from '@/community/application/dto/assign-beneficients.dto';
 import { ReassignAssignationsDto } from '@/community/application/dto/reassign-assignations.dto';
-import { DesactivateAssignationsDto } from '@/community/application/dto/desactivate-assignations.dto';
+import { DeactivateAssignationsDto } from '@/community/application/dto/deactivate-assignations.dto';
 import { GetActiveAssignationsQueryDto } from '@/community/application/dto/get-active-assignations-query.dto';
 
 @Controller('assignment')
@@ -39,14 +39,14 @@ export class AssignmentController {
 
   @Post('deactivate')
   @Auth()
-  desactivateAssignations(@Body() dto: DesactivateAssignationsDto) {
+  deactivateAssignations(@Body() dto: DeactivateAssignationsDto) {
     return this.commandBus.execute(
-      new DesactivateAssignationsCommand(dto.desactivateAssignations),
+      new DeactivateAssignationsCommand(dto.deactivateAssignations),
     );
   }
 
   @Get('actives')
-  // @Auth()
+  @Auth()
   getActives(@Query() query: GetActiveAssignationsQueryDto) {
     return this.queryBus.execute(
       new GetActiveAssignationsQuery(

@@ -122,7 +122,7 @@ export class User extends AggregateRoot {
     this.props.lastLogin = new Date();
   }
 
-  public desactivate() {
+  public deactivate() {
     this.props.isActive = false;
   }
 }

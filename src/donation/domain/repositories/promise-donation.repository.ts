@@ -6,4 +6,5 @@ export abstract class IPromiseDonationRepository {
   abstract save(promiseDonation: PromiseDonation): Promise<void>;
   abstract exists(beneficientId: string): Promise<boolean>;
   abstract findById(id: string): Promise<PromiseDonation | null>;
+  abstract findByBeneficientId(id: string): Promise<PromiseDonation | null>;
 }
