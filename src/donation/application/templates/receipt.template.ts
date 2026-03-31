@@ -1,4 +1,5 @@
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
+import { MaskHelper } from '@/shared/infrastructure/utils/mask-helper.util';
 
 export interface ReceiptData {
   folio: string;
@@ -14,6 +15,7 @@ export interface ReceiptData {
   collector: number;
   beneficient: number;
   photoCollector: string;
+  keepPrivate: boolean;
 }
 
 export const receiptTemplate = (
@@ -31,7 +33,7 @@ export const receiptTemplate = (
   return {
     styles: styles,
     content: receipts.map((receipt) =>
-      createReceipt(receipt, receipt.printCount > 0),
+      createReceipt(receipt, receipt.printCount > 0, receipt.keepPrivate),
     ),
   };
 };
@@ -39,6 +41,7 @@ export const receiptTemplate = (
 function createReceipt(
   receipt: ReceiptData,
   showWatermark: boolean = false,
+  keepPrivate: boolean = false,
 ): Content {
   return {
     stack: [
@@ -147,15 +150,21 @@ function createReceipt(
                             text: `${receipt.recurrence} ${receipt.period}`,
                           },
                           {
-                            text: receipt.donorName,
+                            text: keepPrivate
+                              ? MaskHelper.mask(receipt.donorName)
+                              : receipt.donorName,
                             bold: true,
                             fontSize: 14,
                           },
                           {
-                            text: receipt.addressDonor,
+                            text: keepPrivate
+                              ? `******${receipt.addressDonor.slice(-4)}`
+                              : receipt.addressDonor,
                           },
                           {
-                            text: receipt.telephoneDonor,
+                            text: keepPrivate
+                              ? MaskHelper.mask(receipt.telephoneDonor)
+                              : receipt.telephoneDonor,
                           },
                         ],
                       },

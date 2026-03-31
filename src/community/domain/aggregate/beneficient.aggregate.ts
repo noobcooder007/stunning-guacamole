@@ -38,6 +38,9 @@ export interface BeneficientProps {
   address: Address;
   addressHash: string;
   church: ChurchId;
+  keepPrivate: boolean;
+  phoneNumber?: string;
+  phoneNumberHash?: string;
   email?: string;
   emailHash?: string;
   taxInformation?: TaxInformation;
@@ -160,6 +163,18 @@ export class Beneficient extends AggregateRoot {
 
   public get emailHash(): string | null {
     return this.props.emailHash;
+  }
+
+  public get phoneNumber(): string | null {
+    return this.props.phoneNumber;
+  }
+
+  public get phoneNumberHash(): string | null {
+    return this.props.phoneNumberHash;
+  }
+
+  public get keepPrivate(): boolean {
+    return this.props.keepPrivate;
   }
 
   public get taxInformation(): TaxInformation | null {

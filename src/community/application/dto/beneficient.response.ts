@@ -31,6 +31,12 @@ export class BeneficientResponse {
   get maskedEmail() {
     return MaskHelper.maskEmail(this.email);
   }
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
+  phoneNumber: string | null;
+  @Expose()
+  get maskedPhoneNumber() {
+    return MaskHelper.mask(this.phoneNumber);
+  }
   @Expose()
   person: string | null;
   @Expose()

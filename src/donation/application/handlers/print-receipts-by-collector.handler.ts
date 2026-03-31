@@ -103,11 +103,12 @@ export class PrintReceiptsByCollectorHandler extends BaseCommandHandler<
         currency: receipt.currency,
         donorName: this.getBeneficientsFullname(receipt.beneficient),
         addressDonor: this.getBeneficientAddress(receipt.beneficient),
-        telephoneDonor: '',
+        telephoneDonor: receipt.beneficient.phoneNumber,
         chainValidator: receipt.chainValidator,
         photoCollector: photoBase64,
         collector: receipt.collector.collectorNumber,
         beneficient: receipt.beneficient.beneficientNumber,
+        keepPrivate: receipt.beneficient.keepPrivate,
       });
     }
     const receiptsEntity = receipts.map((receipt) =>

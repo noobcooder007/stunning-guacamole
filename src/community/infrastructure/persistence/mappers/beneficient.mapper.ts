@@ -31,6 +31,8 @@ export interface IBeneficientPersistence {
   churchId: string;
   email?: string;
   emailHash?: string;
+  phoneNumber?: string;
+  phoneNumberHash?: string;
   person?: string;
   registeredName?: string;
   rfc?: string;
@@ -39,6 +41,7 @@ export interface IBeneficientPersistence {
   isActive: boolean;
   reasonDeactivated?: string;
   beneficientNumber: number;
+  keepPrivate: boolean;
 }
 
 export class BeneficientMapper {
@@ -65,6 +68,8 @@ export class BeneficientMapper {
       churchId: beneficient.church.unpack(),
       email: beneficient.email,
       emailHash: beneficient.emailHash,
+      phoneNumber: beneficient.phoneNumber,
+      phoneNumberHash: beneficient.phoneNumberHash,
       person: beneficient.taxInformation?.unpack().person ?? null,
       registeredName:
         beneficient.taxInformation?.unpack().registeredName ?? null,
@@ -74,6 +79,7 @@ export class BeneficientMapper {
       isActive: beneficient.isActive,
       reasonDeactivated: beneficient.reasonDeactivated,
       beneficientNumber: beneficient.beneficientNumber,
+      keepPrivate: beneficient.keepPrivate,
     };
   }
 
@@ -108,10 +114,13 @@ export class BeneficientMapper {
       }),
       email: raw.email,
       emailHash: raw.emailHash,
+      phoneNumber: raw.phoneNumber,
+      phoneNumberHash: raw.phoneNumberHash,
       createdAt: raw.createdAt,
       isActive: raw.isActive,
       church: ChurchId.of(raw.churchId),
       beneficientNumber: raw.beneficientNumber,
+      keepPrivate: raw.keepPrivate,
     });
   }
 
@@ -139,6 +148,7 @@ export class BeneficientMapper {
     addressResponse.zipCode = beneficientModel.zipCode;
     beneficient.address = addressResponse;
     beneficient.email = beneficientModel.email;
+    beneficient.phoneNumber = beneficientModel.phoneNumber;
     beneficient.person = beneficientModel.person;
     beneficient.registeredName = beneficientModel.registeredName;
     beneficient.rfc = beneficientModel.rfc;

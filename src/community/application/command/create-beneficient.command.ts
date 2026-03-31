@@ -1,72 +1,27 @@
 export class CreateBeneficientCommand {
-  title: string;
-  firstname: string;
-  firstLastname: string;
-  secondLastname: string;
-  birthday: Date;
-  weddingAniversary: Date;
-  genre: string;
-  maritalStatus: string;
-  email?: string;
-  emailHash?: string;
-  street: string;
-  noExt: string;
-  noInt: string;
-  neighborhood: string;
-  locality: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  addressHash: string;
-  churchId: string;
-  person?: string;
-  registeredName?: string;
-  rfc?: string;
-  rfcHash?: string;
-
   constructor(
-    title: string,
-    firstname: string,
-    firstLastname: string,
-    secondLastname: string,
-    birthday: Date,
-    weddingAniversary: Date,
-    genre: string,
-    maritalStatus: string,
-    street: string,
-    noExt: string,
-    noInt: string,
-    neighborhood: string,
-    locality: string,
-    city: string,
-    state: string,
-    zipCode: string,
-    churchId: string,
-    person?: string,
-    registeredName?: string,
-    rfc?: string,
-    email?: string,
-  ) {
-    this.title = title;
-    this.firstname = firstname;
-    this.firstLastname = firstLastname;
-    this.secondLastname = secondLastname;
-    this.birthday = birthday;
-    this.weddingAniversary = weddingAniversary;
-    this.genre = genre;
-    this.maritalStatus = maritalStatus;
-    this.email = email;
-    this.street = street;
-    this.noExt = noExt;
-    this.noInt = noInt;
-    this.neighborhood = neighborhood;
-    this.locality = locality;
-    this.city = city;
-    this.state = state;
-    this.zipCode = zipCode;
-    this.churchId = churchId;
-    this.person = person;
-    this.registeredName = registeredName;
-    this.rfc = rfc;
-  }
+    public readonly title: string,
+    public readonly firstname: string,
+    public readonly firstLastname: string,
+    public readonly secondLastname: string,
+    public readonly birthday: Date,
+    public readonly weddingAniversary: Date,
+    public readonly genre: string,
+    public readonly maritalStatus: string,
+    public readonly street: string,
+    public readonly noExt: string,
+    public readonly noInt: string,
+    public readonly neighborhood: string,
+    public readonly locality: string,
+    public readonly city: string,
+    public readonly state: string,
+    public readonly zipCode: string,
+    public readonly churchId: string,
+    public readonly keepPrivate: boolean = false,
+    public readonly person?: string,
+    public readonly registeredName?: string,
+    public readonly rfc?: string,
+    public readonly email?: string,
+    public readonly phoneNumber?: string,
+  ) {}
 }

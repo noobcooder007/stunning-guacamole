@@ -12,6 +12,7 @@ export interface BeneficientFilters {
   secondLastname?: string;
   addressHash?: string;
   emailHash?: string;
+  phoneNumberHash?: string;
   rfcHash?: string;
 }
 
@@ -60,6 +61,8 @@ export class TypeORMBeneficientRepository
     }
     if (filters.addressHash) where.push({ addressHash: filters.addressHash });
     if (filters.emailHash) where.push({ emailHash: filters.emailHash });
+    if (filters.phoneNumberHash)
+      where.push({ phoneNumberHash: filters.phoneNumberHash });
     if (filters.rfcHash) where.push({ rfcHash: filters.rfcHash });
     const exists = await this.repository.exists({ where });
     return !!exists;

@@ -23,6 +23,7 @@ export class BeneficientController {
   ) {}
 
   @Post()
+  @Auth()
   create(@Body() dto: CreateBeneficientDto) {
     return this.commandBus.execute(
       new CreateBeneficientCommand(
@@ -43,16 +44,18 @@ export class BeneficientController {
         dto.address.state,
         dto.address.zipCode,
         dto.churchId,
+        dto.keepPrivate,
         dto.person,
         dto.registeredName,
         dto.rfc,
         dto.email,
+        dto.phoneNumber,
       ),
     );
   }
 
   @Get()
-  // @Auth()
+  @Auth()
   async findAll(@Query() params: GetBeneficientsQueryDto) {
     return await this.queryBus.execute(
       new GetBeneficientQueryParams(

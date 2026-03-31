@@ -10,6 +10,8 @@ import {
   IsUUID,
   IsDefined,
   ValidateNested,
+  IsPhoneNumber,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateBeneficientDto {
@@ -53,6 +55,13 @@ export class CreateBeneficientDto {
   @IsOptional()
   @IsEmail()
   email: string;
+
+  @IsPhoneNumber()
+  @IsOptional()
+  phoneNumber: string;
+
+  @IsBoolean()
+  keepPrivate: boolean;
 
   @IsDefined()
   @ValidateNested()

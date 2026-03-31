@@ -130,9 +130,10 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
       addressDonor: beneficient
         ? this.getBeneficientAddress(beneficient)
         : 'Domicilio desconocido',
-      telephoneDonor: null,
+      telephoneDonor: beneficient.phoneNumber,
       recurrence: 'ESPECIAL',
       period: `${months[specialReceipt.periodMonth - 1]}${specialReceipt.periodYear}`,
+      keepPrivate: beneficient.keepPrivate,
     };
     const docDefinition = receiptTemplate(Array.from([receiptToPrint]));
     const pdfStream = await this.pdfService.print(docDefinition);

@@ -36,15 +36,17 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
   protected async process(
     command: CreateBeneficientCommand,
   ): Promise<Result<CreateBeneficientResponse>> {
-    const [addressHash, emailHash, rfcHash, church] = await Promise.all([
-      this.hasher.hash(
-        `${command.street}|${command.noExt}|${command.noInt}|${command.neighborhood}|${command.locality}|${command.city}|${command.state}|${command.zipCode}|`,
-        true,
-      ),
-      this.hasher.hash(command.email, true),
-      this.hasher.hash(command.rfc, true),
-      this.churchRepository.findById(command.churchId),
-    ]);
+    const [addressHash, emailHash, rfcHash, phoneNumberHash, church] =
+      await Promise.all([
+        this.hasher.hash(
+          `${command.street}|${command.noExt}|${command.noInt}|${command.neighborhood}|${command.locality}|${command.city}|${command.state}|${command.zipCode}|`,
+          true,
+        ),
+        this.hasher.hash(command.email, true),
+        this.hasher.hash(command.rfc, true),
+        this.hasher.hash(command.phoneNumber, true),
+        this.churchRepository.findById(command.churchId),
+      ]);
     if (!church) {
       return Result.fail({
         type: ErrorType.NOT_FOUND,
@@ -52,9 +54,6 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
         entity: CreateBeneficientHandler.name,
       });
     }
-    command.addressHash = addressHash;
-    command.emailHash = emailHash;
-    command.rfcHash = rfcHash;
     const [exists] = await Promise.all([
       this.beneficientRepository.exists({ ...command }),
     ]);
@@ -67,6 +66,10 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
     }
     const beneficient = Beneficient.create({
       ...command,
+      addressHash,
+      emailHash,
+      phoneNumberHash,
+      phoneNumber: command.phoneNumber,
       address: Address.of({
         street: command.street,
         numeration: Numeration.of({
@@ -85,7 +88,7 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
             person: command.person,
             registeredName: command.registeredName,
             rfc: command.rfc,
-            rfcHash: command.rfcHash,
+            rfcHash: rfcHash,
           })
         : null,
     });

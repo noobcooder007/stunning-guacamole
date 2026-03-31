@@ -146,6 +146,24 @@ export class BeneficientSchema implements IBeneficientPersistence {
   })
   emailHash: string;
 
+  @Column('text', {
+    nullable: true,
+    unique: true,
+    transformer: {
+      to: (value: string) =>
+        EncryptionService.instance?.encrypt(value) ?? value,
+      from: (value: string) =>
+        EncryptionService.instance?.decrypt(value) ?? value,
+    },
+  })
+  phoneNumber: string;
+
+  @Column('text', {
+    nullable: true,
+    unique: true,
+  })
+  phoneNumberHash: string;
+
   @Column('enum', {
     enum: ['FISICA', 'MORAL'],
     nullable: true,
@@ -200,4 +218,9 @@ export class BeneficientSchema implements IBeneficientPersistence {
   })
   @Generated('increment')
   beneficientNumber: number;
+
+  @Column('bool', {
+    default: false,
+  })
+  keepPrivate: boolean;
 }
