@@ -1,5 +1,6 @@
 import { Readable } from 'node:stream';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
 
 export abstract class IPrinterService {
-  abstract generateStream(data: any): Promise<Readable>;
+  abstract print(data: TDocumentDefinitions): Promise<Readable>;
 }

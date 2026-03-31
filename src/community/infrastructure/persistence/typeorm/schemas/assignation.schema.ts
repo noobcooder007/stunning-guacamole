@@ -4,15 +4,19 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  Unique,
   Check,
+  Index,
 } from 'typeorm';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { IAssignationPersistence } from '@/community/infrastructure/persistence/mappers/assignation.mapper';
 
 @Entity('assignations')
-@Unique(['collectorId', 'beneficientId'])
+@Index(['collectorId', 'beneficientId'], { unique: true })
+@Index('IDX_UQ_ACTIVE_PROMISE_DONATION', ['beneficientId'], {
+  unique: true,
+  where: '"isActive" = true',
+})
 @Check(
   `"isActive" = true OR ("isActive" = false AND "reasonDeactivated" IS NOT NULL AND "reasonDeactivated" <> '')`,
 )

@@ -117,4 +117,30 @@ export class GeneralGuard {
       throw new InvalidAttributeException('Start date is before now', entity);
     }
   }
+
+  public static againstValueIsNotEqualTo(
+    value: string,
+    other: string,
+    entity: string,
+  ) {
+    if (value !== other) {
+      throw new InvalidAttributeException(
+        'Value is not equal to other',
+        entity,
+      );
+    }
+  }
+
+  public static againstValueIsEqualTo(
+    value: string,
+    other: string,
+    entity: string,
+  ) {
+    if (value === other) {
+      throw new InvalidAttributeException(
+        'Value should not equal to other',
+        entity,
+      );
+    }
+  }
 }

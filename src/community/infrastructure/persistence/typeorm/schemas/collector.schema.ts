@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Generated,
   Index,
   JoinColumn,
   OneToMany,
@@ -16,6 +17,7 @@ import { EncryptionService } from '@/shared/infrastructure/services/encryption.s
 @Entity('collectors')
 @Index(['state', 'city'])
 @Index(['createdAt'])
+@Unique(['collectorNumber'])
 @Unique(['firstname', 'firstLastname', 'secondLastname'])
 export class CollectorSchema implements ICollectorPersistence {
   @PrimaryColumn('uuid')
@@ -197,4 +199,10 @@ export class CollectorSchema implements ICollectorPersistence {
     nullable: true,
   })
   profilePath: string;
+
+  @Column('int', {
+    unique: true,
+  })
+  @Generated('increment')
+  collectorNumber: number;
 }

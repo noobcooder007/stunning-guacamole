@@ -21,7 +21,7 @@ export class DesactivateAssignationEventHandler implements IEventHandler<Collect
     assignations.forEach((a) => {
       a.desactivate(reason);
     });
-    this.uow.runInTransaction(async () => {
+    await this.uow.runInTransaction(async () => {
       await this.assignationRepository.save(assignations);
     });
   }

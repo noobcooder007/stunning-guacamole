@@ -12,6 +12,8 @@ import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/sch
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
 import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
+import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
+import { ReceiptSequenceSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt-sequence.schema';
 
 @Global()
 @Module({
@@ -41,7 +43,8 @@ import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typ
       CollectorSchema,
       AssignationSchema,
       PromiseDonationSchema,
-      // ReceiptSchema,
+      ReceiptSchema,
+      ReceiptSequenceSchema,
     ]),
   ],
   providers: [UnitOfWork, ...DATABASE_REPOSITORIES],

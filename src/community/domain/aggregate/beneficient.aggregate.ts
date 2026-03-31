@@ -44,6 +44,7 @@ export interface BeneficientProps {
   createdAt?: Date;
   isActive?: boolean;
   reasonDeactivated?: string;
+  beneficientNumber?: number;
 }
 
 export class Beneficient extends AggregateRoot {
@@ -175,6 +176,10 @@ export class Beneficient extends AggregateRoot {
 
   public get reasonDeactivated(): string | null {
     return this.props.reasonDeactivated;
+  }
+
+  public get beneficientNumber(): number {
+    return this.props.beneficientNumber;
   }
 
   public deactivate(reason: string) {

@@ -44,6 +44,7 @@ export interface ICollectorPersistence {
   isActive: boolean;
   assignations?: IAssignationPersistence[];
   profilePath: string;
+  collectorNumber: number;
 }
 
 export class CollectorMapper {
@@ -76,6 +77,7 @@ export class CollectorMapper {
       createdAt: collector.createdAt,
       isActive: collector.isActive,
       profilePath: collector.profilePath,
+      collectorNumber: collector.collectorNumber,
     };
   }
 
@@ -117,6 +119,7 @@ export class CollectorMapper {
         ? PhoneNumber.of(raw.telephoneNumber)
         : null,
       profilePath: raw.profilePath,
+      collectorNumber: raw.collectorNumber,
     });
   }
 
@@ -153,6 +156,7 @@ export class CollectorMapper {
     response.createdAt = collectorModel.createdAt;
     response.isActive = collectorModel.isActive;
     response.profilePath = collectorModel.profilePath;
+    response.collectorNumber = collectorModel.collectorNumber;
     return response;
   }
 
@@ -188,6 +192,7 @@ export class CollectorMapper {
     response.createdAt = collector.createdAt;
     response.isActive = collector.isActive;
     response.profilePath = collector.profilePath;
+    response.collectorNumber = collector.collectorNumber;
     return response;
   }
 }

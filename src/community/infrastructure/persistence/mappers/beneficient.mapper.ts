@@ -38,6 +38,7 @@ export interface IBeneficientPersistence {
   createdAt: Date;
   isActive: boolean;
   reasonDeactivated?: string;
+  beneficientNumber: number;
 }
 
 export class BeneficientMapper {
@@ -72,6 +73,7 @@ export class BeneficientMapper {
       createdAt: beneficient.createdAt,
       isActive: beneficient.isActive,
       reasonDeactivated: beneficient.reasonDeactivated,
+      beneficientNumber: beneficient.beneficientNumber,
     };
   }
 
@@ -109,6 +111,7 @@ export class BeneficientMapper {
       createdAt: raw.createdAt,
       isActive: raw.isActive,
       church: ChurchId.of(raw.churchId),
+      beneficientNumber: raw.beneficientNumber,
     });
   }
 
@@ -141,6 +144,7 @@ export class BeneficientMapper {
     beneficient.rfc = beneficientModel.rfc;
     beneficient.createdAt = beneficientModel.createdAt;
     beneficient.isActive = beneficientModel.isActive;
+    beneficient.beneficientNumber = beneficientModel.beneficientNumber;
     return beneficient;
   }
 
@@ -172,6 +176,7 @@ export class BeneficientMapper {
     beneficientResponse.rfc = beneficient.taxInformation.unpack().rfc;
     beneficientResponse.createdAt = beneficient.createdAt;
     beneficientResponse.isActive = beneficient.isActive;
+    beneficientResponse.beneficientNumber = beneficient.beneficientNumber;
     return beneficientResponse;
   }
 }

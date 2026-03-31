@@ -49,6 +49,7 @@ export interface CollectorProps {
   createdAt?: Date;
   isActive?: boolean;
   profilePath: string;
+  collectorNumber?: number;
 }
 
 export class Collector extends AggregateRoot {
@@ -183,6 +184,10 @@ export class Collector extends AggregateRoot {
 
   public get profilePath(): string {
     return this.props.profilePath;
+  }
+
+  public get collectorNumber(): number {
+    return this.props.collectorNumber;
   }
 
   public addAssignation(

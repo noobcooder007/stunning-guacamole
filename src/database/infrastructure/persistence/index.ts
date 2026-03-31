@@ -7,6 +7,8 @@ import { TypeORMRoleRepository } from '@/auth/infrastructure/persistence/typeorm
 import { TypeORMUserRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-user-repository';
 import { TypeORMAssignationRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-assignation.repository';
 import { TypeORMPromiseDonationRepository } from '@/donation/infrastructure/persistence/typeorm/adapters/typeorm-promise-donation.repository';
+import { TypeORMReceiptRepository } from '@/donation/infrastructure/persistence/typeorm/adapters/typeorm-receipt.repository';
+import { TypeORMReceiptSequenceRepository } from '@/donation/infrastructure/persistence/typeorm/adapters/typeorm-receipt-sequence.repository';
 
 export const REPOSITORY_TOKENS = {
   USER: 'IUserRepository',
@@ -19,6 +21,7 @@ export const REPOSITORY_TOKENS = {
   ASSIGNATION: 'IAssignationRepository',
   PROMISE_DONATION: 'IPromiseDonationRepository',
   RECEIPT: 'IReceiptRepository',
+  RECEIPT_SEQUENCE: 'IReceiptSequenceRepository',
 };
 
 export const DATABASE_REPOSITORIES = [
@@ -58,8 +61,12 @@ export const DATABASE_REPOSITORIES = [
     provide: REPOSITORY_TOKENS.PROMISE_DONATION,
     useClass: TypeORMPromiseDonationRepository,
   },
-  // {
-  //   provide: REPOSITORY_TOKENS.RECEIPT,
-  //   useClass: TypeORMReceiptRepository,
-  // },
+  {
+    provide: REPOSITORY_TOKENS.RECEIPT,
+    useClass: TypeORMReceiptRepository,
+  },
+  {
+    provide: REPOSITORY_TOKENS.RECEIPT_SEQUENCE,
+    useClass: TypeORMReceiptSequenceRepository,
+  },
 ];

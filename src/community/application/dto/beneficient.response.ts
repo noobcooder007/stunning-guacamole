@@ -45,4 +45,6 @@ export class BeneficientResponse {
   createdAt: Date;
   @Expose()
   isActive: boolean;
+  @Expose()
+  beneficientNumber: number;
 }

@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Generated,
   Index,
   JoinColumn,
   ManyToOne,
@@ -193,4 +194,10 @@ export class BeneficientSchema implements IBeneficientPersistence {
 
   @OneToOne(() => PromiseDonationSchema, (promise) => promise.beneficient)
   promiseDonation: PromiseDonationSchema;
+
+  @Column('int', {
+    unique: true,
+  })
+  @Generated('increment')
+  beneficientNumber: number;
 }

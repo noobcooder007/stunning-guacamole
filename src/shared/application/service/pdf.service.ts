@@ -2,13 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Worker } from 'worker_threads';
 import { Readable } from 'stream';
 import { join } from 'path';
+import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { IPrinterService } from '@/shared/infrastructure/services/print.service';
 
 @Injectable()
 export class PDFService implements IPrinterService {
-  async generateStream<TDocumentDefinitions>(
-    docDefinition: TDocumentDefinitions,
-  ): Promise<Readable> {
+  async print(docDefinition: TDocumentDefinitions): Promise<Readable> {
     const resStream = new Readable({ read() {} });
     const worker = new Worker(
       join(__dirname, '../../infrastructure/workers/pdf.worker.js'),

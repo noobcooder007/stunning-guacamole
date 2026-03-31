@@ -52,4 +52,6 @@ export class CollectorResponse {
     if (!this.profilePath) return null;
     return `${host}/public/profile-pictures/${this.profilePath}`;
   }
+  @Expose()
+  collectorNumber: number;
 }

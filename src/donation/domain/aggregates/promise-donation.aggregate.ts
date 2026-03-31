@@ -171,6 +171,7 @@ export class PromiseDonation extends AggregateRoot {
     ).getDate();
     const targetDay = Math.min(anchorDay, daysInNextMonth);
     nextDate.setDate(targetDay);
+    nextDate.setHours(0, 0, 0, 0);
     this.props.nextDonation = nextDate;
     this.props.updatedAt = new Date();
   }
