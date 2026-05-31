@@ -14,6 +14,7 @@ import { AssignationSchema } from '@/community/infrastructure/persistence/typeor
 import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
 import { ReceiptSequenceSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt-sequence.schema';
+import { AuditLogSchema } from '@/shared/infrastructure/persistence/audit-log.schema';
 
 @Global()
 @Module({
@@ -45,6 +46,7 @@ import { ReceiptSequenceSchema } from '@/donation/infrastructure/persistence/typ
       PromiseDonationSchema,
       ReceiptSchema,
       ReceiptSequenceSchema,
+      AuditLogSchema,
     ]),
   ],
   providers: [UnitOfWork, ...DATABASE_REPOSITORIES],

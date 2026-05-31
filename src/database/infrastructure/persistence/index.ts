@@ -9,6 +9,8 @@ import { TypeORMAssignationRepository } from '@/community/infrastructure/persist
 import { TypeORMPromiseDonationRepository } from '@/donation/infrastructure/persistence/typeorm/adapters/typeorm-promise-donation.repository';
 import { TypeORMReceiptRepository } from '@/donation/infrastructure/persistence/typeorm/adapters/typeorm-receipt.repository';
 import { TypeORMReceiptSequenceRepository } from '@/donation/infrastructure/persistence/typeorm/adapters/typeorm-receipt-sequence.repository';
+import { TypeORMCollectionPeriodRepository } from '@/donation/infrastructure/persistence/typeorm/adapters/typeorm-collection-period.repository';
+import { TypeORMCollectorSettlementRepository } from '@/donation/infrastructure/persistence/typeorm/adapters/typeorm-collector-settlement.repository';
 
 export const REPOSITORY_TOKENS = {
   USER: 'IUserRepository',
@@ -22,6 +24,8 @@ export const REPOSITORY_TOKENS = {
   PROMISE_DONATION: 'IPromiseDonationRepository',
   RECEIPT: 'IReceiptRepository',
   RECEIPT_SEQUENCE: 'IReceiptSequenceRepository',
+  COLLECTION_PERIOD: 'ICollectionPeriodRepository',
+  COLLECTOR_SETTLEMENT: 'ICollectorSettlementRepository',
 };
 
 export const DATABASE_REPOSITORIES = [
@@ -68,5 +72,13 @@ export const DATABASE_REPOSITORIES = [
   {
     provide: REPOSITORY_TOKENS.RECEIPT_SEQUENCE,
     useClass: TypeORMReceiptSequenceRepository,
+  },
+  {
+    provide: REPOSITORY_TOKENS.COLLECTION_PERIOD,
+    useClass: TypeORMCollectionPeriodRepository,
+  },
+  {
+    provide: REPOSITORY_TOKENS.COLLECTOR_SETTLEMENT,
+    useClass: TypeORMCollectorSettlementRepository,
   },
 ];

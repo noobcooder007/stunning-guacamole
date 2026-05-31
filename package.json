@@ -81,10 +81,17 @@
       "ts"
     ],
     "rootDir": "src",
+    "roots": ["<rootDir>", "<rootDir>/../test"],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "moduleNameMapper": {
+      "@/(.*)": "<rootDir>/$1"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(\\.pnpm/)?uuid)"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
