@@ -90,7 +90,6 @@ export class ReceiptFolio extends ValueObject<string> {
     const typePrefix = {
       RECURRING: 'R',
       SPECIAL: 'S',
-      IN_BLANK: 'B',
     }[type];
     const folio = sequence.toString().padStart(4, '0');
     return new ReceiptFolio(`${period}-${colector}-${typePrefix}-${folio}`);
@@ -106,7 +105,7 @@ export class ReceiptFolio extends ValueObject<string> {
 }
 
 export type ReceiptStatus = 'PENDING' | 'PAID' | 'CANCELLED';
-export type ReceiptType = 'RECURRING' | 'SPECIAL' | 'IN_BLANK';
+export type ReceiptType = 'RECURRING' | 'SPECIAL';
 export type ReceiptOrigin = 'PROMISE' | 'NON_PROMISE';
 export type PaymentMethod = 'CASH' | 'TRANSFER' | 'CARD';
 
@@ -131,6 +130,8 @@ interface ReceiptProps {
   createdBy: UserId;
   updatedBy: UserId;
   chainValidator?: string;
+  collectionPeriodId?: string;
+  paidAt?: Date;
 }
 
 export class Receipt extends AggregateRoot {
@@ -149,6 +150,9 @@ export class Receipt extends AggregateRoot {
     collectorId: CollectorId,
     createdBy: UserId,
     chainValidator: string,
+    month: number,
+    year: number,
+    collectionPeriodId?: string,
   ): Receipt {
     const id = ReceiptId.create();
     return new Receipt(id, {
@@ -159,8 +163,8 @@ export class Receipt extends AggregateRoot {
       origin: 'PROMISE',
       printCount: 0,
       promiseDonation: promiseId,
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
+      month,
+      year,
       beneficient: beneficientId,
       collector: collectorId,
       createdBy,
@@ -168,6 +172,7 @@ export class Receipt extends AggregateRoot {
       createdAt: new Date(),
       updatedAt: new Date(),
       chainValidator: chainValidator,
+      collectionPeriodId,
     });
   }
 
@@ -177,8 +182,14 @@ export class Receipt extends AggregateRoot {
     collectorId: CollectorId,
     createdBy: UserId,
     chainValidator: string,
-    beneficientId?: BeneficientId,
+    beneficientId: BeneficientId,
+    collectionPeriodId?: string,
   ): Receipt {
+    GeneralGuard.againstNullOrUndefined(
+      beneficientId,
+      'Beneficient is required to create a receipt',
+      'Receipt',
+    );
     const id = ReceiptId.create();
     return new Receipt(id, {
       folio,
@@ -196,26 +207,7 @@ export class Receipt extends AggregateRoot {
       createdAt: new Date(),
       updatedAt: new Date(),
       chainValidator: chainValidator,
-    });
-  }
-
-  public static createBlank(
-    folio: ReceiptFolio,
-    createdBy: UserId,
-    beneficient?: BeneficientId,
-  ): Receipt {
-    return new Receipt(ReceiptId.create(), {
-      folio,
-      amount: Money.of(0, 'MXN'),
-      status: 'PENDING',
-      type: 'IN_BLANK',
-      origin: 'NON_PROMISE',
-      printCount: 0,
-      beneficient,
-      createdBy,
-      updatedBy: createdBy,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      collectionPeriodId,
     });
   }
 
@@ -299,6 +291,14 @@ export class Receipt extends AggregateRoot {
     return this.props.chainValidator;
   }
 
+  public get collectionPeriodId(): string | undefined {
+    return this.props.collectionPeriodId;
+  }
+
+  public get paidAt(): Date | undefined {
+    return this.props.paidAt;
+  }
+
   public get periodMonth(): number {
     return this.props.month;
   }
@@ -307,7 +307,11 @@ export class Receipt extends AggregateRoot {
     return this.props.year;
   }
 
-  public markAsPaid(method: PaymentMethod, reference?: string): void {
+  public markAsPaid(
+    method: PaymentMethod,
+    collectionPeriodId?: string,
+    reference?: string,
+  ): void {
     GeneralGuard.againstValueIsEqualTo(this.props.status, 'PAID', 'Receipt');
     GeneralGuard.againstValueIsEqualTo(
       this.props.status,
@@ -320,33 +324,11 @@ export class Receipt extends AggregateRoot {
       'Receipt',
     );
     this.props.status = 'PAID';
+    this.props.paidAt = new Date();
     this.props.updatedAt = new Date();
     this.props.externalReference = reference;
     this.props.paymentMethod = method;
-  }
-
-  public fillBlankReceipt(
-    amount: Money,
-    beneficient: BeneficientId,
-    updatedBy: UserId,
-    chainValidator: string,
-  ): void {
-    if (this.props.type !== 'IN_BLANK' || this.props.amount.amount > 0) {
-      // throw Exception
-    }
-    if (amount.amount <= 0) {
-      // throw Exception
-    }
-    if (!beneficient) {
-      // throw Exception
-    }
-    this.props.amount = amount;
-    this.props.beneficient = beneficient;
-    this.props.updatedAt = new Date();
-    this.props.updatedBy = updatedBy;
-    this.props.chainValidator = chainValidator;
-    this.props.month = new Date().getMonth() + 1;
-    this.props.year = new Date().getFullYear();
+    this.props.collectionPeriodId = collectionPeriodId;
   }
 
   public updatePrintCount(): void {
@@ -377,7 +359,8 @@ export class Receipt extends AggregateRoot {
   }
 
   public async generateValidationChain(hasher: IDataHasher) {
-    const data = `${this._id.unpack()}|${this.folio.unpack()}|${this.amount.unpack().amount}|${this.beneficient && this.beneficient.unpack()}`;
+    const amount = Number(this.amount.unpack().amount);
+    const data = `${this._id.unpack()}|${this.folio.unpack()}|${amount}|${this.beneficient && this.beneficient.unpack()}`;
     this.props.chainValidator = (await hasher.hash(data))
       .substring(0, 16)
       .toUpperCase();
