@@ -11,6 +11,7 @@ export interface IUserPersistence {
   createdAt: Date;
   isActive: boolean;
   lastLogin: Date;
+  gender?: string;
 }
 
 export class UserMapper {
@@ -23,6 +24,7 @@ export class UserMapper {
       createdAt: user.createdAt,
       isActive: user.isActive,
       lastLogin: user.lastLogin,
+      gender: user.gender,
     };
   }
 
@@ -33,6 +35,7 @@ export class UserMapper {
       roleId: RoleId.of(raw.roleId),
       createdAt: raw.createdAt,
       isActive: raw.isActive,
+      gender: raw.gender as import('@/auth/domain/aggregates/user.aggregate').UserGender,
     });
   }
 }

@@ -6,7 +6,7 @@ import { Result } from '@/shared/domain/dto/result.dto';
 import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { GetContext } from '@/auth/infrastructure/decorators/get-context.decorator';
-import { ValidPermitions } from '@/auth/infrastructure/decorators/permit-protected.decorator';
+import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
 import { LoginUserCommand } from '@/auth/application/commands/login-user.command';
 import { RefreshSessionCommand } from '@/auth/application/commands/refresh-session.command';
@@ -58,11 +58,11 @@ export class AuthController {
     return result;
   }
 
-  @Auth(ValidPermitions.ADD_USER)
+  @Auth(PermissionNames.ADD_USER)
   @Post('register')
   register(@Body() dto: CreateUserDto) {
     this.commandBus.execute(
-      new CreateUserCommand(dto.username, dto.password, dto.role),
+      new CreateUserCommand(dto.username, dto.password, dto.role, dto.gender),
     );
   }
 

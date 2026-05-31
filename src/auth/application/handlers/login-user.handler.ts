@@ -107,7 +107,9 @@ export class LoginUserHandler extends BaseCommandHandler<
     ]);
     const rawAccessToken = this.jwtService.createAccessToken({
       id: user._id.unpack(),
+      role: role.name,
       rights: permissions.map((p) => p.name),
+      gender: user.gender,
     });
     const rawRefreshToken = this.jwtService.createRefreshToken({
       id: user._id.unpack(),

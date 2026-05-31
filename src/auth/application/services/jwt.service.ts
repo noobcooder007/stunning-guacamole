@@ -2,7 +2,9 @@ import { JwtService } from '@nestjs/jwt';
 
 export class AccessJwtPayload {
   id: string;
+  role: string;
   rights?: string[];
+  gender?: string;
 }
 
 export interface RefreshJwtPayload {

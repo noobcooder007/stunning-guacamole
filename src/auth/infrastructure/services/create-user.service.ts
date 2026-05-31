@@ -5,7 +5,7 @@ import { IPasswordHasher } from '@/auth/domain/services/password.hasher.service'
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
-import { User } from '@/auth/domain/aggregates/user.aggregate';
+import { User, UserGender } from '@/auth/domain/aggregates/user.aggregate';
 import { Role } from '@/auth/domain/aggregates/role.aggregate';
 
 @Injectable()
@@ -42,6 +42,7 @@ export class CreateUserService {
       username: data.username,
       password: hashedPassword,
       roleId: role._id,
+      gender: data.gender as UserGender,
     });
     const userId = await this.userRepository.save(userToSave);
     return Result.ok(userId);

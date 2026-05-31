@@ -112,8 +112,24 @@ export class SessionHandler extends BaseCommandHandler<
     command: RefreshSessionCommand,
     context: CommandMetadata,
   ): Promise<Result<TokenData>> {
+    if (!context.refreshToken) {
+      return Result.fail({
+        type: ErrorType.UNAUTHORIZED,
+        message: 'Refresh token not provided',
+        entity: SessionHandler.name,
+      });
+    }
+    let payload: { id: string; sessionId: string };
+    try {
+      payload = this.jwtService.verify(context.refreshToken);
+    } catch {
+      return Result.fail({
+        type: ErrorType.UNAUTHORIZED,
+        message: 'Invalid or expired refresh token',
+        entity: SessionHandler.name,
+      });
+    }
     const { sessionId: sessionIdFromRequest } = command;
-    const payload = this.jwtService.verify(context.refreshToken);
     const { id: userId, sessionId: sessionIdFromToken } = payload;
     if (sessionIdFromRequest !== sessionIdFromToken)
       return Result.fail({
@@ -153,7 +169,9 @@ export class SessionHandler extends BaseCommandHandler<
     ]);
     const newAccessToken = this.jwtService.createAccessToken({
       id: user._id.unpack(),
+      role: role.name,
       rights: permissions.map((p) => p.name),
+      gender: user.gender,
     });
     const newRawRefreshToken = this.jwtService.createRefreshToken({
       id: user._id.unpack(),

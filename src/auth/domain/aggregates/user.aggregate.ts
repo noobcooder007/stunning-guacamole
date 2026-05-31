@@ -25,10 +25,13 @@ export class UserId extends ValueObject<string> {
   }
 }
 
+export type UserGender = 'MALE' | 'FEMALE';
+
 export interface UserProps {
   username: string;
   password: string;
   roleId: RoleId;
+  gender?: UserGender;
   isActive?: boolean;
   createdAt?: Date;
   lastLogin?: Date;
@@ -104,6 +107,10 @@ export class User extends AggregateRoot {
 
   public get createdAt(): Date {
     return this.props.createdAt;
+  }
+
+  public get gender(): UserGender | undefined {
+    return this.props.gender;
   }
 
   public get lastLogin(): Date {

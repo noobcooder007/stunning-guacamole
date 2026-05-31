@@ -57,4 +57,7 @@ export class UserSchema implements IUserPersistence {
     default: true,
   })
   isActive: boolean;
+
+  @Column('enum', { enum: ['MALE', 'FEMALE'], nullable: true })
+  gender: string;
 }
