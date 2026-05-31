@@ -18,6 +18,15 @@ import { CreateUserService } from '@/auth/infrastructure/services/create-user.se
 import { JWTService } from '@/auth/application/services/jwt.service';
 import { LogoutHandler } from '@/auth/application/handlers/logout.handler';
 import { SeedHandler } from '@/auth/application/handlers/seed.handler';
+import { CreatePermissionHandler } from '@/auth/application/handlers/create-permission.handler';
+import { UpdatePermissionHandler } from '@/auth/application/handlers/update-permission.handler';
+import { DeactivatePermissionHandler } from '@/auth/application/handlers/deactivate-permission.handler';
+import { AssignPermissionsToRoleHandler } from '@/auth/application/handlers/assign-permissions-to-role.handler';
+import { GetAllPermissionsHandler } from '@/auth/application/handlers/get-all-permissions.handler';
+import { GetAllRolesHandler } from '@/auth/application/handlers/get-all-roles.handler';
+import { GetRoleByIdHandler } from '@/auth/application/handlers/get-role-by-id.handler';
+import { PermissionsController } from '@/auth/infrastructure/controllers/permissions.controller';
+import { RolesController } from '@/auth/infrastructure/controllers/roles.controller';
 
 @Module({
   imports: [
@@ -41,7 +50,7 @@ import { SeedHandler } from '@/auth/application/handlers/seed.handler';
     }),
     SharedModule,
   ],
-  controllers: [AuthController, SeedController],
+  controllers: [AuthController, SeedController, PermissionsController, RolesController],
   providers: [
     JwtStrategy,
     JWTService,
@@ -50,6 +59,13 @@ import { SeedHandler } from '@/auth/application/handlers/seed.handler';
     SessionHandler,
     LogoutHandler,
     SeedHandler,
+    CreatePermissionHandler,
+    UpdatePermissionHandler,
+    DeactivatePermissionHandler,
+    AssignPermissionsToRoleHandler,
+    GetAllPermissionsHandler,
+    GetAllRolesHandler,
+    GetRoleByIdHandler,
   ],
   exports: [
     TypeOrmModule,

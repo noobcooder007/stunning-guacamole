@@ -1,14 +1,12 @@
 import { applyDecorators, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import {
-  PermitProtected,
-  ValidPermitions,
-} from '@/auth/infrastructure/decorators/permit-protected.decorator';
-import { UserPermitGuard } from '@/auth/infrastructure/guards/user-permit.guard';
+import { Permissions } from './permissions.decorator';
+import { PermissionsGuard } from '../guards/permissions.guard';
+import { PermissionNames } from '@/auth/domain/constants/permissions';
 
-export function Auth(...roles: ValidPermitions[]) {
+export function Auth(...permissions: PermissionNames[]) {
   return applyDecorators(
-    PermitProtected(...roles),
-    UseGuards(AuthGuard(), UserPermitGuard),
+    Permissions(...permissions),
+    UseGuards(AuthGuard('jwt'), PermissionsGuard), // 'jwt' es el nombre por defecto del AuthGuard de Passport
   );
 }

@@ -84,4 +84,12 @@ export class Permission {
   public get createdAt(): Date {
     return this.props.createdAt;
   }
+
+  public update(description: string): void {
+    this.props.description = description;
+  }
+
+  public deactivate(): void {
+    this.props.isActive = false;
+  }
 }

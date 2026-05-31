@@ -18,6 +18,13 @@ export class TypeORMRoleRepository
     super(datasource, RoleSchema);
   }
 
+  async findAll(): Promise<Role[]> {
+    const rolesModel = await this.repository.find({
+      relations: { permissions: true },
+    });
+    return rolesModel.map((r) => RoleMapper.toDomain(r));
+  }
+
   async findPermissions(): Promise<Permission[]> {
     const permissionsModel = await this.dataSource
       .createQueryBuilder(PermissionSchema, 'p')

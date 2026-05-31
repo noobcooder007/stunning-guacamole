@@ -12,6 +12,60 @@ import { IPermissionRepository } from '@/auth/application/repositories/permissio
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
 import { CreateUserCommand } from '@/auth/application/commands/create-user.command';
+import { PermissionNames } from '@/auth/domain/constants/permissions';
+
+const PERMISSION_DESCRIPTIONS: Record<PermissionNames, string> = {
+  // Iglesias
+  [PermissionNames.ADD_CHURCH]: 'Añadir iglesia',
+  [PermissionNames.EDIT_CHURCH]: 'Editar iglesia',
+  [PermissionNames.DELETE_CHURCH]: 'Eliminar iglesia',
+  [PermissionNames.LIST_CHURCH]: 'Listar iglesias',
+  [PermissionNames.VIEW_CHURCH]: 'Ver iglesia',
+  // Usuarios
+  [PermissionNames.ADD_USER]: 'Añadir usuario',
+  [PermissionNames.EDIT_USER]: 'Editar usuario',
+  [PermissionNames.DELETE_USER]: 'Eliminar usuario',
+  [PermissionNames.VIEW_USER]: 'Ver usuario',
+  // Roles y permisos
+  [PermissionNames.ADD_ROLE]: 'Añadir rol',
+  [PermissionNames.EDIT_ROLE]: 'Editar rol',
+  [PermissionNames.DELETE_ROLE]: 'Eliminar rol',
+  [PermissionNames.VIEW_ROLE]: 'Ver rol',
+  [PermissionNames.ADD_PERMISSION]: 'Añadir permiso',
+  [PermissionNames.EDIT_PERMISSION]: 'Editar permiso',
+  [PermissionNames.DELETE_PERMISSION]: 'Eliminar permiso',
+  [PermissionNames.VIEW_PERMISSION]: 'Ver permiso',
+  // Colectores
+  [PermissionNames.ADD_COLLECTOR]: 'Añadir colector',
+  [PermissionNames.EDIT_COLLECTOR]: 'Editar colector',
+  [PermissionNames.DELETE_COLLECTOR]: 'Eliminar colector',
+  [PermissionNames.VIEW_COLLECTOR]: 'Ver colector',
+  // Bienhechores
+  [PermissionNames.ADD_BENEFICIENT]: 'Añadir bienhechor',
+  [PermissionNames.EDIT_BENEFICIENT]: 'Editar bienhechor',
+  [PermissionNames.DELETE_BENEFICIENT]: 'Eliminar bienhechor',
+  [PermissionNames.VIEW_BENEFICIENT]: 'Ver bienhechor',
+  // Promesas de donación
+  [PermissionNames.ADD_PROMISE_DONATION]: 'Añadir promesa de donación',
+  [PermissionNames.EDIT_PROMISE_DONATION]: 'Editar promesa de donación',
+  [PermissionNames.DELETE_PROMISE_DONATION]: 'Eliminar promesa de donación',
+  [PermissionNames.VIEW_PROMISE_DONATION]: 'Ver promesa de donación',
+  // Recibos
+  [PermissionNames.ADD_INVOICE]: 'Generar recibo',
+  [PermissionNames.EDIT_INVOICE]: 'Editar recibo',
+  [PermissionNames.DELETE_INVOICE]: 'Eliminar recibo',
+  [PermissionNames.VIEW_INVOICE]: 'Ver recibo',
+  // Pagos
+  [PermissionNames.ADD_PAYMENT]: 'Añadir pago',
+  [PermissionNames.EDIT_PAYMENT]: 'Editar pago',
+  [PermissionNames.DELETE_PAYMENT]: 'Eliminar pago',
+  [PermissionNames.VIEW_PAYMENT]: 'Ver pago',
+  // Donaciones
+  [PermissionNames.ADD_DONATION]: 'Añadir donación',
+  [PermissionNames.EDIT_DONATION]: 'Editar donación',
+  [PermissionNames.DELETE_DONATION]: 'Eliminar donación',
+  [PermissionNames.VIEW_DONATION]: 'Ver donación',
+};
 
 @CommandHandler(SeedCommand)
 export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
@@ -28,50 +82,82 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
 
   protected async process(command: SeedCommand): Promise<Result<void>> {
     await this.uow.runInTransaction(async () => {
-      // TODO: Terminar de definir los permisos para cada rol y moverlo a un command handler
-      const addChurchPermission = Permission.create({
-        name: 'add:church',
-        description: 'Añadir inglesia',
-      });
-      const viewChurchPermission = Permission.create({
-        name: 'view:church',
-        description: 'Ver inglesia',
-      });
-      const viewInvoicePermission = Permission.create({
-        name: 'view:invoice',
-        description: 'Ver recibos',
-      });
-      await this.permissionRepository.save([
-        addChurchPermission,
-        viewChurchPermission,
-        viewInvoicePermission,
-      ]);
+      const permissionMap = this.buildPermissionMap();
+      const allPermissions = Object.values(permissionMap);
+      await this.permissionRepository.save(allPermissions);
+
+      const p = permissionMap;
+
       const superAdmin = Role.create({
         name: 'superadministrator',
-        description: 'Rol dedicado a actividades de administración',
-        permissions: new Set([addChurchPermission]),
+        description: 'Acceso total al sistema',
+        permissions: new Set(allPermissions),
       });
+
       const adminRole = Role.create({
         name: 'administrator',
-        description: 'Rol dedicado a actividades de administración',
-        permissions: new Set([addChurchPermission]),
+        description:
+          'Gestión completa de iglesias, colectores, bienhechores y donaciones',
+        permissions: new Set([
+          p[PermissionNames.ADD_CHURCH],
+          p[PermissionNames.EDIT_CHURCH],
+          p[PermissionNames.LIST_CHURCH],
+          p[PermissionNames.VIEW_CHURCH],
+          p[PermissionNames.ADD_USER],
+          p[PermissionNames.EDIT_USER],
+          p[PermissionNames.VIEW_USER],
+          p[PermissionNames.VIEW_ROLE],
+          p[PermissionNames.EDIT_ROLE],
+          p[PermissionNames.VIEW_PERMISSION],
+          p[PermissionNames.EDIT_PERMISSION],
+          p[PermissionNames.ADD_COLLECTOR],
+          p[PermissionNames.EDIT_COLLECTOR],
+          p[PermissionNames.VIEW_COLLECTOR],
+          p[PermissionNames.ADD_BENEFICIENT],
+          p[PermissionNames.EDIT_BENEFICIENT],
+          p[PermissionNames.VIEW_BENEFICIENT],
+          p[PermissionNames.ADD_PROMISE_DONATION],
+          p[PermissionNames.EDIT_PROMISE_DONATION],
+          p[PermissionNames.VIEW_PROMISE_DONATION],
+          p[PermissionNames.ADD_INVOICE],
+          p[PermissionNames.EDIT_INVOICE],
+          p[PermissionNames.VIEW_INVOICE],
+          p[PermissionNames.VIEW_PAYMENT],
+          p[PermissionNames.VIEW_DONATION],
+        ]),
       });
+
       const collectorRole = Role.create({
         name: 'collector',
-        description: 'Rol dedicado a actividades de colector',
-        permissions: new Set([viewChurchPermission]),
+        description:
+          'Generación e impresión de recibos para bienhechores asignados',
+        permissions: new Set([
+          p[PermissionNames.VIEW_CHURCH],
+          p[PermissionNames.VIEW_COLLECTOR],
+          p[PermissionNames.VIEW_BENEFICIENT],
+          p[PermissionNames.VIEW_PROMISE_DONATION],
+          p[PermissionNames.ADD_INVOICE],
+          p[PermissionNames.EDIT_INVOICE],
+          p[PermissionNames.VIEW_INVOICE],
+        ]),
       });
+
       const beneficientRole = Role.create({
         name: 'beneficient',
-        description: 'Role dedicado a actividades de bienhechor',
-        permissions: new Set([viewInvoicePermission]),
+        description: 'Consulta de recibos y promesas de donación propias',
+        permissions: new Set([
+          p[PermissionNames.VIEW_INVOICE],
+          p[PermissionNames.VIEW_PROMISE_DONATION],
+        ]),
       });
+
       await this.roleRepository.save([
         superAdmin,
         adminRole,
         collectorRole,
         beneficientRole,
       ]);
+
       const result = await this.createUserService.execute(
         new CreateUserCommand(
           command.username,
@@ -88,5 +174,14 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
       }
     });
     return Result.ok<void>(undefined);
+  }
+
+  private buildPermissionMap(): Record<PermissionNames, Permission> {
+    return Object.fromEntries(
+      Object.values(PermissionNames).map((name) => [
+        name,
+        Permission.create({ name, description: PERMISSION_DESCRIPTIONS[name] }),
+      ]),
+    ) as Record<PermissionNames, Permission>;
   }
 }

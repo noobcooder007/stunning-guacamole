@@ -18,6 +18,21 @@ export class TypeORMPermissionRepository
     super(datasource, PermissionSchema);
   }
 
+  async findById(id: string): Promise<Permission | null> {
+    const permissionModel = await this.repository.findOne({ where: { id } });
+    if (!permissionModel) return null;
+    return PermissionMapper.toDomain(permissionModel);
+  }
+
+  async findByIds(ids: string[]): Promise<Permission[]> {
+    if (ids.length === 0) return [];
+    const permissionsModel = await this.repository
+      .createQueryBuilder('p')
+      .where('p.id IN (:...ids)', { ids })
+      .getMany();
+    return permissionsModel.map((p) => PermissionMapper.toDomain(p));
+  }
+
   async findByRoleId(roleId: string): Promise<Permission[]> {
     const permissions = await this.repository.find({
       where: {
