@@ -18,25 +18,17 @@ export interface ReceiptData {
   keepPrivate: boolean;
 }
 
+function fmt(amount: number, currency: string): string {
+  return `$${Number(amount).toFixed(2)} ${currency}`;
+}
+
 export const receiptTemplate = (
   receipts: ReceiptData[],
-): TDocumentDefinitions => {
-  const styles = {
-    watermark: {
-      fontSize: 45,
-      bold: true,
-      color: 'red',
-      opacity: 0.15,
-      characterSpacing: 2,
-    },
-  };
-  return {
-    styles: styles,
-    content: receipts.map((receipt) =>
-      createReceipt(receipt, receipt.printCount > 0, receipt.keepPrivate),
-    ),
-  };
-};
+): TDocumentDefinitions => ({
+  content: receipts.map((r) =>
+    createReceipt(r, r.printCount > 0, r.keepPrivate),
+  ),
+});
 
 function createReceipt(
   receipt: ReceiptData,
@@ -53,39 +45,67 @@ function createReceipt(
           dontBreakRows: true,
           body: [
             [
+              // ── TALÓN (izquierda) ──────────────────────────────────────
               {
                 stack: [
                   {
                     text: receipt.folio,
                     alignment: 'center',
                     bold: true,
-                    margin: [0, 0, 0, 10],
+                    fontSize: 9,
+                    margin: [0, 4, 0, 4],
                   },
                   {
-                    text: `${receipt.recurrence} ${receipt.period}`,
+                    canvas: [
+                      {
+                        type: 'line',
+                        x1: 0, y1: 0, x2: 250, y2: 0,
+                        lineWidth: 0.5,
+                        lineColor: '#cccccc',
+                      },
+                    ],
+                    margin: [0, 0, 0, 8],
                   },
                   {
-                    text: `DONATIVO: $${receipt.amount}${receipt.currency}`,
+                    text: `${receipt.recurrence}  ${receipt.period}`,
+                    fontSize: 8,
+                    color: '#888888',
+                    margin: [0, 0, 0, 2],
+                  },
+                  {
+                    text: `DONATIVO: ${fmt(receipt.amount, receipt.currency)}`,
                     alignment: 'right',
                     bold: true,
-                    fontSize: 16,
+                    fontSize: 15,
+                    margin: [0, 0, 0, 6],
                   },
                   {
                     text: receipt.donorName,
                     bold: true,
-                    fontSize: 14,
+                    fontSize: 12,
+                    margin: [0, 0, 0, 2],
                   },
                   {
                     text: receipt.addressDonor,
+                    fontSize: 8,
+                    color: '#666666',
+                    margin: [0, 0, 0, 1],
                   },
                   {
                     text: receipt.telephoneDonor,
+                    fontSize: 8,
+                    color: '#666666',
+                    margin: [0, 0, 0, 4],
                   },
                   {
                     text: `COLECTOR: ${receipt.collector}`,
+                    fontSize: 8,
+                    color: '#555555',
                   },
                   receipt.beneficient && {
                     text: `BIENHECHOR: ${receipt.beneficient}`,
+                    fontSize: 8,
+                    color: '#555555',
                   },
                   {
                     qr: receipt.folio,
@@ -94,15 +114,18 @@ function createReceipt(
                     background: 'white',
                     eccLevel: 'M',
                     alignment: 'center',
-                    margin: [0, 20, 0, 20],
+                    margin: [0, 12, 0, 10],
                   },
                   {
                     text: receipt.folio,
                     alignment: 'center',
-                    bold: true,
+                    fontSize: 7,
+                    color: '#aaaaaa',
                   },
                 ],
               },
+
+              // ── RECIBO PRINCIPAL (derecha) ─────────────────────────────
               {
                 stack: [
                   showWatermark
@@ -113,7 +136,7 @@ function createReceipt(
                             text: `DUPLICADO / REIMPRESIÓN #${receipt.printCount}`,
                             alignment: 'center',
                             bold: true,
-                            fontSize: 24,
+                            fontSize: 22,
                             color: 'red',
                             opacity: 0.15,
                           },
@@ -121,7 +144,7 @@ function createReceipt(
                             text: 'DOCUMENTO VÁLIDO ÚNICAMENTE PARA CONTROL INTERNO',
                             alignment: 'center',
                             bold: true,
-                            fontSize: 8,
+                            fontSize: 7,
                             color: 'red',
                             opacity: 0.15,
                           },
@@ -133,13 +156,26 @@ function createReceipt(
                     text: receipt.folio,
                     alignment: 'center',
                     bold: true,
-                    margin: [0, 0, 0, 10],
+                    fontSize: 9,
+                    margin: [0, 4, 0, 4],
                   },
                   {
-                    text: `DONATIVO: $${receipt.amount}${receipt.currency}`,
+                    canvas: [
+                      {
+                        type: 'line',
+                        x1: 0, y1: 0, x2: 250, y2: 0,
+                        lineWidth: 0.5,
+                        lineColor: '#cccccc',
+                      },
+                    ],
+                    margin: [0, 0, 0, 6],
+                  },
+                  {
+                    text: `DONATIVO: ${fmt(receipt.amount, receipt.currency)}`,
                     alignment: 'right',
-                    fontSize: 20,
+                    fontSize: 18,
                     bold: true,
+                    margin: [0, 0, 0, 4],
                   },
                   {
                     columns: [
@@ -147,24 +183,33 @@ function createReceipt(
                         width: '*',
                         stack: [
                           {
-                            text: `${receipt.recurrence} ${receipt.period}`,
+                            text: `${receipt.recurrence}  ${receipt.period}`,
+                            fontSize: 8,
+                            color: '#888888',
+                            margin: [0, 0, 0, 2],
                           },
                           {
                             text: keepPrivate
                               ? MaskHelper.mask(receipt.donorName)
                               : receipt.donorName,
                             bold: true,
-                            fontSize: 14,
+                            fontSize: 13,
+                            margin: [0, 0, 0, 2],
                           },
                           {
                             text: keepPrivate
                               ? `******${receipt.addressDonor.slice(-4)}`
                               : receipt.addressDonor,
+                            fontSize: 8,
+                            color: '#666666',
+                            margin: [0, 0, 0, 1],
                           },
                           {
                             text: keepPrivate
                               ? MaskHelper.mask(receipt.telephoneDonor)
                               : receipt.telephoneDonor,
+                            fontSize: 8,
+                            color: '#666666',
                           },
                         ],
                       },
@@ -186,12 +231,15 @@ function createReceipt(
                   {
                     text: `CADENA DE VALIDACIÓN: ${receipt.chainValidator}`,
                     alignment: 'right',
-                    margin: [0, 20, 0, 0],
+                    fontSize: 7,
+                    color: '#aaaaaa',
+                    margin: [0, 14, 0, 6],
                   },
                   {
                     text: receipt.folio,
                     alignment: 'center',
-                    bold: true,
+                    fontSize: 7,
+                    color: '#aaaaaa',
                   },
                 ],
               },

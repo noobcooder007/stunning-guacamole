@@ -30,7 +30,7 @@ export class ReceiptSchema implements IReceiptPersistence {
   folio: string;
 
   @Column('enum', {
-    enum: ['RECURRING', 'SPECIAL', 'IN_BLANK'],
+    enum: ['RECURRING', 'SPECIAL'],
   })
   type: string;
 
@@ -101,4 +101,10 @@ export class ReceiptSchema implements IReceiptPersistence {
 
   @Column('text', { nullable: true })
   chainValidator: string;
+
+  @Column('uuid', { nullable: true })
+  collectionPeriodId: string;
+
+  @Column('timestamp with time zone', { nullable: true })
+  paidAt: Date;
 }

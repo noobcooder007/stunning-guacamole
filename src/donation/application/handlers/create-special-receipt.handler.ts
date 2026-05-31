@@ -3,7 +3,7 @@ import { CommandHandler } from '@nestjs/cqrs';
 import Stream from 'stream';
 import { UnitOfWork } from '@/database/unit-of-work';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
-import { Result, IErrorResult } from '@/shared/domain/dto/result.dto';
+import { ErrorType, Result, IErrorResult } from '@/shared/domain/dto/result.dto';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { CreateSpecialReceiptCommand } from '@/donation/application/command/create-special-receipt.command';
@@ -23,6 +23,7 @@ import {
 } from '@/donation/application/templates/receipt.template';
 import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
 import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
+import { ICollectionPeriodRepository } from '@/donation/domain/repositories/collection-period.repository';
 
 @CommandHandler(CreateSpecialReceiptCommand)
 export class CreateSpecialReceiptHandler extends BaseCommandHandler<
@@ -37,6 +38,8 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
     private readonly collectorRepository: ICollectorRepository,
     @Inject(REPOSITORY_TOKENS.BENEFICIENT)
     private readonly beneficientRepository: IBeneficientRepository,
+    @Inject(REPOSITORY_TOKENS.COLLECTION_PERIOD)
+    private readonly periodRepository: ICollectionPeriodRepository,
     @Inject('IBlindIndexHasher')
     private readonly hasher: IDataHasher,
     @Inject('IPrinterService')
@@ -90,6 +93,27 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
       'NOV',
       'DIC',
     ];
+    const openPeriod = await this.periodRepository.findOpen();
+    const collectionPeriodId = openPeriod?._id.unpack();
+
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    const alreadyExists = await this.receiptRepository.existsSpecial(
+      command.beneficientId,
+      command.collectorId,
+      month,
+      year,
+    );
+    if (alreadyExists) {
+      return Result.fail({
+        type: ErrorType.CONFLICT,
+        message: 'A special receipt already exists for this beneficient and collector in the current period',
+        entity: 'Receipt',
+      });
+    }
+
     const { specialReceipt } = await this.uow.runInTransaction(async () => {
       const folio = await this.folioProvider.generateNext(
         command.collectorId,
@@ -101,7 +125,8 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
         CollectorId.of(command.collectorId),
         UserId.of(command.userId),
         null,
-        command.beneficientId && BeneficientId.of(command.beneficientId),
+        BeneficientId.of(command.beneficientId),
+        collectionPeriodId,
       );
       specialReceipt.updatePrintCount();
       await specialReceipt.generateValidationChain(this.hasher);

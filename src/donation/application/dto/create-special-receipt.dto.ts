@@ -22,7 +22,7 @@ export class CreateSpecialReceiptDto {
   @IsEnum(actualCurrencies)
   currency: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsUUID()
   beneficientId: string;
 

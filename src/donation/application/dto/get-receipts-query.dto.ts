@@ -19,6 +19,6 @@ export class GetReceiptsQueryDto extends PaginationDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @IsEnum(['RECURRING', 'SPECIAL', 'IN_BLANK'])
+  @IsEnum(['RECURRING', 'SPECIAL'])
   type: string;
 }

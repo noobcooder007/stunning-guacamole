@@ -36,6 +36,8 @@ export interface IReceiptPersistence {
   createdBy: string;
   updatedBy: string;
   chainValidator: string;
+  collectionPeriodId: string;
+  paidAt: Date;
 }
 
 export class ReceiptMapper {
@@ -52,8 +54,8 @@ export class ReceiptMapper {
       externalReference: receipt.externalReference,
       promiseDonationId:
         receipt.promiseDonation && receipt.promiseDonation.unpack(),
-      periodMonth: receipt.createdAt.getMonth() + 1,
-      periodYear: receipt.createdAt.getFullYear(),
+      periodMonth: receipt.periodMonth ?? receipt.createdAt.getMonth() + 1,
+      periodYear: receipt.periodYear ?? receipt.createdAt.getFullYear(),
       beneficientId: receipt.beneficient && receipt.beneficient.unpack(),
       collectorId: receipt.collector.unpack(),
       printCount: receipt.printCount,
@@ -64,6 +66,8 @@ export class ReceiptMapper {
       createdBy: receipt.createdBy.unpack(),
       updatedBy: receipt.updatedBy.unpack(),
       chainValidator: receipt.chainValidator,
+      collectionPeriodId: receipt.collectionPeriodId,
+      paidAt: receipt.paidAt,
     };
   }
 
@@ -89,6 +93,8 @@ export class ReceiptMapper {
       createdBy: UserId.of(raw.createdBy),
       updatedBy: UserId.of(raw.updatedBy),
       chainValidator: raw.chainValidator,
+      collectionPeriodId: raw.collectionPeriodId,
+      paidAt: raw.paidAt,
     });
   }
 }

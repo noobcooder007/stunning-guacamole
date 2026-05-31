@@ -27,13 +27,12 @@ export class ReceiptFolioProvider {
   private readonly TYPE_PREFIX = {
     RECURRING: 'R',
     SPECIAL: 'S',
-    IN_BLANK: 'B',
   };
 
-  async generateNext(collectorId: string, type: string): Promise<ReceiptFolio> {
-    const now = new Date();
-    const year = now.getFullYear();
-    const monthIndex = now.getMonth();
+  async generateNext(collectorId: string, type: string, date?: Date): Promise<ReceiptFolio> {
+    const target = date ?? new Date();
+    const year = target.getFullYear();
+    const monthIndex = target.getMonth();
 
     const [shortCode, sequence] = await Promise.all([
       this.receiptSequenceRepository.getCollectorShortCode(collectorId),
