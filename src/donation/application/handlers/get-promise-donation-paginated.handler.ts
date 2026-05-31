@@ -22,8 +22,10 @@ export class GetPromiseDonationsPaginatedHandler extends BaseQueryHandler<
   protected async handle(
     query: GetPromiseDonationQueryParams,
   ): Promise<Result<Paginated<PromiseDonationResponse>>> {
-    const paginatedChurches =
+    const paginatedPromisesDonation =
       await this.promisesQueryService.searchPromiseDonations(query);
-    return Result.ok<Paginated<PromiseDonationResponse>>(paginatedChurches);
+    return Result.ok<Paginated<PromiseDonationResponse>>(
+      paginatedPromisesDonation,
+    );
   }
 }

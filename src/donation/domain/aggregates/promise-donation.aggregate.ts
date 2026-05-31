@@ -158,6 +158,8 @@ export class PromiseDonation extends AggregateRoot {
     this.props.isActive = false;
     this.props.reasonDeactivate = reason;
     this.props.updatedAt = new Date();
+    this.props.startDate = null;
+    this.props.nextDonation = null;
   }
 
   public updateNextDonation(): void {
@@ -178,6 +180,11 @@ export class PromiseDonation extends AggregateRoot {
 
   public updateLastDonation(): void {
     this.props.lastDonation = new Date();
+    this.props.updatedAt = new Date();
+  }
+
+  public updateLastDonationTo(date: Date): void {
+    this.props.lastDonation = date;
     this.props.updatedAt = new Date();
   }
 }

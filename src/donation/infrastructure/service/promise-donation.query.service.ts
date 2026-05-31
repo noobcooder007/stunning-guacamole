@@ -7,6 +7,8 @@ import { PromiseDonationResponse } from '@/donation/application/dto/promise-dona
 import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
 import { GetPromiseDonationQueryParams } from '@/donation/application/query/get-promise-donation-paginated.query';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
+import { GetPromiseDonationWithBeneficientsQueryParams } from '../../application/query/get-promise-donation-with-beneficients-paginated.query';
+import { PromiseDonationWithBeneficientsResponse } from '../../application/dto/promise-donation-with-beneficients.response.dto';
 
 @Injectable()
 export class PromiseDonationQueryService extends BaseQueryService {
@@ -19,6 +21,20 @@ export class PromiseDonationQueryService extends BaseQueryService {
   ): Promise<Paginated<PromiseDonationResponse>> {
     const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(PromiseDonationSchema, 'promise');
+    this.applyFilters(qb, 'promise', filters);
+    this.applyPagination(qb, page, limit);
+    const [items, total] = await qb.getManyAndCount();
+
+    const meta = new PaginationMetaDto(page, limit, total);
+    return new Paginated(items, meta);
+  }
+
+  async searchPromiseDonationsWithBeneficients(
+    query: GetPromiseDonationWithBeneficientsQueryParams,
+  ): Promise<Paginated<PromiseDonationWithBeneficientsResponse>> {
+    const { page, limit, ...filters } = query;
+    const qb = this.getQueryBuilder(PromiseDonationSchema, 'promise');
+    qb.leftJoinAndSelect('promise.beneficient', 'beneficient');
     this.applyFilters(qb, 'promise', filters);
     this.applyPagination(qb, page, limit);
     const [items, total] = await qb.getManyAndCount();
