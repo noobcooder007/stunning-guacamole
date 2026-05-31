@@ -17,6 +17,9 @@ export class ResultInterceptor implements NestInterceptor {
     const response = http.getResponse();
     return next.handle().pipe(
       map((result: Result<any>) => {
+        if (!(result instanceof Result)) {
+          return result;
+        }
         if (result && result.isSuccess) {
           let statusCode = HttpStatus.OK;
           const val = result.value;

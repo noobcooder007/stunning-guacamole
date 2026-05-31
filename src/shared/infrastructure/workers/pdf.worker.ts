@@ -17,10 +17,32 @@ pdfmake.addFonts({
   },
 });
 
+const tableLayouts = {
+  noPadding: {
+    hLineWidth: () => 0,
+    vLineWidth: () => 0,
+    paddingLeft: () => 0,
+    paddingRight: () => 0,
+    paddingTop: () => 0,
+    paddingBottom: () => 0,
+  },
+  letterTable: {
+    hLineWidth: (i, node) =>
+      i === 0 || i === 1 || i === node.table.body.length ? 0.5 : 0,
+    vLineWidth: () => 0,
+    hLineColor: () => '#cccccc',
+    paddingTop: () => 5,
+    paddingBottom: () => 5,
+    paddingLeft: () => 4,
+    paddingRight: () => 4,
+  },
+};
+
 async function generate() {
   try {
     const { docDefinition } = workerData;
-    const pdfDoc = pdfmake.createPdf(docDefinition);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pdfDoc = (pdfmake.createPdf as any)(docDefinition, tableLayouts);
 
     // Obtenemos el stream
     const buffer = await pdfDoc.getBuffer();

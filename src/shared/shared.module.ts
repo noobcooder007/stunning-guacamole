@@ -3,6 +3,7 @@ import { BcryptHasher } from '@/shared/infrastructure/security/bcrypt.hasher';
 import { TokenHasher } from '@/shared/infrastructure/security/token-hasher';
 import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 import { PDFService } from '@/shared/application/service/pdf.service';
+import { AuditService } from '@/shared/infrastructure/services/audit.service';
 
 @Module({
   providers: [
@@ -24,6 +25,7 @@ import { PDFService } from '@/shared/application/service/pdf.service';
       useClass: PDFService,
     },
     EncryptionService,
+    AuditService,
   ],
   exports: [
     'IPasswordHasher',
@@ -31,6 +33,7 @@ import { PDFService } from '@/shared/application/service/pdf.service';
     'IBlindIndexHasher',
     'IPrinterService',
     EncryptionService,
+    AuditService,
   ],
 })
 export class SharedModule {}
