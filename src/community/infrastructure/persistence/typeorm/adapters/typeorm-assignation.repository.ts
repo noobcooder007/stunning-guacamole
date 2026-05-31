@@ -32,15 +32,16 @@ export class TypeORMAssignationRepository
 
   async findActivesByIds(ids: string[]): Promise<Assignation[]> {
     const assignations = await this.repository.find({
-      where: {
-        id: In(ids),
-        isActive: true,
-      },
+      where: { id: In(ids), isActive: true },
     });
-    if (!assignations) {
-      return [];
-    }
-    return assignations.map((a) => AssignationMapper.toDomain(a));
+    return (assignations ?? []).map((a) => AssignationMapper.toDomain(a));
+  }
+
+  async findByIds(ids: string[]): Promise<Assignation[]> {
+    const assignations = await this.repository.find({
+      where: { id: In(ids) },
+    });
+    return (assignations ?? []).map((a) => AssignationMapper.toDomain(a));
   }
 
   async findActiveByCollectorIdAndBeneficientIds(

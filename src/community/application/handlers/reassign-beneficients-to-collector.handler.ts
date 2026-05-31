@@ -49,27 +49,33 @@ export class ReassignBeneficientsToCollectorHandler extends BaseCommandHandler<
     }
     await this.uow.runInTransaction(async () => {
       const ids = command.assignationsIds.map((a) => a.assignationId);
-      const oldAssignations =
-        await this.assignationRepository.findActivesByIds(ids);
-      if (oldAssignations.length !== command.assignationsIds.length) {
+      const allAssignations = await this.assignationRepository.findByIds(ids);
+      if (allAssignations.length !== command.assignationsIds.length) {
         throw new DomainException(
           'Assignations not found',
           ReassignBeneficientsToCollectorHandler.name,
           ErrorType.NOT_FOUND,
         );
       }
-      const beneficientsIds = oldAssignations.map((a) =>
+      const beneficientsIds = allAssignations.map((a) =>
         a.beneficientId.unpack(),
       );
-      const assignamentsDeactivated = await this.assignationService.deactivate(
-        command.assignationsIds,
+      const stillActiveIds = command.assignationsIds.filter((a) =>
+        allAssignations.find(
+          (old) => old._id.unpack() === a.assignationId && old.isActive,
+        ),
       );
-      if (!assignamentsDeactivated.isSuccess) {
-        throw new DomainException(
-          assignamentsDeactivated.error.message,
-          assignamentsDeactivated.error.entity,
-          assignamentsDeactivated.error.type,
+      if (stillActiveIds.length > 0) {
+        const assignamentsDeactivated = await this.assignationService.deactivate(
+          stillActiveIds,
         );
+        if (!assignamentsDeactivated.isSuccess) {
+          throw new DomainException(
+            assignamentsDeactivated.error.message,
+            assignamentsDeactivated.error.entity,
+            assignamentsDeactivated.error.type,
+          );
+        }
       }
       const assignamentsDone = await this.assignationService.createOrReactivate(
         command.collectorId,

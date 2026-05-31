@@ -6,12 +6,23 @@ import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { MarkAsPaidReceiptsCommand } from '@/donation/application/command/mark-as-paid-receipts.command';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { IReceiptRepository } from '@/donation/domain/repositories/receipt.repository';
+import { ICollectionPeriodRepository } from '@/donation/domain/repositories/collection-period.repository';
+
+export interface PaidReceiptsResponse {
+  currentPeriod: string[];
+  previousPeriods: string[];
+}
 
 @CommandHandler(MarkAsPaidReceiptsCommand)
-export class MarkAsPaidReceiptsCommandHandler extends BaseCommandHandler<MarkAsPaidReceiptsCommand> {
+export class MarkAsPaidReceiptsCommandHandler extends BaseCommandHandler<
+  MarkAsPaidReceiptsCommand,
+  PaidReceiptsResponse
+> {
   constructor(
     @Inject(REPOSITORY_TOKENS.RECEIPT)
     private readonly receiptRepository: IReceiptRepository,
+    @Inject(REPOSITORY_TOKENS.COLLECTION_PERIOD)
+    private readonly periodRepository: ICollectionPeriodRepository,
     private readonly uow: UnitOfWork,
   ) {
     super();
@@ -19,25 +30,49 @@ export class MarkAsPaidReceiptsCommandHandler extends BaseCommandHandler<MarkAsP
 
   protected async process(
     command: MarkAsPaidReceiptsCommand,
-  ): Promise<Result<any, IErrorResult>> {
-    const receipts = await this.receiptRepository.findByFolios(
-      Array.from(command.receipts.map((receipt) => receipt.receiptFolio)),
-    );
-    if (!receipts) return Result.ok(null);
-    const receiptsPaid = [];
+  ): Promise<Result<PaidReceiptsResponse, IErrorResult>> {
+    const [receipts, openPeriod] = await Promise.all([
+      this.receiptRepository.findByFolios(
+        command.receipts.map((r) => r.receiptFolio),
+      ),
+      this.periodRepository.findOpen(),
+    ]);
+
+    if (!receipts || receipts.length === 0) return Result.ok({ currentPeriod: [], previousPeriods: [] });
+
+    const periodId = openPeriod?._id.unpack();
+    const currentPeriodFolios: string[] = [];
+    const previousPeriodFolios: string[] = [];
+
     await this.uow.runInTransaction(async () => {
-      receipts.forEach((receipt) => {
-        const receiptMeta = command.receipts.find(
+      const toPay = receipts.filter((r) => r.status === 'PENDING');
+      toPay.forEach((receipt) => {
+        const meta = command.receipts.find(
           (r) => r.receiptFolio === receipt.folio.unpack(),
         );
         receipt.markAsPaid(
-          receiptMeta.paymentMethod as 'CASH' | 'TRANSFER' | 'CARD',
-          receiptMeta.externalReference,
+          meta.paymentMethod as 'CASH' | 'TRANSFER' | 'CARD',
+          periodId,
+          meta.externalReference,
         );
-        receiptsPaid.push(receipt.folio.unpack());
+
+        const isCurrentPeriod =
+          openPeriod &&
+          receipt.periodMonth === openPeriod.month &&
+          receipt.periodYear === openPeriod.year;
+
+        if (isCurrentPeriod) {
+          currentPeriodFolios.push(receipt.folio.unpack());
+        } else {
+          previousPeriodFolios.push(receipt.folio.unpack());
+        }
       });
-      await this.receiptRepository.save(receipts);
+      if (toPay.length > 0) await this.receiptRepository.save(toPay);
     });
-    return Result.ok(receiptsPaid);
+
+    return Result.ok<PaidReceiptsResponse>({
+      currentPeriod: currentPeriodFolios,
+      previousPeriods: previousPeriodFolios,
+    });
   }
 }

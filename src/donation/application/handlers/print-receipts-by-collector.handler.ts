@@ -58,14 +58,14 @@ export class PrintReceiptsByCollectorHandler extends BaseCommandHandler<
   protected async process(
     command: PrintReceiptsByCollectorCommand,
   ): Promise<Result<Stream.Readable>> {
-    const recurrenceMap = [
-      'MENSUAL',
-      'BIMESTRAL',
-      'TRIMESTRAL',
-      'CUATRIMESTRAL',
-      'SEMESTRAL',
-      'ANUAL',
-    ];
+    const recurrenceMap: Record<number, string> = {
+      1: 'MENSUAL',
+      2: 'BIMESTRAL',
+      3: 'TRIMESTRAL',
+      4: 'CUATRIMESTRAL',
+      6: 'SEMESTRAL',
+      12: 'ANUAL',
+    };
     const months = [
       'ENE',
       'FEB',
@@ -80,13 +80,14 @@ export class PrintReceiptsByCollectorHandler extends BaseCommandHandler<
       'NOV',
       'DIC',
     ];
-    const receipts = await this.receiptRepository.findAllPendingByCollectorId(
-      command.collectorId,
+    const receipts = await this.receiptRepository.findAllForPrint(
+      command.filters,
     );
-    if (!receipts) return Result.ok(null);
+    if (!receipts.length) return Result.ok(null);
     const collectorPhotosCache: Map<string, string> = new Map();
     const receiptsToPrint: ReceiptData[] = [];
     for (const receipt of receipts) {
+      if (!receipt.collector) continue;
       let photoBase64 = collectorPhotosCache.get(receipt.collectorId);
       if (!photoBase64 && receipt.collector.profilePath) {
         photoBase64 = await this.getBase64FromUrl(
@@ -94,21 +95,30 @@ export class PrintReceiptsByCollectorHandler extends BaseCommandHandler<
         );
         collectorPhotosCache.set(receipt.collectorId, photoBase64);
       }
+      const recurrence = receipt.promiseDonation
+        ? (recurrenceMap[receipt.promiseDonation.recurrence] ?? '')
+        : receipt.type === 'SPECIAL'
+          ? 'ESPECIAL'
+          : 'EN BLANCO';
       receiptsToPrint.push({
         folio: receipt.folio,
         printCount: receipt.printCount,
-        recurrence: recurrenceMap[receipt.promiseDonation.recurrence - 1],
+        recurrence,
         period: `${months[receipt.periodMonth - 1]}${receipt.periodYear}`,
         amount: receipt.amount,
         currency: receipt.currency,
-        donorName: this.getBeneficientsFullname(receipt.beneficient),
-        addressDonor: this.getBeneficientAddress(receipt.beneficient),
-        telephoneDonor: receipt.beneficient.phoneNumber,
+        donorName: receipt.beneficient
+          ? this.getBeneficientsFullname(receipt.beneficient)
+          : '',
+        addressDonor: receipt.beneficient
+          ? this.getBeneficientAddress(receipt.beneficient)
+          : '',
+        telephoneDonor: receipt.beneficient?.phoneNumber ?? '',
         chainValidator: receipt.chainValidator,
         photoCollector: photoBase64,
         collector: receipt.collector.collectorNumber,
-        beneficient: receipt.beneficient.beneficientNumber,
-        keepPrivate: receipt.beneficient.keepPrivate,
+        beneficient: receipt.beneficient?.beneficientNumber ?? null,
+        keepPrivate: receipt.beneficient?.keepPrivate ?? false,
       });
     }
     const receiptsEntity = receipts.map((receipt) =>

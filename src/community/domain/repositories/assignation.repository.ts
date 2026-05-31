@@ -6,6 +6,7 @@ export abstract class IAssignationRepository {
   abstract save(assignation: Assignation): Promise<void>;
   abstract save(assignations: Assignation[]): Promise<void>;
   abstract findActivesByIds(ids: string[]): Promise<Assignation[]>;
+  abstract findByIds(ids: string[]): Promise<Assignation[]>;
   abstract findByCollectorIdWithAssignations(
     collectorId: string,
     beneficientsIds: string[],

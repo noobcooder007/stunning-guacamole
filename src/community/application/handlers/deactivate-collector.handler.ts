@@ -25,25 +25,32 @@ export class DeactivateCollectorHanlder extends BaseCommandHandler<
   protected async process(
     command: DeactivateCollectorCommand,
   ): Promise<Result<void>> {
-    let collector: Collector;
-    const collectorExists = await this.collectorRepository.exists({
-      id: command.collectorId,
-    });
-    if (collectorExists) {
-      return Result.fail({
-        type: ErrorType.NOT_FOUND,
-        message: 'Collector not found or deactivated',
-        entity: DeactivateCollectorHanlder.name,
+    const collector = await this.collectorRepository.findById(
+      command.collectorId,
+    );
+
+    if (!collector) {
+      const exists = await this.collectorRepository.exists({
+        id: command.collectorId,
       });
+      if (!exists) {
+        return Result.fail({
+          type: ErrorType.NOT_FOUND,
+          message: 'Collector not found',
+          entity: DeactivateCollectorHanlder.name,
+        });
+      }
+      // Already deactivated — idempotent success
+      return Result.ok();
     }
+
+    let mergedCollector: Collector;
     await this.uow.runInTransaction(async () => {
-      collector = this.publisher.mergeObjectContext(
-        await this.collectorRepository.findById(command.collectorId),
-      );
-      collector.deactivate();
-      await this.collectorRepository.save(collector);
+      mergedCollector = this.publisher.mergeObjectContext(collector);
+      mergedCollector.deactivate();
+      await this.collectorRepository.save(mergedCollector);
     });
-    if (collector) collector.commit();
+    if (mergedCollector) mergedCollector.commit();
     return Result.ok();
   }
 }
