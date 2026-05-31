@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
+import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { GetBeneficientQueryParams } from '@/community/application/query/get-beneficient-paginated.query';
 import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
 import { CreateBeneficientDto } from '@/community/application/dto/create-beneficient.dto';
@@ -25,7 +26,7 @@ export class BeneficientController {
   ) {}
 
   @Post()
-  @Auth()
+  @Auth(PermissionNames.ADD_BENEFICIENT)
   create(@Body() dto: CreateBeneficientDto) {
     return this.commandBus.execute(
       new CreateBeneficientCommand(
@@ -34,7 +35,6 @@ export class BeneficientController {
         dto.firstLastname,
         dto.secondLastname,
         dto.birthday,
-        dto.weddingAniversary,
         dto.genre,
         dto.maritalStatus,
         dto.address.street,
@@ -47,6 +47,7 @@ export class BeneficientController {
         dto.address.zipCode,
         dto.churchId,
         dto.keepPrivate,
+        dto.weddingAnniversary,
         dto.person,
         dto.registeredName,
         dto.rfc,
@@ -57,7 +58,7 @@ export class BeneficientController {
   }
 
   @Get()
-  @Auth()
+  @Auth(PermissionNames.VIEW_BENEFICIENT)
   async findAll(@Query() params: GetBeneficientsQueryDto) {
     return await this.queryBus.execute(
       new GetBeneficientQueryParams(
@@ -74,13 +75,13 @@ export class BeneficientController {
   }
 
   @Get(':id')
-  @Auth()
+  @Auth(PermissionNames.VIEW_BENEFICIENT)
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.queryBus.execute(new GetBeneficientByIdQuery(id));
   }
 
   @Post('deactivate')
-  @Auth()
+  @Auth(PermissionNames.EDIT_BENEFICIENT)
   deactivate(@Body() dto: DeactivateBeneficientDto) {
     return this.commandBus.execute(
       new DeactivateBeneficientCommand(dto.beneficientId, dto.reason),

@@ -160,7 +160,6 @@ export class CollectorSchema implements ICollectorPersistence {
   @Column('text', {
     nullable: true,
     select: false,
-    unique: true,
   })
   telephoneNumberHash: string;
 

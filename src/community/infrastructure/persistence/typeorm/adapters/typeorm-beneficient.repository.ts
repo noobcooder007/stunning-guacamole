@@ -52,11 +52,11 @@ export class TypeORMBeneficientRepository
 
   async exists(filters: BeneficientFilters): Promise<boolean> {
     const where: FindOptionsWhere<BeneficientSchema>[] = [];
-    if (filters.firstname && filters.firstLastname && filters.secondLastname) {
+    if (filters.firstname && filters.firstLastname) {
       where.push({
         firstname: filters.firstname,
         firstLastname: filters.firstLastname,
-        secondLastname: filters.secondLastname,
+        secondLastname: filters.secondLastname ?? null,
       });
     }
     if (filters.addressHash) where.push({ addressHash: filters.addressHash });

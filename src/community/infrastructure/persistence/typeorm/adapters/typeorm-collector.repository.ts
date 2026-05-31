@@ -35,11 +35,11 @@ export class TypeORMCollectorRepository
       return await this.repository.exists({ where: { id: filters.id } });
     }
     const where: FindOptionsWhere<CollectorSchema>[] = [];
-    if (filters.firstname && filters.firstLastname && filters.secondLastname) {
+    if (filters.firstname && filters.firstLastname) {
       where.push({
         firstname: filters.firstname,
         firstLastname: filters.firstLastname,
-        secondLastname: filters.secondLastname,
+        secondLastname: filters.secondLastname ?? null,
       });
     }
     if (filters.addressHash) {

@@ -46,7 +46,7 @@ export class BeneficientSchema implements IBeneficientPersistence {
   @Column('timestamp with time zone', {
     nullable: true,
   })
-  weddingAniversary: Date;
+  weddingAnniversary: Date;
 
   @Column('enum', { enum: ['M', 'F'] })
   genre: string;
@@ -142,7 +142,6 @@ export class BeneficientSchema implements IBeneficientPersistence {
 
   @Column('text', {
     nullable: true,
-    unique: true,
   })
   emailHash: string;
 
@@ -160,7 +159,6 @@ export class BeneficientSchema implements IBeneficientPersistence {
 
   @Column('text', {
     nullable: true,
-    unique: true,
   })
   phoneNumberHash: string;
 
@@ -171,7 +169,6 @@ export class BeneficientSchema implements IBeneficientPersistence {
   person: string;
 
   @Column('text', {
-    unique: true,
     nullable: true,
   })
   registeredName: string;
@@ -189,7 +186,6 @@ export class BeneficientSchema implements IBeneficientPersistence {
   rfc: string;
 
   @Column('text', {
-    unique: true,
     nullable: true,
   })
   rfcHash: string;

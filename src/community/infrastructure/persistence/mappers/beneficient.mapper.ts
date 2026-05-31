@@ -18,7 +18,7 @@ export interface IBeneficientPersistence {
   birthday: Date;
   genre: string;
   maritalStatus: string;
-  weddingAniversary: Date;
+  weddingAnniversary: Date;
   street: string;
   noExt: string;
   noInt?: string;
@@ -55,7 +55,7 @@ export class BeneficientMapper {
       birthday: beneficient.birthday,
       genre: beneficient.genre,
       maritalStatus: beneficient.maritalStatus,
-      weddingAniversary: beneficient.weddingAniversary,
+      weddingAnniversary: beneficient.weddingAniversary,
       street: beneficient.address.street,
       noExt: beneficient.address.numeration.noExt,
       noInt: beneficient.address.numeration.noInt,
@@ -92,7 +92,7 @@ export class BeneficientMapper {
       birthday: raw.birthday,
       genre: raw.genre,
       maritalStatus: raw.maritalStatus,
-      weddingAniversary: raw.weddingAniversary,
+      weddingAniversary: raw.weddingAnniversary,
       address: Address.of({
         street: raw.street,
         numeration: Numeration.of({
@@ -134,7 +134,7 @@ export class BeneficientMapper {
     beneficient.firstLastname = beneficientModel.firstLastname;
     beneficient.secondLastname = beneficientModel.secondLastname;
     beneficient.birthday = beneficientModel.birthday;
-    beneficient.weddingAniversary = beneficientModel.weddingAniversary;
+    beneficient.weddingAniversary = beneficientModel.weddingAnniversary;
     beneficient.genre = beneficientModel.genre;
     beneficient.maritalStatus = beneficientModel.maritalStatus;
     const addressResponse = new AddressResponseDto();

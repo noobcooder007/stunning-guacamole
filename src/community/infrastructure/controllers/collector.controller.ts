@@ -15,6 +15,7 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
+import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { profileMulterOptions } from '@/shared/infrastructure/interceptors/multer.constants';
 import { validateImageFile } from '@/shared/infrastructure/utils/file-validator.util';
 import { CreateCollectorCommand } from '@/community/application/command/create-collector.command';
@@ -33,6 +34,7 @@ export class CollectorController {
   ) {}
 
   @Post()
+  @Auth(PermissionNames.ADD_COLLECTOR)
   @UseInterceptors(FileInterceptor('profilePicture', profileMulterOptions))
   async create(
     @UploadedFile(
@@ -84,7 +86,7 @@ export class CollectorController {
   }
 
   @Get()
-  @Auth()
+  @Auth(PermissionNames.VIEW_COLLECTOR)
   findAll(@Query() query: GetCollectorsQueryDto) {
     return this.queryBus.execute(
       new GetCollectorQueryParams(
@@ -101,19 +103,19 @@ export class CollectorController {
   }
 
   @Get(':id')
-  @Auth()
+  @Auth(PermissionNames.VIEW_COLLECTOR)
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.queryBus.execute(new GetCollectorByIdQuery(id));
   }
 
   @Post(':id/deactivate')
-  @Auth()
+  @Auth(PermissionNames.EDIT_COLLECTOR)
   deactivate(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.commandBus.execute(new DeactivateCollectorCommand(id));
   }
 
   @Post(':id/reactivate')
-  @Auth()
+  @Auth(PermissionNames.EDIT_COLLECTOR)
   reactivate(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.commandBus.execute(new ReactivateCollectorCommand(id));
   }

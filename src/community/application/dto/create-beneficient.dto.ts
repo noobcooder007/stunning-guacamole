@@ -39,7 +39,7 @@ export class CreateBeneficientDto {
   @IsDate()
   @Type(() => Date)
   @IsOptional()
-  weddingAniversary: Date;
+  weddingAnniversary: Date;
 
   @IsString()
   @IsEnum(['M', 'F'])

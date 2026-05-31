@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
+import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { AssignBeneficientsCommand } from '@/community/application/command/assign-beneficients.command';
 import { ReassignBeneficientsCommand } from '@/community/application/command/reassign-beneficients.command';
 import { DeactivateAssignationsCommand } from '@/community/application/command/deactivate-assignations.command';
@@ -19,7 +20,7 @@ export class AssignmentController {
   ) {}
 
   @Post()
-  @Auth()
+  @Auth(PermissionNames.EDIT_COLLECTOR)
   assignBeneficientsToCollector(@Body() dto: AssignBeneficientsDto) {
     return this.commandBus.execute(
       new AssignBeneficientsCommand(dto.collectorId, dto.beneficientsIds),
@@ -27,7 +28,7 @@ export class AssignmentController {
   }
 
   @Post('reasign')
-  @Auth()
+  @Auth(PermissionNames.EDIT_COLLECTOR)
   reasignBeneficientsToCollector(@Body() dto: ReassignAssignationsDto) {
     return this.commandBus.execute(
       new ReassignBeneficientsCommand(
@@ -38,7 +39,7 @@ export class AssignmentController {
   }
 
   @Post('deactivate')
-  @Auth()
+  @Auth(PermissionNames.EDIT_COLLECTOR)
   deactivateAssignations(@Body() dto: DeactivateAssignationsDto) {
     return this.commandBus.execute(
       new DeactivateAssignationsCommand(dto.deactivateAssignations),
@@ -46,7 +47,7 @@ export class AssignmentController {
   }
 
   @Get('actives')
-  @Auth()
+  @Auth(PermissionNames.VIEW_COLLECTOR)
   getActives(@Query() query: GetActiveAssignationsQueryDto) {
     return this.queryBus.execute(
       new GetActiveAssignationsQuery(
@@ -58,7 +59,7 @@ export class AssignmentController {
   }
 
   @Get('orphans')
-  @Auth()
+  @Auth(PermissionNames.VIEW_COLLECTOR)
   getOrphans() {
     return this.queryBus.execute(new GetOrphansAssignationsQuery());
   }

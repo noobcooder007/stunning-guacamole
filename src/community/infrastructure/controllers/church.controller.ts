@@ -8,6 +8,8 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
+import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateChurchCommand } from '@/community/application/command/create-church.command';
 import { GetChurchByIdQuery } from '@/community/application/query/get-church-by-id.query';
@@ -35,13 +37,14 @@ export class ChurchController {
     private readonly queryBus: QueryBus,
   ) {}
 
-  // @Auth(ValidPermitions.ADD_CHURCH)
   @Post()
+  @Auth(PermissionNames.ADD_CHURCH)
   async create(@Body() command: CreateChurchCommand) {
     return await this.commandBus.execute(command);
   }
 
   @Patch(':id/identity')
+  @Auth(PermissionNames.EDIT_CHURCH)
   async updateEccesialIdentity(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateChurchEcclesialIdentityDto,
@@ -58,8 +61,8 @@ export class ChurchController {
     );
   }
 
-  // @Auth(ValidPermitions.EDIT_CHURCH)
   @Patch(':id/address')
+  @Auth(PermissionNames.EDIT_CHURCH)
   async updateAddress(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateChurchAddressDto,
@@ -80,6 +83,7 @@ export class ChurchController {
   }
 
   @Patch(':id/priest')
+  @Auth(PermissionNames.EDIT_CHURCH)
   updatePriest(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateChurchPriestDto,
@@ -95,6 +99,7 @@ export class ChurchController {
   }
 
   @Patch(':id/auxiliar')
+  @Auth(PermissionNames.EDIT_CHURCH)
   updateAuxiliarPriest(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateChurchAuxiliarPriestDto,
@@ -110,6 +115,7 @@ export class ChurchController {
   }
 
   @Patch(':id/phone')
+  @Auth(PermissionNames.EDIT_CHURCH)
   updatePhoneNumber(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateChurchPhoneNumberDto,
@@ -119,8 +125,8 @@ export class ChurchController {
     );
   }
 
-  // @Auth(ValidPermitions.LIST_CHURCH)
   @Get()
+  @Auth(PermissionNames.LIST_CHURCH)
   async findAll(@Query() query: GetChurchesQueryDto) {
     return await this.queryBus.execute(
       new GetChurchQueryParams(
@@ -135,8 +141,8 @@ export class ChurchController {
     );
   }
 
-  // @Auth(ValidPermitions.VIEW_CHURCH)
   @Get(':id')
+  @Auth(PermissionNames.VIEW_CHURCH)
   async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     const params = new GetChurchByIdQuery(id);
     return await this.queryBus.execute(params);
