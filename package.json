@@ -41,6 +41,7 @@
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "sharp": "^0.34.5",
     "typeorm": "^0.3.27",
     "uuid": "^13.0.0"
   },
@@ -81,7 +82,10 @@
       "ts"
     ],
     "rootDir": "src",
-    "roots": ["<rootDir>", "<rootDir>/../test"],
+    "roots": [
+      "<rootDir>",
+      "<rootDir>/../test"
+    ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -97,5 +101,8 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp"]
   }
 }

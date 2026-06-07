@@ -28,12 +28,18 @@ export class PrintReceiptsByCollectorHandler extends BaseCommandHandler<
     super();
   }
 
-  async getBase64FromUrl(url: string): Promise<string> {
-    const host = process.env.APP_URL || 'http://localhost:4321';
-    const response = await fetch(`${host}/public/profile-pictures/${url}`);
-    const buffer = await response.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString('base64');
-    return `data:image/png;base64,${base64}`;
+  async getBase64FromUrl(url: string): Promise<string | null> {
+    try {
+      const host = process.env.APP_URL || 'http://localhost:4321';
+      const response = await fetch(`${host}/public/profile-pictures/${url}`);
+      if (!response.ok) return null;
+      const contentType = response.headers.get('content-type') ?? 'image/webp';
+      const buffer = await response.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
+      return `data:${contentType};base64,${base64}`;
+    } catch {
+      return null;
+    }
   }
 
   private getBeneficientAddress(beneficient: BeneficientSchema): string {

@@ -1,4 +1,4 @@
-import { unlink } from 'fs';
+import { unlink } from 'fs/promises';
 import { join } from 'path';
 import {
   Body,
@@ -18,6 +18,7 @@ import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { profileMulterOptions } from '@/shared/infrastructure/interceptors/multer.constants';
 import { validateImageFile } from '@/shared/infrastructure/utils/file-validator.util';
+import { processProfileImage } from '@/shared/infrastructure/utils/image-processor.util';
 import { CreateCollectorCommand } from '@/community/application/command/create-collector.command';
 import { DeactivateCollectorCommand } from '@/community/application/command/deactivate-collector.command';
 import { ReactivateCollectorCommand } from '@/community/application/command/reactivate-collector.command';
@@ -46,6 +47,15 @@ export class CollectorController {
     @Body() dto: CreateCollectorDto,
   ) {
     await validateImageFile(file);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const processedFilename = `${uniqueSuffix}.webp`;
+    const processedPath = join(
+      process.cwd(),
+      'images',
+      'profile-pictures',
+      processedFilename,
+    );
+    await processProfileImage(file.buffer, processedPath);
     const command = new CreateCollectorCommand(
       dto.username,
       dto.password,
@@ -62,25 +72,18 @@ export class CollectorController {
       dto.bank,
       dto.reference,
       dto.notes,
-      file.filename,
+      processedFilename,
       dto.secondLastname,
       dto.address.numeration.noInt,
       dto.address.neighborhood,
       dto.address.locality,
       dto.telephoneNumber,
     );
-    command.profilePath = file.filename;
+    command.profilePath = processedFilename;
     try {
       return await this.commandBus.execute(command);
     } catch (error) {
-      if (file) {
-        unlink(
-          join(process.cwd(), 'images/profile-pictures', file.filename),
-          (err) => {
-            if (err) console.error(err);
-          },
-        );
-      }
+      await unlink(processedPath).catch(() => null);
       throw error;
     }
   }
