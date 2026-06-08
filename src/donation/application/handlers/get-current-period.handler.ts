@@ -1,27 +1,33 @@
 import { Inject } from '@nestjs/common';
-import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { QueryHandler } from '@nestjs/cqrs';
+import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { BaseQueryHandler } from '@/shared/application/handler/base-query.handler';
 import { ICollectionPeriodRepository } from '@/donation/domain/repositories/collection-period.repository';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { GetCurrentPeriodQuery } from '@/donation/application/query/get-current-period.query';
 import { PeriodResponseDto } from '@/donation/application/dto/period.response.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
-import { Repository } from 'typeorm';
+import { Result } from '@/shared/domain/dto/result.dto';
 
 @QueryHandler(GetCurrentPeriodQuery)
-export class GetCurrentPeriodHandler
-  implements IQueryHandler<GetCurrentPeriodQuery>
-{
+export class GetCurrentPeriodHandler extends BaseQueryHandler<
+  GetCurrentPeriodQuery,
+  PeriodResponseDto | null
+> {
   constructor(
+    public readonly datasource: DataSource,
     @Inject(REPOSITORY_TOKENS.COLLECTION_PERIOD)
     private readonly periodRepository: ICollectionPeriodRepository,
     @InjectRepository(ReceiptSchema)
     private readonly receiptRepo: Repository<ReceiptSchema>,
-  ) {}
+  ) {
+    super(datasource);
+  }
 
-  async execute(): Promise<PeriodResponseDto | null> {
+  protected async handle(): Promise<Result<PeriodResponseDto | null>> {
     const period = await this.periodRepository.findOpen();
-    if (!period) return null;
+    if (!period) return Result.ok(null);
 
     const pendingReceiptsCount = await this.receiptRepo.count({
       where: {
@@ -39,6 +45,6 @@ export class GetCurrentPeriodHandler
     response.createdAt = period.createdAt;
     response.createdBy = period.createdBy.unpack();
     response.pendingReceiptsCount = pendingReceiptsCount;
-    return response;
+    return Result.ok(response);
   }
 }

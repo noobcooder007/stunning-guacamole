@@ -36,6 +36,9 @@ import { GetCollectorEfficiencyHandler } from '@/donation/application/handlers/g
 import { PrintCollectorEfficiencyHandler } from '@/donation/application/handlers/print-collector-efficiency.handler';
 import { CollectorEfficiencyQueryService } from '@/donation/infrastructure/service/collector-efficiency.query.service';
 import { ValidateReceiptHandler } from '@/donation/application/handlers/validate-receipt.handler';
+import { GetReceiptsReportByPeriodHandler } from '@/donation/application/handlers/get-receipts-report-by-period.handler';
+import { PrintReceiptsReportByPeriodHandler } from '@/donation/application/handlers/print-receipts-report-by-period.handler';
+import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/receipts-report.query.service';
 
 @Module({
   imports: [
@@ -81,6 +84,9 @@ import { ValidateReceiptHandler } from '@/donation/application/handlers/validate
     CollectorEfficiencyQueryService,
     PrintCollectorEfficiencyHandler,
     ValidateReceiptHandler,
+    GetReceiptsReportByPeriodHandler,
+    PrintReceiptsReportByPeriodHandler,
+    ReceiptsReportQueryService,
   ],
 })
 export class DonationModule {}

@@ -22,6 +22,6 @@ export class GetOrphansAssignationsQueryHandler extends BaseQueryHandler<
     _query: GetOrphansAssignationsQuery,
   ): Promise<Result<OrphansAssignationsResponse[], IErrorResult>> {
     const response = await this.assignationsService.getOrphans();
-    return response;
+    return Result.ok(response);
   }
 }

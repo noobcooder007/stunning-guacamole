@@ -6,8 +6,10 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
+  Res,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Response } from 'express';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { GetBeneficientQueryParams } from '@/community/application/query/get-beneficient-paginated.query';
@@ -17,6 +19,11 @@ import { GetBeneficientByIdQuery } from '@/community/application/query/get-benef
 import { GetBeneficientsQueryDto } from '../../application/dto/get-beneficients-query.dto';
 import { DeactivateBeneficientCommand } from '@/community/application/command/deactivate-beneficient.command';
 import { DeactivateBeneficientDto } from '@/community/application/dto/deactivate-beneficient.dto';
+import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
+import { GetBeneficientsReportQuery } from '@/community/application/query/get-beneficients-report.query';
+import { PrintBeneficientsReportCommand } from '@/community/application/command/print-beneficients-report.command';
+import { GetBeneficientsRegistryQuery } from '@/community/application/query/get-beneficients-registry.query';
+import { PrintBeneficientsRegistryCommand } from '@/community/application/command/print-beneficients-registry.command';
 
 @Controller('beneficient')
 export class BeneficientController {
@@ -55,6 +62,62 @@ export class BeneficientController {
         dto.phoneNumber,
       ),
     );
+  }
+
+  @Get('report')
+  @Auth(PermissionNames.VIEW_BENEFICIENT)
+  async getReport(@Query() params: PaginationDto) {
+    return this.queryBus.execute(
+      new GetBeneficientsReportQuery(params.page, params.limit),
+    );
+  }
+
+  @Get('print-report')
+  @Auth(PermissionNames.VIEW_BENEFICIENT)
+  async printReport(@Res() res: Response) {
+    const result = await this.commandBus.execute(
+      new PrintBeneficientsReportCommand(),
+    );
+    if (!result.isSuccess) {
+      res
+        .status(422)
+        .json({ type: result.error.type, message: result.error.message });
+      return;
+    }
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=reporte-bienhechores.pdf',
+    );
+    result.value.pipe(res);
+  }
+
+  @Get('registry')
+  @Auth(PermissionNames.VIEW_BENEFICIENT)
+  async getRegistry(@Query() params: PaginationDto) {
+    return this.queryBus.execute(
+      new GetBeneficientsRegistryQuery(params.page, params.limit),
+    );
+  }
+
+  @Get('print-registry')
+  @Auth(PermissionNames.VIEW_BENEFICIENT)
+  async printRegistry(@Res() res: Response) {
+    const result = await this.commandBus.execute(
+      new PrintBeneficientsRegistryCommand(),
+    );
+    if (!result.isSuccess) {
+      res
+        .status(422)
+        .json({ type: result.error.type, message: result.error.message });
+      return;
+    }
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=registro-bienhechores.pdf',
+    );
+    result.value.pipe(res);
   }
 
   @Get()

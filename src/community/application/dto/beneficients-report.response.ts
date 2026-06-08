@@ -1,0 +1,34 @@
+export class BeneficientsReportItemDto {
+  beneficientNumber: number;
+  title: string;
+  firstname: string;
+  firstLastname: string;
+  secondLastname: string | null;
+  birthday: Date;
+  genre: string;
+  maritalStatus: string;
+  email: string | null;
+  phoneNumber: string | null;
+  street: string;
+  noExt: string;
+  noInt: string | null;
+  neighborhood: string | null;
+  locality: string | null;
+  city: string;
+  state: string;
+  zipCode: string;
+  createdAt: Date;
+  deactivatedAt: Date | null;
+  reasonDeactivated: string | null;
+  isActive: boolean;
+  collectorNumber: number | null;
+  collectorFirstname: string | null;
+  collectorFirstLastname: string | null;
+  donationCount: number;
+  donationTotal: number;
+  promiseAmount: number | null;
+  currency: string | null;
+  recurring: boolean | null;
+  recurrence: number | null;
+  promiseIsActive: boolean | null;
+}

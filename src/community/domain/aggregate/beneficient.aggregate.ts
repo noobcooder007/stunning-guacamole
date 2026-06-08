@@ -48,6 +48,7 @@ export interface BeneficientProps {
   createdAt?: Date;
   isActive?: boolean;
   reasonDeactivated?: string;
+  deactivatedAt?: Date | null;
   beneficientNumber?: number;
 }
 
@@ -101,6 +102,7 @@ export class Beneficient extends AggregateRoot {
       createdAt: new Date(),
       isActive: true,
       reasonDeactivated: null,
+      deactivatedAt: null,
     };
     return new Beneficient(id, data);
   }
@@ -194,6 +196,10 @@ export class Beneficient extends AggregateRoot {
     return this.props.reasonDeactivated;
   }
 
+  public get deactivatedAt(): Date | null {
+    return this.props.deactivatedAt ?? null;
+  }
+
   public get beneficientNumber(): number {
     return this.props.beneficientNumber;
   }
@@ -203,6 +209,7 @@ export class Beneficient extends AggregateRoot {
       ...this.props,
       isActive: false,
       reasonDeactivated: reason,
+      deactivatedAt: new Date(),
     };
     this.apply(new BeneficientDeactivatedEvent(this.id.unpack(), reason));
   }

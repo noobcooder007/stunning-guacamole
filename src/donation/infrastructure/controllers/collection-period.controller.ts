@@ -4,7 +4,9 @@ import {
   Get,
   Inject,
   Param,
+  ParseIntPipe,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -18,8 +20,10 @@ import { OpenPeriodCommand } from '@/donation/application/command/open-period.co
 import { ClosePeriodCommand } from '@/donation/application/command/close-period.command';
 import { GetCurrentPeriodQuery } from '@/donation/application/query/get-current-period.query';
 import { GetPeriodSettlementsQuery } from '@/donation/application/query/get-period-settlements.query';
+import { GetReceiptsReportByPeriodQuery } from '@/donation/application/query/get-receipts-report-by-period.query';
 import { PrintSettlementLettersCommand } from '@/donation/application/command/print-settlement-letters.command';
 import { PrintDeliveryLettersCommand } from '@/donation/application/command/print-delivery-letters.command';
+import { PrintReceiptsReportByPeriodCommand } from '@/donation/application/command/print-receipts-report-by-period.command';
 
 @Controller('periods')
 export class CollectionPeriodController {
@@ -32,49 +36,58 @@ export class CollectionPeriodController {
 
   @Post('/open')
   @Auth(PermissionNames.EDIT_INVOICE)
-  async openPeriod(
-    @Body() dto: OpenPeriodDto,
-    @GetUser() user: any,
-    @Res() res: Response,
-  ) {
-    const result = await this.commandBus.execute(
+  async openPeriod(@Body() dto: OpenPeriodDto, @GetUser() user: any) {
+    return await this.commandBus.execute(
       new OpenPeriodCommand(dto.month, dto.year, user.id),
     );
-    if (!result.isSuccess) {
-      res.status(result.error.type === 'CONFLICT' ? 409 : 422).json({
-        type: result.error.type,
-        message: result.error.message,
-      });
-      return;
-    }
-    res.status(201).json(result.value);
   }
 
   @Post('/close')
   @Auth(PermissionNames.EDIT_INVOICE)
-  async closePeriod(@GetUser() user: any, @Res() res: Response) {
+  async closePeriod(@GetUser() user: any) {
+    return await this.commandBus.execute(new ClosePeriodCommand(user.id));
+  }
+
+  @Get('/current')
+  @Auth(PermissionNames.VIEW_INVOICE)
+  async getCurrent() {
+    return await this.queryBus.execute(new GetCurrentPeriodQuery());
+  }
+
+  @Get('/report')
+  @Auth(PermissionNames.VIEW_INVOICE)
+  async getReceiptsReport(
+    @Query('month', ParseIntPipe) month: number,
+    @Query('year', ParseIntPipe) year: number,
+  ) {
+    return this.queryBus.execute(
+      new GetReceiptsReportByPeriodQuery(month, year),
+    );
+  }
+
+  @Get('/report/export')
+  @Auth(PermissionNames.VIEW_INVOICE)
+  async exportReceiptsReport(
+    @Query('month', ParseIntPipe) month: number,
+    @Query('year', ParseIntPipe) year: number,
+    @Res() res: Response,
+  ) {
     const result = await this.commandBus.execute(
-      new ClosePeriodCommand(user.id),
+      new PrintReceiptsReportByPeriodCommand(month, year),
     );
     if (!result.isSuccess) {
-      res.status(result.error.type === 'NOT_FOUND' ? 404 : 422).json({
+      res.status(422).json({
         type: result.error.type,
         message: result.error.message,
       });
       return;
     }
-    res.status(200).json(result.value);
-  }
-
-  @Get('/current')
-  @Auth(PermissionNames.VIEW_INVOICE)
-  async getCurrent(@Res() res: Response) {
-    const period = await this.queryBus.execute(new GetCurrentPeriodQuery());
-    if (!period) {
-      res.status(404).json({ message: 'No open period' });
-      return;
-    }
-    res.status(200).json(period);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=reporte-recibos-${month}-${year}.pdf`,
+    );
+    result.value.pipe(res);
   }
 
   @Get('/:periodId/settlements')

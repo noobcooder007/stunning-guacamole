@@ -14,9 +14,10 @@ import { IPromiseDonationRepository } from '@/donation/domain/repositories/promi
 import { ReceiptFolioProvider } from '@/donation/infrastructure/service/receipt-folio.provider';
 import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { ICollectionPeriodRepository } from '@/donation/domain/repositories/collection-period.repository';
+import { Result } from '@/shared/domain/dto/result.dto';
 
 @CommandHandler(GenerateRecurringReceiptsCommand)
-export class GenerateRecurringReceiptsHandler implements ICommandHandler<GenerateRecurringReceiptsCommand> {
+export class GenerateRecurringReceiptsHandler implements ICommandHandler<GenerateRecurringReceiptsCommand, Result<void>> {
   constructor(
     private readonly promiseDonationService: PromiseDonationQueryService,
     @Inject(REPOSITORY_TOKENS.PROMISE_DONATION)
@@ -31,7 +32,7 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<Generat
     private readonly uow: UnitOfWork,
   ) {}
 
-  async execute(command: GenerateRecurringReceiptsCommand): Promise<void> {
+  async execute(command: GenerateRecurringReceiptsCommand): Promise<Result<void>> {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
@@ -112,5 +113,7 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<Generat
         }
       }
     });
+
+    return Result.ok();
   }
 }

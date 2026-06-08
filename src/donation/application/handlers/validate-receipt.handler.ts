@@ -5,10 +5,11 @@ import { IReceiptRepository } from '@/donation/domain/repositories/receipt.repos
 import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { ValidateReceiptQuery } from '@/donation/application/query/validate-receipt.query';
 import { ValidateReceiptResponseDto } from '@/donation/application/dto/validate-receipt.response.dto';
+import { Result } from '@/shared/domain/dto/result.dto';
 
 @QueryHandler(ValidateReceiptQuery)
 export class ValidateReceiptHandler
-  implements IQueryHandler<ValidateReceiptQuery, ValidateReceiptResponseDto>
+  implements IQueryHandler<ValidateReceiptQuery, Result<ValidateReceiptResponseDto>>
 {
   constructor(
     @Inject(REPOSITORY_TOKENS.RECEIPT)
@@ -17,10 +18,10 @@ export class ValidateReceiptHandler
     private readonly hasher: IDataHasher,
   ) {}
 
-  async execute(query: ValidateReceiptQuery): Promise<ValidateReceiptResponseDto> {
+  async execute(query: ValidateReceiptQuery): Promise<Result<ValidateReceiptResponseDto>> {
     const receipt = await this.receiptRepository.findByFolio(query.folio);
     if (!receipt || !receipt.chainValidator) {
-      return { valid: false };
+      return Result.ok({ valid: false });
     }
 
     const id = receipt._id.unpack();
@@ -39,18 +40,18 @@ export class ValidateReceiptHandler
     for (const amount of amountVariants) {
       for (const ben of beneficientVariants) {
         if (await this.matchesChain(receipt.chainValidator, id, folio, amount, ben)) {
-          return {
+          return Result.ok({
             valid: true,
             folio,
             status: receipt.status,
             amount: receipt.amount.amount,
             currency: receipt.amount.currency,
-          };
+          });
         }
       }
     }
 
-    return { valid: false };
+    return Result.ok({ valid: false });
   }
 
   private async matchesChain(

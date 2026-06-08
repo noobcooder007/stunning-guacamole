@@ -36,6 +36,12 @@ import { GetActivesAssignationsHandler } from '@/community/application/handlers/
 import { GetOrphansAssignationsQueryHandler } from './application/handlers/get-orphans-assignations.handler';
 import { DeactivateBeneficientHanlder } from './application/handlers/deactivate-beneficient.handler';
 import { DeactivatePromiseDonationHandler } from '@/donation/application/handlers/deactivate-promise-donation.handler';
+import { GetBeneficientsReportHandler } from './application/handlers/get-beneficients-report.handler';
+import { PrintBeneficientsReportHandler } from './application/handlers/print-beneficients-report.handler';
+import { BeneficientsReportQueryService } from './infrastructure/service/beneficients-report.query.service';
+import { GetBeneficientsRegistryHandler } from './application/handlers/get-beneficients-registry.handler';
+import { PrintBeneficientsRegistryHandler } from './application/handlers/print-beneficients-registry.handler';
+import { BeneficientsRegistryQueryService } from './infrastructure/service/beneficients-registry.query.service';
 
 @Module({
   imports: [
@@ -76,6 +82,12 @@ import { DeactivatePromiseDonationHandler } from '@/donation/application/handler
     GetActivesAssignationsHandler,
     GetOrphansAssignationsQueryHandler,
     DeactivatePromiseDonationHandler,
+    GetBeneficientsReportHandler,
+    PrintBeneficientsReportHandler,
+    BeneficientsReportQueryService,
+    GetBeneficientsRegistryHandler,
+    PrintBeneficientsRegistryHandler,
+    BeneficientsRegistryQueryService,
     BeneficientQueryService,
     CollectorQueryService,
     ChurchQueryService,

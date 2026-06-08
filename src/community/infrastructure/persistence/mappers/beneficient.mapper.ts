@@ -40,6 +40,7 @@ export interface IBeneficientPersistence {
   createdAt: Date;
   isActive: boolean;
   reasonDeactivated?: string;
+  deactivatedAt?: Date | null;
   beneficientNumber: number;
   keepPrivate: boolean;
 }
@@ -78,6 +79,7 @@ export class BeneficientMapper {
       createdAt: beneficient.createdAt,
       isActive: beneficient.isActive,
       reasonDeactivated: beneficient.reasonDeactivated,
+      deactivatedAt: beneficient.deactivatedAt,
       beneficientNumber: beneficient.beneficientNumber,
       keepPrivate: beneficient.keepPrivate,
     };
@@ -118,6 +120,8 @@ export class BeneficientMapper {
       phoneNumberHash: raw.phoneNumberHash,
       createdAt: raw.createdAt,
       isActive: raw.isActive,
+      reasonDeactivated: raw.reasonDeactivated,
+      deactivatedAt: raw.deactivatedAt,
       church: ChurchId.of(raw.churchId),
       beneficientNumber: raw.beneficientNumber,
       keepPrivate: raw.keepPrivate,

@@ -203,6 +203,11 @@ export class BeneficientSchema implements IBeneficientPersistence {
   })
   reasonDeactivated: string;
 
+  @Column('timestamp with time zone', {
+    nullable: true,
+  })
+  deactivatedAt: Date;
+
   @OneToOne(() => AssignationSchema, (assignation) => assignation.beneficient)
   assignation: AssignationSchema;
 
