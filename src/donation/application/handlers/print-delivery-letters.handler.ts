@@ -5,7 +5,6 @@ import { BaseCommandHandler } from '@/shared/application/handler/base-command.ha
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { PrintDeliveryLettersCommand } from '@/donation/application/command/print-delivery-letters.command';
-import { ICollectionPeriodRepository } from '@/donation/domain/repositories/collection-period.repository';
 import { IReceiptRepository } from '@/donation/domain/repositories/receipt.repository';
 import { IPrinterService } from '@/shared/infrastructure/services/print.service';
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
@@ -14,6 +13,7 @@ import { BeneficientSchema } from '@/community/infrastructure/persistence/typeor
 import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
 import {
   CollectorLetterData,
+  CollectorLetterOverdueRow,
   CollectorLetterReceiptRow,
   collectorLetterTemplate,
 } from '@/donation/application/templates/collector-letter.template';
@@ -38,8 +38,6 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
   Stream.Readable
 > {
   constructor(
-    @Inject(REPOSITORY_TOKENS.COLLECTION_PERIOD)
-    private readonly periodRepository: ICollectionPeriodRepository,
     @Inject(REPOSITORY_TOKENS.RECEIPT)
     private readonly receiptRepository: IReceiptRepository,
     @Inject('IPrinterService')
@@ -56,31 +54,78 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
     return `${b.firstname} ${b.firstLastname} ${b.secondLastname ?? ''}`.trim();
   }
 
+  private toReceiptRow(r: ReceiptSchema, fallbackPeriodLabel: string): CollectorLetterReceiptRow {
+    const beneficient = r.beneficient as BeneficientSchema;
+    const promise = r.promiseDonation as PromiseDonationSchema;
+    const receiptPeriodLabel =
+      r.periodMonth && r.periodYear
+        ? `${MONTH_LABELS[r.periodMonth - 1]}${r.periodYear}`
+        : fallbackPeriodLabel;
+    return {
+      folio: r.folio,
+      beneficientName: beneficient ? this.getBeneficientFullname(beneficient) : 'Anónimo',
+      beneficientNumber: (beneficient as any)?.beneficientNumber ?? 0,
+      amount: Number(r.amount),
+      currency: r.currency,
+      recurrence: promise
+        ? (RECURRENCE_LABELS[promise.recurrence] ?? receiptPeriodLabel)
+        : receiptPeriodLabel,
+    };
+  }
+
+  private toOverdueRow(r: ReceiptSchema): CollectorLetterOverdueRow {
+    const period =
+      r.periodMonth && r.periodYear
+        ? `${MONTH_LABELS[r.periodMonth - 1]}${r.periodYear}`
+        : '—';
+    const beneficient = r.beneficient as BeneficientSchema;
+    const promise = r.promiseDonation as PromiseDonationSchema;
+    return {
+      folio: r.folio,
+      beneficientName: beneficient ? this.getBeneficientFullname(beneficient) : 'Anónimo',
+      beneficientNumber: (beneficient as any)?.beneficientNumber ?? 0,
+      amount: Number(r.amount),
+      currency: r.currency,
+      recurrence: promise ? (RECURRENCE_LABELS[promise.recurrence] ?? '') : '',
+      period,
+    };
+  }
+
+  private groupByCollector(receipts: ReceiptSchema[]): Map<string, ReceiptSchema[]> {
+    const map = new Map<string, ReceiptSchema[]>();
+    for (const r of receipts) {
+      if (!r.collectorId) continue;
+      if (!map.has(r.collectorId)) map.set(r.collectorId, []);
+      map.get(r.collectorId).push(r);
+    }
+    return map;
+  }
+
   protected async process(
     command: PrintDeliveryLettersCommand,
   ): Promise<Result<Stream.Readable>> {
-    const period = await this.periodRepository.findById(command.periodId);
-    if (!period) {
+    const [currentReceipts, overdueReceipts] = await Promise.all([
+      this.receiptRepository.findAllForPrint({
+        month: command.month,
+        year: command.year,
+        collectorNumber: command.collectorNumber,
+      }),
+      this.receiptRepository.findOverdueUnpaid(
+        command.month,
+        command.year,
+        command.collectorNumber,
+      ),
+    ]);
+
+    if (!currentReceipts.length && !overdueReceipts.length) {
       return Result.fail({
         type: ErrorType.NOT_FOUND,
-        message: 'Period not found',
+        message: 'No se encontraron recibos para el periodo indicado',
         entity: PrintDeliveryLettersHandler.name,
       });
     }
 
-    const receipts = await this.receiptRepository.findPendingByCollectionPeriodId(
-      command.periodId,
-    );
-
-    if (receipts.length === 0) {
-      return Result.fail({
-        type: ErrorType.NOT_FOUND,
-        message: 'No pending receipts found for this period',
-        entity: PrintDeliveryLettersHandler.name,
-      });
-    }
-
-    const unprinted = receipts.filter((r) => r.printCount === 0);
+    const unprinted = currentReceipts.filter((r) => r.printCount === 0);
     if (unprinted.length > 0) {
       const byCollector = new Map<string, number>();
       for (const r of unprinted) {
@@ -100,52 +145,44 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
       });
     }
 
-    const periodLabel = `${MONTH_LABELS[period.month - 1]}${period.year}`;
+    const periodLabel = `${MONTH_LABELS[command.month - 1]}${command.year}`;
 
-    // Group by collector
-    const byCollector = new Map<string, ReceiptSchema[]>();
-    for (const r of receipts) {
-      if (!byCollector.has(r.collectorId)) byCollector.set(r.collectorId, []);
-      byCollector.get(r.collectorId).push(r);
-    }
+    const currentByCollector = this.groupByCollector(currentReceipts);
+    const overdueByCollector = this.groupByCollector(overdueReceipts);
+
+    const collectorIds = new Set([
+      ...currentByCollector.keys(),
+      ...overdueByCollector.keys(),
+    ]);
 
     const letters: CollectorLetterData[] = [];
 
-    for (const [, collectorReceipts] of byCollector) {
-      const collector = collectorReceipts[0].collector as CollectorSchema;
+    for (const collectorId of collectorIds) {
+      const current = currentByCollector.get(collectorId) ?? [];
+      const overdue = overdueByCollector.get(collectorId) ?? [];
 
-      const rows: CollectorLetterReceiptRow[] = collectorReceipts.map((r) => {
-        const beneficient = r.beneficient as BeneficientSchema;
-        const promise = r.promiseDonation as PromiseDonationSchema;
-        const receiptPeriodLabel = r.periodMonth && r.periodYear
-          ? `${MONTH_LABELS[r.periodMonth - 1]}${r.periodYear}`
-          : periodLabel;
-        return {
-          folio: r.folio,
-          beneficientName: beneficient
-            ? this.getBeneficientFullname(beneficient)
-            : 'Anónimo',
-          beneficientNumber: (beneficient as any)?.beneficientNumber ?? 0,
-          amount: Number(r.amount),
-          currency: r.currency,
-          // Shows the receipt's own period so retroactive receipts are visible
-          recurrence: promise
-            ? (RECURRENCE_LABELS[promise.recurrence] ?? receiptPeriodLabel)
-            : receiptPeriodLabel,
-        };
-      });
+      const collector = (current[0] ?? overdue[0])?.collector as CollectorSchema;
+      if (!collector) continue;
 
-      const totalAmount = rows.reduce((sum, r) => sum + r.amount, 0);
+      const totalAmount = current.reduce((sum, r) => sum + Number(r.amount), 0);
+      const overdueTotal = overdue.reduce((sum, r) => sum + Number(r.amount), 0);
+      const currency = (current[0] ?? overdue[0]).currency;
 
       letters.push({
         collectorName: this.getCollectorFullname(collector),
         collectorNumber: collector.collectorNumber,
         period: periodLabel,
-        receipts: rows,
+        currency,
         totalAmount,
-        currency: 'MXN',
+        receipts: current.map((r) => this.toReceiptRow(r, periodLabel)),
+        overdueReceipts: overdue.map((r) => this.toOverdueRow(r)),
+        overdueTotal,
       });
     }
+
+    letters.sort((a, b) => a.collectorNumber - b.collectorNumber);
+
+    if (!letters.length) return Result.ok(null);
 
     const docDefinition = collectorLetterTemplate(letters);
     const pdfStream = await this.pdfService.print(docDefinition);

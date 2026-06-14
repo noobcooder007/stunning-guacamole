@@ -5,6 +5,7 @@ import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/sch
 import {
   IReceiptRepository,
   PrintReceiptFilters,
+  PrintReceiptRangeFilters,
 } from '@/donation/domain/repositories/receipt.repository';
 import { Receipt } from '@/donation/domain/aggregates/receipt.aggregate';
 import { ReceiptMapper } from '../../mappers/receipt.mapper';
@@ -75,11 +76,15 @@ export class TypeORMReceiptRepository
       .leftJoinAndSelect('r.collector', 'c')
       .where('r.status = :status', { status: 'PENDING' });
 
-    if (filters.month) {
-      qb.andWhere('r.periodMonth = :month', { month: filters.month });
+    if (filters.collectorId) {
+      qb.andWhere('r.collectorId = :collectorId', {
+        collectorId: filters.collectorId,
+      });
     }
-    if (filters.year) {
-      qb.andWhere('r.periodYear = :year', { year: filters.year });
+    if (filters.collectorNumber) {
+      qb.andWhere('c.collectorNumber = :collectorNumber', {
+        collectorNumber: filters.collectorNumber,
+      });
     }
     if (filters.firstname) {
       qb.andWhere('c.firstname ILIKE :firstname', {
@@ -96,21 +101,76 @@ export class TypeORMReceiptRepository
         secondLastname: `%${filters.secondLastname}%`,
       });
     }
-    if (filters.collectorNumber) {
-      qb.andWhere('c.collectorNumber = :collectorNumber', {
-        collectorNumber: filters.collectorNumber,
-      });
+    if (filters.month) {
+      qb.andWhere('r.periodMonth = :month', { month: filters.month });
+    }
+    if (filters.year) {
+      qb.andWhere('r.periodYear = :year', { year: filters.year });
     }
     if (filters.type) {
       qb.andWhere('r.type = :type', { type: filters.type });
     }
 
+    qb.orderBy('c.collectorNumber', 'ASC')
+      .addOrderBy('r.periodYear', 'ASC')
+      .addOrderBy('r.periodMonth', 'ASC')
+      .addOrderBy('b.firstLastname', 'ASC')
+      .addOrderBy('b.firstname', 'ASC');
+
     return qb.getMany();
   }
 
-  async findPrintedOnceByPeriod(
-    month: number,
-    year: number,
+  async findByFolioRange(
+    filters: PrintReceiptRangeFilters,
+  ): Promise<ReceiptSchema[]> {
+    const qb = this.repository
+      .createQueryBuilder('r')
+      .leftJoinAndSelect('r.promiseDonation', 'pd')
+      .leftJoinAndSelect('r.beneficient', 'b')
+      .leftJoinAndSelect('r.collector', 'c')
+      .where('r.status = :status', { status: 'PENDING' })
+      .andWhere('r.type = :type', { type: 'RECURRING' })
+      .andWhere('r.periodMonth = :month', { month: filters.month })
+      .andWhere('r.periodYear = :year', { year: filters.year })
+      .andWhere(
+        "CAST(SPLIT_PART(r.folio, '-', 4) AS INTEGER) BETWEEN :fromSequence AND :toSequence",
+        { fromSequence: filters.fromSequence, toSequence: filters.toSequence },
+      );
+
+    if (filters.collectorId) {
+      qb.andWhere('r.collectorId = :collectorId', {
+        collectorId: filters.collectorId,
+      });
+    }
+    if (filters.collectorNumber) {
+      qb.andWhere('c.collectorNumber = :collectorNumber', {
+        collectorNumber: filters.collectorNumber,
+      });
+    }
+    if (filters.firstname) {
+      qb.andWhere('c.firstname ILIKE :firstname', {
+        firstname: `%${filters.firstname}%`,
+      });
+    }
+    if (filters.firstLastname) {
+      qb.andWhere('c.firstLastname ILIKE :firstLastname', {
+        firstLastname: `%${filters.firstLastname}%`,
+      });
+    }
+    if (filters.secondLastname) {
+      qb.andWhere('c.secondLastname ILIKE :secondLastname', {
+        secondLastname: `%${filters.secondLastname}%`,
+      });
+    }
+
+    qb.orderBy('c.collectorNumber', 'ASC').addOrderBy('r.folio', 'ASC');
+
+    return qb.getMany();
+  }
+
+  async findOverdueUnpaid(
+    beforeMonth: number,
+    beforeYear: number,
     collectorNumber?: number,
   ): Promise<ReceiptSchema[]> {
     const qb = this.repository
@@ -118,16 +178,21 @@ export class TypeORMReceiptRepository
       .leftJoinAndSelect('r.promiseDonation', 'pd')
       .leftJoinAndSelect('r.beneficient', 'b')
       .leftJoinAndSelect('r.collector', 'c')
-      .where('r.periodMonth = :month', { month })
-      .andWhere('r.periodYear = :year', { year })
-      .andWhere('r.printCount >= 1')
-      .orderBy('c.collectorNumber', 'ASC')
-      .addOrderBy('b.firstLastname', 'ASC')
-      .addOrderBy('b.firstname', 'ASC');
+      .where('r.status = :status', { status: 'PENDING' })
+      .andWhere(
+        '(r.periodYear < :beforeYear OR (r.periodYear = :beforeYear AND r.periodMonth < :beforeMonth))',
+        { beforeYear, beforeMonth },
+      );
 
     if (collectorNumber) {
       qb.andWhere('c.collectorNumber = :collectorNumber', { collectorNumber });
     }
+
+    qb.orderBy('c.collectorNumber', 'ASC')
+      .addOrderBy('r.periodYear', 'ASC')
+      .addOrderBy('r.periodMonth', 'ASC')
+      .addOrderBy('b.firstLastname', 'ASC')
+      .addOrderBy('b.firstname', 'ASC');
 
     return qb.getMany();
   }

@@ -5,13 +5,26 @@ import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/sch
 export type PrintReceiptType = 'RECURRING' | 'SPECIAL';
 
 export interface PrintReceiptFilters {
-  month?: number;
-  year?: number;
+  collectorId?: string;
+  collectorNumber?: number;
   firstname?: string;
   firstLastname?: string;
   secondLastname?: string;
-  collectorNumber?: number;
+  month?: number;
+  year?: number;
   type?: PrintReceiptType;
+}
+
+export interface PrintReceiptRangeFilters {
+  collectorId?: string;
+  collectorNumber?: number;
+  firstname?: string;
+  firstLastname?: string;
+  secondLastname?: string;
+  month: number;
+  year: number;
+  fromSequence: number;
+  toSequence: number;
 }
 
 @Injectable()
@@ -33,9 +46,12 @@ export abstract class IReceiptRepository {
   abstract findAllForPrint(
     filters: PrintReceiptFilters,
   ): Promise<ReceiptSchema[]>;
-  abstract findPrintedOnceByPeriod(
-    month: number,
-    year: number,
+  abstract findByFolioRange(
+    filters: PrintReceiptRangeFilters,
+  ): Promise<ReceiptSchema[]>;
+  abstract findOverdueUnpaid(
+    beforeMonth: number,
+    beforeYear: number,
     collectorNumber?: number,
   ): Promise<ReceiptSchema[]>;
   abstract findAll(): Promise<Receipt[]>;

@@ -23,7 +23,6 @@ import { GetCurrentPeriodQuery } from '@/donation/application/query/get-current-
 import { GetPeriodSettlementsQuery } from '@/donation/application/query/get-period-settlements.query';
 import { GetReceiptsReportByPeriodQuery } from '@/donation/application/query/get-receipts-report-by-period.query';
 import { PrintSettlementLettersCommand } from '@/donation/application/command/print-settlement-letters.command';
-import { PrintDeliveryLettersCommand } from '@/donation/application/command/print-delivery-letters.command';
 import { PrintReceiptsReportByPeriodCommand } from '@/donation/application/command/print-receipts-report-by-period.command';
 import { RegisterCollectorPaymentCommand } from '@/donation/application/command/register-collector-payment.command';
 import { RegisterBulkCollectorPaymentsCommand } from '@/donation/application/command/register-bulk-collector-payments.command';
@@ -173,27 +172,4 @@ export class CollectionPeriodController {
     return this.queryBus.execute(new GetSettlementPaymentsQuery(settlementId));
   }
 
-  @Get('/:periodId/delivery-letters')
-  @Auth(PermissionNames.VIEW_INVOICE)
-  async printDeliveryLetters(
-    @Param('periodId') periodId: string,
-    @Res() res: Response,
-  ) {
-    const result = await this.commandBus.execute(
-      new PrintDeliveryLettersCommand(periodId),
-    );
-    if (!result.isSuccess) {
-      res.status(result.error.type === 'NOT_FOUND' ? 404 : 422).json({
-        type: result.error.type,
-        message: result.error.message,
-      });
-      return;
-    }
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=entrega-recibos-${periodId}.pdf`,
-    );
-    result.value.pipe(res);
-  }
 }

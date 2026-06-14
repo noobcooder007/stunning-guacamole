@@ -20,7 +20,7 @@ import { GenerateRecurringReceiptsHandler } from '@/donation/application/handler
 import { ReceiptFolioProvider } from '@/donation/infrastructure/service/receipt-folio.provider';
 import { ReceiptSequenceSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt-sequence.schema';
 import { PrintReceiptsByCollectorHandler } from '@/donation/application/handlers/print-receipts-by-collector.handler';
-import { PrintCollectorLetterHandler } from '@/donation/application/handlers/print-collector-letter.handler';
+import { PrintReceiptsByRangeHandler } from '@/donation/application/handlers/print-receipts-by-range.handler';
 import { CreateSpecialReceiptHandler } from '@/donation/application/handlers/create-special-receipt.handler';
 import { MarkAsPaidReceiptsCommandHandler } from '@/donation/application/handlers/mark-as-paid-receipts.handler';
 import { CancelReceiptCommandHandler } from '@/donation/application/handlers/cancel-receipt.handler';
@@ -75,7 +75,7 @@ import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/re
     GenerateRecurringReceiptsHandler,
     ReceiptFolioProvider,
     PrintReceiptsByCollectorHandler,
-    PrintCollectorLetterHandler,
+    PrintReceiptsByRangeHandler,
     CreateSpecialReceiptHandler,
     MarkAsPaidReceiptsCommandHandler,
     CancelReceiptCommandHandler,

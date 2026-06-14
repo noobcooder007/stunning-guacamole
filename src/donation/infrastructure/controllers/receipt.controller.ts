@@ -16,11 +16,12 @@ import { GetUser } from '@/auth/infrastructure/decorators/get-user.decorator';
 import { IPrinterService } from '@/shared/infrastructure/services/print.service';
 import { GetReceiptsQueryDto } from '@/donation/application/dto/get-receipts-query.dto';
 import { PrintReceiptsQueryDto } from '@/donation/application/dto/print-receipts-query.dto';
-import { PrintCollectorLetterQueryDto } from '@/donation/application/dto/print-collector-letter-query.dto';
+import { PrintDeliveryLetterQueryDto } from '@/donation/application/dto/print-delivery-letter-query.dto';
 import { GetReceiptsQueryParams } from '@/donation/application/query/get-receipts-paginated.query';
 import { GenerateRecurringReceiptsCommand } from '@/donation/application/command/generate-recurring-receipts.command';
 import { PrintReceiptsByCollectorCommand } from '@/donation/application/command/print-receipts-by-collector.command';
-import { PrintCollectorLetterCommand } from '@/donation/application/command/print-collector-letter.command';
+import { PrintReceiptsByRangeCommand } from '@/donation/application/command/print-receipts-by-range.command';
+import { PrintDeliveryLettersCommand } from '@/donation/application/command/print-delivery-letters.command';
 import { CreateSpecialReceiptCommand } from '@/donation/application/command/create-special-receipt.command';
 import { CreateSpecialReceiptDto } from '@/donation/application/dto/create-special-receipt.dto';
 import { MarkAsPaidReceiptsDto } from '@/donation/application/dto/mark-as-paid-receipts.dto';
@@ -108,20 +109,39 @@ export class ReceiptController {
     @Query() query: PrintReceiptsQueryDto,
     @GetUser() user: any,
   ) {
-    const response = await this.commandBus.execute(
-      new PrintReceiptsByCollectorCommand(
-        {
-          month: query.month,
-          year: query.year,
-          firstname: query.firstname,
-          firstLastname: query.firstLastname,
-          secondLastname: query.secondLastname,
-          collectorNumber: query.collectorNumber,
-          type: query.type,
-        },
-        user.id,
-      ),
-    );
+    const collectorFilters = {
+      collectorId: query.collectorId,
+      collectorNumber: query.collectorNumber,
+      firstname: query.firstname,
+      firstLastname: query.firstLastname,
+      secondLastname: query.secondLastname,
+    };
+
+    const isRangeRequest =
+      Number.isFinite(query.fromSequence) && Number.isFinite(query.toSequence);
+
+    const command = isRangeRequest
+      ? new PrintReceiptsByRangeCommand(
+          {
+            ...collectorFilters,
+            month: query.month,
+            year: query.year,
+            fromSequence: query.fromSequence,
+            toSequence: query.toSequence,
+          },
+          user.id,
+        )
+      : new PrintReceiptsByCollectorCommand(
+          {
+            ...collectorFilters,
+            month: query.month,
+            year: query.year,
+            type: query.type,
+          },
+          user.id,
+        );
+
+    const response = await this.commandBus.execute(command);
     if (!response.isSuccess) {
       res.status(422).json({
         type: response.error.type,
@@ -153,24 +173,21 @@ export class ReceiptController {
     return this.commandBus.execute(new MarkAsPaidReceiptsCommand(dto.receipts));
   }
 
-  @Get('/print/collector-letter')
+  @Get('/print/delivery-letter')
   @Auth(PermissionNames.VIEW_INVOICE)
-  async printCollectorLetter(
+  async printDeliveryLetter(
     @Res() res: Response,
-    @Query() query: PrintCollectorLetterQueryDto,
-    @GetUser() user: any,
+    @Query() query: PrintDeliveryLetterQueryDto,
   ) {
-    const now = new Date();
     const response = await this.commandBus.execute(
-      new PrintCollectorLetterCommand(
-        now.getMonth() + 1,
-        now.getFullYear(),
-        user.id,
+      new PrintDeliveryLettersCommand(
+        query.month,
+        query.year,
         query.collectorNumber,
       ),
     );
     if (!response.isSuccess) {
-      res.status(422).json({
+      res.status(response.error.type === 'NOT_FOUND' ? 404 : 422).json({
         type: response.error.type,
         message: response.error.message,
       });
@@ -182,10 +199,7 @@ export class ReceiptController {
       return;
     }
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      'attachment; filename=collector-letter.pdf',
-    );
+    res.setHeader('Content-Disposition', 'attachment; filename=delivery-letter.pdf');
     pdfStream.pipe(res);
   }
 

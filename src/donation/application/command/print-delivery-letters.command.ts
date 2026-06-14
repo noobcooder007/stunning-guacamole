@@ -1,3 +1,7 @@
 export class PrintDeliveryLettersCommand {
-  constructor(public readonly periodId: string) {}
+  constructor(
+    public readonly month: number,
+    public readonly year: number,
+    public readonly collectorNumber?: number,
+  ) {}
 }

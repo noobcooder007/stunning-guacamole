@@ -4,6 +4,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
@@ -12,17 +13,14 @@ import { PrintReceiptType } from '@/donation/domain/repositories/receipt.reposit
 
 export class PrintReceiptsQueryDto {
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  @Type(() => Number)
-  month?: number;
+  @IsUUID()
+  collectorId?: string;
 
   @IsOptional()
   @IsInt()
-  @Min(2000)
+  @Min(1)
   @Type(() => Number)
-  year?: number;
+  collectorNumber?: number;
 
   @IsOptional()
   @IsString()
@@ -39,13 +37,30 @@ export class PrintReceiptsQueryDto {
   @MaxLength(100)
   secondLastname?: string;
 
-  @IsOptional()
   @IsInt()
   @Min(1)
+  @Max(12)
   @Type(() => Number)
-  collectorNumber?: number;
+  month: number;
+
+  @IsInt()
+  @Min(2000)
+  @Type(() => Number)
+  year: number;
 
   @IsOptional()
   @IsEnum(['RECURRING', 'SPECIAL'])
   type?: PrintReceiptType;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  fromSequence?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  toSequence?: number;
 }
