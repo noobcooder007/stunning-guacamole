@@ -1,7 +1,10 @@
+import { Logger } from '@nestjs/common';
 import { DesactivateAssignationHandler } from './deactivate-assignation.handler';
 import { DeactivateAssignationsCommand } from '@/community/application/command/deactivate-assignations.command';
 import { Result, ErrorType } from '@/shared/domain/dto/result.dto';
 import { DomainException } from '@/shared/domain/exceptions/domain.exception';
+
+beforeAll(() => jest.spyOn(Logger.prototype, 'log').mockImplementation());
 
 const AID1 = '01907c2a-0000-7000-8000-000000000001';
 const AID2 = '01907c2a-0000-7000-8000-000000000002';

@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { ReassignBeneficientsToCollectorHandler } from './reassign-beneficients-to-collector.handler';
 import { ReassignBeneficientsCommand } from '@/community/application/command/reassign-beneficients.command';
 import { AssignationActivatedEvent } from '@/community/application/events/assignation-activated.event';
@@ -8,6 +9,8 @@ import { BeneficientId } from '@/community/domain/aggregate/beneficient.aggregat
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 import { Result, ErrorType } from '@/shared/domain/dto/result.dto';
 import { DomainException } from '@/shared/domain/exceptions/domain.exception';
+
+beforeAll(() => jest.spyOn(Logger.prototype, 'log').mockImplementation());
 import { AssignationReportResponse } from '@/community/application/dto/assignation-report.response';
 import { AssignationServiceResult } from '@/community/domain/services/assignament.service';
 
