@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { CommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { UnitOfWork } from '@/database/unit-of-work';
 import {
@@ -15,6 +15,7 @@ import { AssignationReportResponse } from '@/community/application/dto/assignati
 import { IAssignationRepository } from '@/community/domain/repositories/assignation.repository';
 import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
+import { AssignationActivatedEvent } from '@/community/application/events/assignation-activated.event';
 
 @CommandHandler(ReassignBeneficientsCommand)
 export class ReassignBeneficientsToCollectorHandler extends BaseCommandHandler<
@@ -29,6 +30,7 @@ export class ReassignBeneficientsToCollectorHandler extends BaseCommandHandler<
     @Inject(REPOSITORY_TOKENS.COLLECTOR)
     private readonly collectorRepository: ICollectorRepository,
     private readonly uow: UnitOfWork,
+    private readonly eventBus: EventBus,
   ) {
     super();
   }
@@ -37,6 +39,8 @@ export class ReassignBeneficientsToCollectorHandler extends BaseCommandHandler<
     command: ReassignBeneficientsCommand,
   ): Promise<Result<AssignationReportResponse, IErrorResult>> {
     let assignationReport: AssignationReportResponse;
+    let activatedBeneficientIds: string[] = [];
+
     const isTargetActive = await this.collectorRepository.isActive(
       command.collectorId,
     );
@@ -90,8 +94,14 @@ export class ReassignBeneficientsToCollectorHandler extends BaseCommandHandler<
         );
       }
       this.logger.log(`[${this.traceId}] Assignations saved`);
-      assignationReport = assignamentsDone.value;
+      assignationReport = assignamentsDone.value.report;
+      activatedBeneficientIds = assignamentsDone.value.activatedBeneficientIds;
     });
+
+    for (const beneficientId of activatedBeneficientIds) {
+      this.eventBus.publish(new AssignationActivatedEvent(beneficientId));
+    }
+
     return Result.ok(assignationReport);
   }
 }

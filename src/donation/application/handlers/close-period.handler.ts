@@ -7,7 +7,10 @@ import { ICollectionPeriodRepository } from '@/donation/domain/repositories/coll
 import { ICollectorSettlementRepository } from '@/donation/domain/repositories/collector-settlement.repository';
 import { IReceiptRepository } from '@/donation/domain/repositories/receipt.repository';
 import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
-import { CollectorSettlement } from '@/donation/domain/entities/collector-settlement.entity';
+import {
+  CollectorSettlement,
+  CollectorSettlementPaymentStatus,
+} from '@/donation/domain/entities/collector-settlement.entity';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
@@ -84,6 +87,10 @@ export class ClosePeriodHandler extends BaseCommandHandler<
         const commissionPercent = collector.paymentData.commissionPercent;
         const commissionAmount =
           Math.round(totalCollected * commissionPercent) / 100;
+        const nomina = collector.paymentData.nomina;
+        const transportAllowance = collector.paymentData.transportAllowance;
+        const netCommission =
+          Math.round((commissionAmount - nomina + transportAllowance) * 100) / 100;
         return CollectorSettlement.create({
           collectionPeriodId: period._id.unpack(),
           collectorId: CollectorId.of(cid),
@@ -92,6 +99,11 @@ export class ClosePeriodHandler extends BaseCommandHandler<
           totalCollected,
           commissionPercent,
           commissionAmount,
+          nomina,
+          transportAllowance,
+          netCommission,
+          paymentStatus: CollectorSettlementPaymentStatus.PENDING,
+          totalPaid: 0,
           createdAt: new Date(),
         });
       });
@@ -118,6 +130,12 @@ export class ClosePeriodHandler extends BaseCommandHandler<
       totalCollected: s.totalCollected,
       commissionPercent: s.commissionPercent,
       commissionAmount: s.commissionAmount,
+      nomina: s.nomina,
+      transportAllowance: s.transportAllowance,
+      netCommission: s.netCommission,
+      paymentStatus: s.paymentStatus,
+      totalPaid: s.totalPaid,
+      remainingBalance: s.remainingBalance,
       createdAt: s.createdAt,
     }));
 

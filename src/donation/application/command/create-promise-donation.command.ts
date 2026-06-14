@@ -1,4 +1,7 @@
-import { CreatePromiseDonationDto } from '@/donation/application/dto/create-promise-donation.dto';
+import {
+  CreatePromiseDonationDto,
+  InstructionsDto,
+} from '@/donation/application/dto/create-promise-donation.dto';
 
 enum RecurrenceType {
   MONTHLY = 'MONTHLY',
@@ -29,6 +32,7 @@ export class CreatePromiseDonationCommand {
     public readonly recurring: boolean,
     public readonly recurrence: number,
     public readonly createdBy: string,
+    public readonly collectorInstructions?: InstructionsDto,
   ) {}
 
   static fromDto(
@@ -45,6 +49,7 @@ export class CreatePromiseDonationCommand {
       dto.recurring,
       config.value,
       createdBy,
+      dto.instructions,
     );
   }
 }

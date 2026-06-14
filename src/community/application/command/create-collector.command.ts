@@ -20,6 +20,8 @@ export class CreateCollectorCommand {
   telephoneNumber?: string;
   telephoneNumberHash?: string;
   commissionPercent: number;
+  nomina: number;
+  transportAllowance: number;
   bank: string;
   reference: string;
   notes: string;
@@ -38,6 +40,8 @@ export class CreateCollectorCommand {
     zipCode: string,
     phoneNumber: string,
     commissionPercent: number,
+    nomina: number,
+    transportAllowance: number,
     bank: string,
     reference: string,
     notes: string,
@@ -65,6 +69,8 @@ export class CreateCollectorCommand {
     this.phoneNumber = phoneNumber;
     this.telephoneNumber = telephoneNumber;
     this.commissionPercent = commissionPercent;
+    this.nomina = nomina;
+    this.transportAllowance = transportAllowance;
     this.bank = bank;
     this.reference = reference;
     this.notes = notes;

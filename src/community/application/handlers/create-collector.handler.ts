@@ -112,6 +112,8 @@ export class CreateCollectorHandler extends BaseCommandHandler<
         nssHash: command.nssHash,
         paymentData: PaymentData.of({
           commissionPercent: command.commissionPercent,
+          nomina: command.nomina,
+          transportAllowance: command.transportAllowance,
           bank: command.bank,
           reference: command.reference,
         }),

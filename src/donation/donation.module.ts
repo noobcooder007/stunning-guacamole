@@ -26,6 +26,10 @@ import { MarkAsPaidReceiptsCommandHandler } from '@/donation/application/handler
 import { CancelReceiptCommandHandler } from '@/donation/application/handlers/cancel-receipt.handler';
 import { CollectionPeriodSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/collection-period.schema';
 import { CollectorSettlementSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/collector-settlement.schema';
+import { CollectorPaymentSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/collector-payment.schema';
+import { RegisterCollectorPaymentHandler } from '@/donation/application/handlers/register-collector-payment.handler';
+import { RegisterBulkCollectorPaymentsHandler } from '@/donation/application/handlers/register-bulk-collector-payments.handler';
+import { GetSettlementPaymentsHandler } from '@/donation/application/handlers/get-settlement-payments.handler';
 import { OpenPeriodHandler } from '@/donation/application/handlers/open-period.handler';
 import { ClosePeriodHandler } from '@/donation/application/handlers/close-period.handler';
 import { GetCurrentPeriodHandler } from '@/donation/application/handlers/get-current-period.handler';
@@ -49,6 +53,7 @@ import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/re
       ReceiptSequenceSchema,
       CollectionPeriodSchema,
       CollectorSettlementSchema,
+      CollectorPaymentSchema,
     ]),
     AuthModule,
     SharedModule,
@@ -87,6 +92,9 @@ import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/re
     GetReceiptsReportByPeriodHandler,
     PrintReceiptsReportByPeriodHandler,
     ReceiptsReportQueryService,
+    RegisterCollectorPaymentHandler,
+    RegisterBulkCollectorPaymentsHandler,
+    GetSettlementPaymentsHandler,
   ],
 })
 export class DonationModule {}

@@ -166,6 +166,12 @@ export class CollectorSchema implements ICollectorPersistence {
   @Column('int')
   commissionPercent: number;
 
+  @Column('decimal', { precision: 14, scale: 2, default: 0 })
+  nomina: number;
+
+  @Column('decimal', { precision: 14, scale: 2, default: 0 })
+  transportAllowance: number;
+
   @Column('text', {
     nullable: true,
   })

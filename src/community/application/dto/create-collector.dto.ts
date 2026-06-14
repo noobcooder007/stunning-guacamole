@@ -64,6 +64,14 @@ export class CreateCollectorDto {
   @IsNotEmpty()
   commissionPercent: number;
 
+  @IsNumber()
+  @IsNotEmpty()
+  nomina: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  transportAllowance: number;
+
   @IsString()
   @IsNotEmpty()
   bank: string;

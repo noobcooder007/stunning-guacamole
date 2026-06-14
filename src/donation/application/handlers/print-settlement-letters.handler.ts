@@ -123,6 +123,9 @@ export class PrintSettlementLettersHandler extends BaseCommandHandler<
         totalCollected: settlement.totalCollected,
         commissionPercent: settlement.commissionPercent,
         commissionAmount: settlement.commissionAmount,
+        nomina: settlement.nomina,
+        transportAllowance: settlement.transportAllowance,
+        netCommission: settlement.netCommission,
         currency: 'MXN',
       };
     });

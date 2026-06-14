@@ -24,6 +24,7 @@ import { DeactivateCollectorCommand } from '@/community/application/command/deac
 import { ReactivateCollectorCommand } from '@/community/application/command/reactivate-collector.command';
 import { GetCollectorQueryParams } from '@/community/application/query/get-collector-paginated.query';
 import { GetCollectorByIdQuery } from '@/community/application/query/get-collector-by-id.query';
+import { GetCollectorsActiveListQuery } from '@/community/application/query/get-collectors-active-list.query';
 import { CreateCollectorDto } from '@/community/application/dto/create-collector.dto';
 import { GetCollectorsQueryDto } from '@/community/application/dto/get-collectors-query.dto';
 
@@ -69,6 +70,8 @@ export class CollectorController {
       dto.address.zipCode,
       dto.phoneNumber,
       dto.commissionPercent,
+      dto.nomina,
+      dto.transportAllowance,
       dto.bank,
       dto.reference,
       dto.notes,
@@ -86,6 +89,12 @@ export class CollectorController {
       await unlink(processedPath).catch(() => null);
       throw error;
     }
+  }
+
+  @Get('active-list')
+  @Auth(PermissionNames.VIEW_COLLECTOR)
+  getActiveList(@Query('search') search?: string) {
+    return this.queryBus.execute(new GetCollectorsActiveListQuery(search));
   }
 
   @Get()

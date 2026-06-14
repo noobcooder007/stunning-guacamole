@@ -1,6 +1,7 @@
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { BeneficientId } from '@/community/domain/aggregate/beneficient.aggregate';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
+import { ReceiptResponse } from '@/donation/application/dto/receipt.response.dto';
 import { PromiseDonationId } from '@/donation/domain/aggregates/promise-donation.aggregate';
 import {
   Money,
@@ -69,6 +70,32 @@ export class ReceiptMapper {
       collectionPeriodId: receipt.collectionPeriodId,
       paidAt: receipt.paidAt,
     };
+  }
+
+  static toResponse(raw: IReceiptPersistence): ReceiptResponse {
+    const dto = new ReceiptResponse();
+    dto.id = raw.id;
+    dto.status = raw.status;
+    dto.folio = raw.folio;
+    dto.type = raw.type;
+    dto.origin = raw.origin;
+    dto.amount = raw.amount;
+    dto.currency = raw.currency;
+    dto.paymentMethod = raw.paymentMethod;
+    dto.externalReference = raw.externalReference;
+    dto.promiseDonationId = raw.promiseDonationId;
+    dto.periodMonth = raw.periodMonth;
+    dto.periodYear = raw.periodYear;
+    dto.beneficientId = raw.beneficientId;
+    dto.collectorId = raw.collectorId;
+    dto.collectionPeriodId = raw.collectionPeriodId;
+    dto.printCount = raw.printCount;
+    dto.lastPrintedAt = raw.lastPrintedAt;
+    dto.voidReason = raw.voidReason;
+    dto.paidAt = raw.paidAt;
+    dto.createdAt = raw.createdAt;
+    dto.updatedAt = raw.updatedAt;
+    return dto;
   }
 
   static toDomain(raw: IReceiptPersistence): Receipt {

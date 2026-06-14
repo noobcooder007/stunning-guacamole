@@ -17,6 +17,9 @@ export interface SettlementLetterData {
   totalCollected: number;
   commissionPercent: number;
   commissionAmount: number;
+  nomina: number;
+  transportAllowance: number;
+  netCommission: number;
   currency: string;
 }
 
@@ -141,14 +144,29 @@ function buildLetter(
               { text: '', border: [false, false, false, false] },
             ],
             [
+              { text: 'Comisión bruta', fontSize: 9, color: '#555555', border: [false, false, false, false] },
+              { text: fmt(letter.commissionAmount, letter.currency), fontSize: 10, alignment: 'right', border: [false, false, false, false], colSpan: 2 },
+              {},
+            ],
+            [
+              { text: '(–) Nómina', fontSize: 9, color: '#555555', border: [false, false, false, false] },
+              { text: fmt(letter.nomina, letter.currency), fontSize: 10, alignment: 'right', color: '#cc0000', border: [false, false, false, false], colSpan: 2 },
+              {},
+            ],
+            [
+              { text: '(+) Apoyo de transporte', fontSize: 9, color: '#555555', border: [false, false, false, false] },
+              { text: fmt(letter.transportAllowance, letter.currency), fontSize: 10, alignment: 'right', color: '#007700', border: [false, false, false, false], colSpan: 2 },
+              {},
+            ],
+            [
               {
-                text: 'COMISIÓN A PAGAR',
+                text: 'COMISIÓN NETA A PAGAR',
                 bold: true, fontSize: 10, color: '#333333',
                 fillColor: '#f5f5f5', border: [false, false, false, false],
                 margin: [4, 4, 0, 4],
               },
               {
-                text: fmt(letter.commissionAmount, letter.currency),
+                text: fmt(letter.netCommission, letter.currency),
                 bold: true, fontSize: 14, alignment: 'right',
                 fillColor: '#f5f5f5', border: [false, false, false, false],
                 margin: [0, 4, 4, 4],

@@ -1,6 +1,12 @@
 import { v7 as uuidv7 } from 'uuid';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 
+export enum CollectorSettlementPaymentStatus {
+  PENDING = 'PENDING',
+  PARTIALLY_PAID = 'PARTIALLY_PAID',
+  PAID = 'PAID',
+}
+
 interface CollectorSettlementProps {
   collectionPeriodId: string;
   collectorId: CollectorId;
@@ -9,6 +15,11 @@ interface CollectorSettlementProps {
   totalCollected: number;
   commissionPercent: number;
   commissionAmount: number;
+  nomina: number;
+  transportAllowance: number;
+  netCommission: number;
+  paymentStatus: CollectorSettlementPaymentStatus;
+  totalPaid: number;
   createdAt: Date;
 }
 
@@ -31,7 +42,7 @@ export class CollectorSettlementId {
 export class CollectorSettlement {
   private constructor(
     private readonly id: CollectorSettlementId,
-    private readonly props: CollectorSettlementProps,
+    private props: CollectorSettlementProps,
   ) {}
 
   public static create(props: CollectorSettlementProps): CollectorSettlement {
@@ -43,6 +54,21 @@ export class CollectorSettlement {
     props: CollectorSettlementProps,
   ): CollectorSettlement {
     return new CollectorSettlement(id, props);
+  }
+
+  public registerPayment(amount: number): void {
+    const remaining = this.props.netCommission - this.props.totalPaid;
+    if (amount > remaining) {
+      throw new Error(
+        `Payment amount ${amount} exceeds remaining balance ${remaining}`,
+      );
+    }
+    this.props.totalPaid = Math.round((this.props.totalPaid + amount) * 100) / 100;
+    if (this.props.totalPaid >= this.props.netCommission) {
+      this.props.paymentStatus = CollectorSettlementPaymentStatus.PAID;
+    } else {
+      this.props.paymentStatus = CollectorSettlementPaymentStatus.PARTIALLY_PAID;
+    }
   }
 
   public get _id(): CollectorSettlementId {
@@ -75,6 +101,30 @@ export class CollectorSettlement {
 
   public get commissionAmount(): number {
     return this.props.commissionAmount;
+  }
+
+  public get nomina(): number {
+    return this.props.nomina;
+  }
+
+  public get transportAllowance(): number {
+    return this.props.transportAllowance;
+  }
+
+  public get netCommission(): number {
+    return this.props.netCommission;
+  }
+
+  public get paymentStatus(): CollectorSettlementPaymentStatus {
+    return this.props.paymentStatus;
+  }
+
+  public get totalPaid(): number {
+    return this.props.totalPaid;
+  }
+
+  public get remainingBalance(): number {
+    return Math.round((this.props.netCommission - this.props.totalPaid) * 100) / 100;
   }
 
   public get createdAt(): Date {

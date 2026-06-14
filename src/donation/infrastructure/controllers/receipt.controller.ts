@@ -94,6 +94,9 @@ export class ReceiptController {
         query.collectorId,
         query.page,
         query.limit,
+        query.month,
+        query.year,
+        query.folio,
       ),
     );
   }

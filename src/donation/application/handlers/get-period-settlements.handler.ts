@@ -29,6 +29,12 @@ export class GetPeriodSettlementsHandler
         totalCollected: s.totalCollected,
         commissionPercent: s.commissionPercent,
         commissionAmount: s.commissionAmount,
+        nomina: s.nomina,
+        transportAllowance: s.transportAllowance,
+        netCommission: s.netCommission,
+        paymentStatus: s.paymentStatus,
+        totalPaid: s.totalPaid,
+        remainingBalance: s.remainingBalance,
         createdAt: s.createdAt,
       })),
     );

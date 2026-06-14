@@ -1,6 +1,7 @@
 import {
   CollectorSettlement,
   CollectorSettlementId,
+  CollectorSettlementPaymentStatus,
 } from '@/donation/domain/entities/collector-settlement.entity';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 
@@ -13,6 +14,11 @@ export interface ICollectorSettlementPersistence {
   totalCollected: number;
   commissionPercent: number;
   commissionAmount: number;
+  nomina: number;
+  transportAllowance: number;
+  netCommission: number;
+  paymentStatus: CollectorSettlementPaymentStatus;
+  totalPaid: number;
   createdAt: Date;
 }
 
@@ -29,6 +35,11 @@ export class CollectorSettlementMapper {
       totalCollected: settlement.totalCollected,
       commissionPercent: settlement.commissionPercent,
       commissionAmount: settlement.commissionAmount,
+      nomina: settlement.nomina,
+      transportAllowance: settlement.transportAllowance,
+      netCommission: settlement.netCommission,
+      paymentStatus: settlement.paymentStatus,
+      totalPaid: settlement.totalPaid,
       createdAt: settlement.createdAt,
     };
   }
@@ -42,6 +53,11 @@ export class CollectorSettlementMapper {
       totalCollected: Number(raw.totalCollected),
       commissionPercent: raw.commissionPercent,
       commissionAmount: Number(raw.commissionAmount),
+      nomina: Number(raw.nomina),
+      transportAllowance: Number(raw.transportAllowance),
+      netCommission: Number(raw.netCommission),
+      paymentStatus: raw.paymentStatus,
+      totalPaid: Number(raw.totalPaid),
       createdAt: raw.createdAt,
     });
   }

@@ -34,8 +34,12 @@ import { DeactivateAssignationEventHandler } from '@/community/application/handl
 import { ReassignBeneficientsToCollectorHandler } from '@/community/application/handlers/reassign-beneficients-to-collector.handler';
 import { GetActivesAssignationsHandler } from '@/community/application/handlers/get-actives-assignations.handler';
 import { GetOrphansAssignationsQueryHandler } from './application/handlers/get-orphans-assignations.handler';
+import { GetUnassignedBeneficientsHandler } from './application/handlers/get-unassigned-beneficients.handler';
+import { GetCollectorsActiveListHandler } from './application/handlers/get-collectors-active-list.handler';
 import { DeactivateBeneficientHanlder } from './application/handlers/deactivate-beneficient.handler';
 import { DeactivatePromiseDonationHandler } from '@/donation/application/handlers/deactivate-promise-donation.handler';
+import { DeactivateDonationPromises } from '@/community/application/handlers/deactivate-donation-promises-event.handler';
+import { AdvanceStalePromiseOnAssignationActivatedHandler } from '@/community/application/handlers/advance-stale-promise-on-assignation-activated.handler';
 import { GetBeneficientsReportHandler } from './application/handlers/get-beneficients-report.handler';
 import { PrintBeneficientsReportHandler } from './application/handlers/print-beneficients-report.handler';
 import { BeneficientsReportQueryService } from './infrastructure/service/beneficients-report.query.service';
@@ -81,7 +85,11 @@ import { BeneficientsRegistryQueryService } from './infrastructure/service/benef
     DeactivateAssignationEventHandler,
     GetActivesAssignationsHandler,
     GetOrphansAssignationsQueryHandler,
+    GetUnassignedBeneficientsHandler,
+    GetCollectorsActiveListHandler,
     DeactivatePromiseDonationHandler,
+    DeactivateDonationPromises,
+    AdvanceStalePromiseOnAssignationActivatedHandler,
     GetBeneficientsReportHandler,
     PrintBeneficientsReportHandler,
     BeneficientsReportQueryService,

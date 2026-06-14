@@ -9,7 +9,10 @@ import {
   Unique,
 } from 'typeorm';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
-import { IPromiseDonationPersistence } from '@/donation/infrastructure/persistence/mappers/promise-donation.mapper';
+import {
+  ICollectorInstructionsPersistence,
+  IPromiseDonationPersistence,
+} from '@/donation/infrastructure/persistence/mappers/promise-donation.mapper';
 
 @Entity('promise_donations')
 @Unique(['beneficientId'])
@@ -78,5 +81,5 @@ export class PromiseDonationSchema implements IPromiseDonationPersistence {
   @Column('json', {
     nullable: true,
   })
-  collectorInstructions: string;
+  collectorInstructions?: ICollectorInstructionsPersistence;
 }

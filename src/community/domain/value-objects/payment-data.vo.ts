@@ -4,6 +4,8 @@ export interface PaymentDataProps {
   readonly commissionPercent: number;
   readonly bank: string;
   readonly reference: string;
+  readonly nomina: number;
+  readonly transportAllowance: number;
 }
 
 export class PaymentData extends ValueObject<PaymentDataProps> {
@@ -21,6 +23,14 @@ export class PaymentData extends ValueObject<PaymentDataProps> {
 
   get reference(): string {
     return this.unpack().reference;
+  }
+
+  get nomina(): number {
+    return this.unpack().nomina;
+  }
+
+  get transportAllowance(): number {
+    return this.unpack().transportAllowance;
   }
 
   public static of(props: PaymentDataProps): PaymentData {

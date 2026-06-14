@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
+  AssignationServiceResult,
   IAssignamentService,
   IDeactivateAssignation,
 } from '@/community/domain/services/assignament.service';
@@ -17,7 +18,6 @@ import {
 import { IAssignationRepository } from '@/community/domain/repositories/assignation.repository';
 import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
-import { AssignationReportResponse } from '@/community/application/dto/assignation-report.response';
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
 
 @Injectable()
@@ -37,7 +37,7 @@ export class AssignamentService implements IAssignamentService {
     collectorId: string,
     beneficientsIds: string[],
     { validateCollector = true }: { validateCollector?: boolean } = {},
-  ): Promise<Result<AssignationReportResponse, IErrorResult>> {
+  ): Promise<Result<AssignationServiceResult, IErrorResult>> {
     if (validateCollector) {
       const isTargetActive =
         await this.collectorRepository.isActive(collectorId);
@@ -71,19 +71,17 @@ export class AssignamentService implements IAssignamentService {
       ]);
     if (activesElsewhere.length === beneficientsIds.length) {
       return Result.ok({
-        addedCount: 0,
-        alreadyAssignedCount: activesElsewhere.length,
-        limmiteExceededCount: 0,
-        addedIds: {
-          created: [],
-          reactivated: [],
-        },
-        ignoredIds: [
-          ...activesElsewhere.map((a) => ({
+        report: {
+          addedCount: 0,
+          alreadyAssignedCount: activesElsewhere.length,
+          limmiteExceededCount: 0,
+          addedIds: { created: [], reactivated: [] },
+          ignoredIds: activesElsewhere.map((a) => ({
             id: a._id.unpack(),
             reason: 'Already assigned',
           })),
-        ],
+        },
+        activatedBeneficientIds: [],
       });
     }
     const withActiveAssignationsElsewhere = new Set(
@@ -137,28 +135,32 @@ export class AssignamentService implements IAssignamentService {
       await this.collectorRepository.save(collector);
     }
     return Result.ok({
-      addedCount: finalAssignationsToSave.length,
-      alreadyAssignedCount: withActiveAssignationsElsewhere.size,
-      limmiteExceededCount: idsNotAddedSet.size,
-      addedIds: {
-        created: [...finalAssignationsToSave.map((a) => a._id.unpack())],
-        reactivated: [
-          ...finalAssignationsToReactivate.map((a) => a._id.unpack()),
+      report: {
+        addedCount: finalAssignationsToSave.length,
+        alreadyAssignedCount: withActiveAssignationsElsewhere.size,
+        limmiteExceededCount: idsNotAddedSet.size,
+        addedIds: {
+          created: finalAssignationsToSave.map((a) => a._id.unpack()),
+          reactivated: finalAssignationsToReactivate.map((a) => a._id.unpack()),
+        },
+        ignoredIds: [
+          ...Array.from(withActiveAssignationsElsewhere).map((id) => ({
+            id,
+            reason: 'Already assigned to other collector',
+          })),
+          ...Array.from(alreadyAssignedToCollector).map((id) => ({
+            id,
+            reason: 'Already assigned to this collector',
+          })),
+          ...Array.from(idsNotAddedSet).map((id) => ({
+            id,
+            reason: 'Limit exceeded',
+          })),
         ],
       },
-      ignoredIds: [
-        ...Array.from(withActiveAssignationsElsewhere).map((id) => ({
-          id: id,
-          reason: 'Already assigned to other collector',
-        })),
-        ...Array.from(alreadyAssignedToCollector).map((id) => ({
-          id: id,
-          reason: 'Already assigned to this collector',
-        })),
-        ...Array.from(idsNotAddedSet).map((id) => ({
-          id: id,
-          reason: 'Limit exceeded',
-        })),
+      activatedBeneficientIds: [
+        ...finalAssignationsToSave.map((a) => a.beneficientId.unpack()),
+        ...finalAssignationsToReactivate.map((a) => a.beneficientId.unpack()),
       ],
     });
   }

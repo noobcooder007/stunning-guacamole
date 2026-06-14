@@ -5,6 +5,7 @@ import { PaginationMetaDto } from '@/shared/domain/dto/pagination.meta.dto';
 import { BaseQueryService } from '@/shared/application/query/base-query.service';
 import { ReceiptResponse } from '@/donation/application/dto/receipt.response.dto';
 import { GetReceiptsQueryParams } from '@/donation/application/query/get-receipts-paginated.query';
+import { ReceiptMapper } from '@/donation/infrastructure/persistence/mappers/receipt.mapper';
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
 
 @Injectable()
@@ -23,6 +24,6 @@ export class ReceiptsQueryService extends BaseQueryService {
     const [items, total] = await qb.getManyAndCount();
 
     const meta = new PaginationMetaDto(page, limit, total);
-    return new Paginated(items, meta);
+    return new Paginated(items.map(ReceiptMapper.toResponse), meta);
   }
 }

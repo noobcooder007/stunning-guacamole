@@ -24,6 +24,8 @@ import { GetBeneficientsReportQuery } from '@/community/application/query/get-be
 import { PrintBeneficientsReportCommand } from '@/community/application/command/print-beneficients-report.command';
 import { GetBeneficientsRegistryQuery } from '@/community/application/query/get-beneficients-registry.query';
 import { PrintBeneficientsRegistryCommand } from '@/community/application/command/print-beneficients-registry.command';
+import { GetUnassignedBeneficientsQuery } from '@/community/application/query/get-unassigned-beneficients.query';
+import { GetUnassignedBeneficientsQueryDto } from '@/community/application/dto/get-unassigned-beneficients-query.dto';
 
 @Controller('beneficient')
 export class BeneficientController {
@@ -137,6 +139,20 @@ export class BeneficientController {
     );
   }
 
+  @Get('unassigned')
+  @Auth(PermissionNames.VIEW_BENEFICIENT)
+  getUnassigned(@Query() params: GetUnassignedBeneficientsQueryDto) {
+    return this.queryBus.execute(
+      new GetUnassignedBeneficientsQuery(
+        params.firstname,
+        params.firstLastname,
+        params.secondLastname,
+        params.page,
+        params.limit,
+      ),
+    );
+  }
+
   @Get(':id')
   @Auth(PermissionNames.VIEW_BENEFICIENT)
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
@@ -150,11 +166,6 @@ export class BeneficientController {
       new DeactivateBeneficientCommand(dto.beneficientId, dto.reason),
     );
   }
-
-  // @Get('unassigned')
-  // unassignedBeneficients() {
-  //   return this.beneficientService.unassignedBeneficients();
-  // }
 
   // @Patch(':id')
   // updateBeneficient(

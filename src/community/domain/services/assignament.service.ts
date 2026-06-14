@@ -6,12 +6,17 @@ export interface IDeactivateAssignation {
   reason: string;
 }
 
+export interface AssignationServiceResult {
+  report: AssignationReportResponse;
+  activatedBeneficientIds: string[];
+}
+
 export abstract class IAssignamentService {
   abstract createOrReactivate(
     collectorId: string,
     beneficientsIds: string[],
     options?: { validateCollector?: boolean },
-  ): Promise<Result<AssignationReportResponse, IErrorResult>>;
+  ): Promise<Result<AssignationServiceResult, IErrorResult>>;
   abstract deactivate(
     assignations: IDeactivateAssignation[],
   ): Promise<Result<void, IErrorResult>>;

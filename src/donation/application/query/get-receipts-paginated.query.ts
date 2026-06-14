@@ -5,5 +5,8 @@ export class GetReceiptsQueryParams {
     public readonly collectorId: string,
     public readonly page: number,
     public readonly limit: number,
+    public readonly periodMonth?: number,
+    public readonly periodYear?: number,
+    public readonly folio?: string,
   ) {}
 }

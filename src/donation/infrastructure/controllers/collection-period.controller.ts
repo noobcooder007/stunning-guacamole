@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Post,
   Query,
   Res,
@@ -24,6 +25,11 @@ import { GetReceiptsReportByPeriodQuery } from '@/donation/application/query/get
 import { PrintSettlementLettersCommand } from '@/donation/application/command/print-settlement-letters.command';
 import { PrintDeliveryLettersCommand } from '@/donation/application/command/print-delivery-letters.command';
 import { PrintReceiptsReportByPeriodCommand } from '@/donation/application/command/print-receipts-report-by-period.command';
+import { RegisterCollectorPaymentCommand } from '@/donation/application/command/register-collector-payment.command';
+import { RegisterBulkCollectorPaymentsCommand } from '@/donation/application/command/register-bulk-collector-payments.command';
+import { GetSettlementPaymentsQuery } from '@/donation/application/query/get-settlement-payments.query';
+import { RegisterCollectorPaymentDto } from '@/donation/application/dto/register-collector-payment.dto';
+import { RegisterBulkCollectorPaymentsDto } from '@/donation/application/dto/register-bulk-collector-payments.dto';
 
 @Controller('periods')
 export class CollectionPeriodController {
@@ -118,6 +124,53 @@ export class CollectionPeriodController {
       `attachment; filename=liquidacion-${periodId}.pdf`,
     );
     result.value.pipe(res);
+  }
+
+  @Post('/settlements/:settlementId/payments')
+  @Auth(PermissionNames.EDIT_INVOICE)
+  async registerPayment(
+    @Param('settlementId', new ParseUUIDPipe()) settlementId: string,
+    @Body() dto: RegisterCollectorPaymentDto,
+    @GetUser() user: any,
+  ) {
+    return this.commandBus.execute(
+      new RegisterCollectorPaymentCommand(
+        settlementId,
+        dto.amount,
+        dto.paymentMethod,
+        new Date(dto.paidAt),
+        user.id,
+        dto.reference,
+        dto.notes,
+      ),
+    );
+  }
+
+  @Post('/:periodId/payments/bulk')
+  @Auth(PermissionNames.EDIT_INVOICE)
+  async registerBulkPayments(
+    @Param('periodId', new ParseUUIDPipe()) periodId: string,
+    @Body() dto: RegisterBulkCollectorPaymentsDto,
+    @GetUser() user: any,
+  ) {
+    return this.commandBus.execute(
+      new RegisterBulkCollectorPaymentsCommand(
+        periodId,
+        dto.paymentMethod,
+        new Date(dto.paidAt),
+        user.id,
+        dto.reference,
+        dto.notes,
+      ),
+    );
+  }
+
+  @Get('/settlements/:settlementId/payments')
+  @Auth(PermissionNames.VIEW_INVOICE)
+  async getSettlementPayments(
+    @Param('settlementId', new ParseUUIDPipe()) settlementId: string,
+  ) {
+    return this.queryBus.execute(new GetSettlementPaymentsQuery(settlementId));
   }
 
   @Get('/:periodId/delivery-letters')

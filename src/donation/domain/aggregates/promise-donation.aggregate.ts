@@ -142,6 +142,10 @@ export class PromiseDonation extends AggregateRoot {
     return this.props.reasonDeactivate;
   }
 
+  public get collectorInstructions(): ICollectorInstructions | undefined {
+    return this.props.collectorInstructions;
+  }
+
   public get createdBy(): UserId {
     return this.props.createdBy;
   }
@@ -185,6 +189,18 @@ export class PromiseDonation extends AggregateRoot {
 
   public updateLastDonationTo(date: Date): void {
     this.props.lastDonation = date;
+    this.props.updatedAt = new Date();
+  }
+
+  public advanceNextDonationIfStale(): void {
+    if (!this.props.nextDonation || !this.props.startDate) return;
+    const now = new Date();
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    if (this.props.nextDonation >= currentMonthStart) return;
+    while (this.props.nextDonation < currentMonthStart) {
+      this.props.lastDonation = new Date(this.props.nextDonation);
+      this.updateNextDonation();
+    }
     this.props.updatedAt = new Date();
   }
 }

@@ -37,6 +37,8 @@ export interface ICollectorPersistence {
   telephoneNumber?: string;
   telephoneNumberHash?: string;
   commissionPercent: number;
+  nomina: number;
+  transportAllowance: number;
   bank?: string;
   reference?: string;
   notes?: string;
@@ -71,6 +73,8 @@ export class CollectorMapper {
       telephoneNumber: collector.telephoneNumber?.unpack(),
       telephoneNumberHash: collector.telephoneNumberHash,
       commissionPercent: collector.paymentData.commissionPercent,
+      nomina: collector.paymentData.nomina,
+      transportAllowance: collector.paymentData.transportAllowance,
       bank: collector.paymentData.bank,
       reference: collector.paymentData.reference,
       userId: collector.userId.unpack(),
@@ -109,6 +113,8 @@ export class CollectorMapper {
       paymentData: PaymentData.of({
         bank: raw.bank,
         commissionPercent: raw.commissionPercent,
+        nomina: raw.nomina,
+        transportAllowance: raw.transportAllowance,
         reference: raw.reference,
       }),
       notes: raw.notes,
@@ -150,6 +156,8 @@ export class CollectorMapper {
     const paymentDataResponse = new PaymentDataResponseDto();
     paymentDataResponse.bank = collectorModel.bank;
     paymentDataResponse.commissionPercent = collectorModel.commissionPercent;
+    paymentDataResponse.nomina = collectorModel.nomina;
+    paymentDataResponse.transportAllowance = collectorModel.transportAllowance;
     paymentDataResponse.reference = collectorModel.reference;
     response.paymentData = paymentDataResponse;
     response.notes = collectorModel.notes;
@@ -186,6 +194,9 @@ export class CollectorMapper {
     paymentDataResponse.bank = collector.paymentData.bank;
     paymentDataResponse.commissionPercent =
       collector.paymentData.commissionPercent;
+    paymentDataResponse.nomina = collector.paymentData.nomina;
+    paymentDataResponse.transportAllowance =
+      collector.paymentData.transportAllowance;
     paymentDataResponse.reference = collector.paymentData.reference;
     response.paymentData = paymentDataResponse;
     response.notes = collector.notes;
