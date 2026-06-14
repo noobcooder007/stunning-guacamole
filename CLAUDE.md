@@ -176,6 +176,11 @@ describe('CreatePermissionDto', () => {
 });
 ```
 
+### Reglas de los tests unitarios
+
+- **Nunca impactar la base de datos.** Todos los repositorios, `UnitOfWork`, `DataSource` y servicios de infraestructura se mockean con `jest.fn()`. Los tests unitarios son completamente en memoria.
+- Los DTOs con decoradores `@Type()` de `class-transformer` requieren `import 'reflect-metadata'` al inicio del spec.
+
 ### Qué testear por capa
 
 | Capa | Qué testear | Cómo |
@@ -183,13 +188,24 @@ describe('CreatePermissionDto', () => {
 | **DTOs** | Validaciones de `class-validator` | `plainToInstance` + `validate()` |
 | **Value Objects** | `create()` lanza con datos inválidos, `equals()`, `unpack()` | Instanciación directa |
 | **Aggregates / Entidades** | Métodos de dominio (`deactivate`, `updatePermissions`, invariantes) | Instanciación con `recreate()` |
-| **Handlers** | Lógica del caso de uso con repositorios mockeados | `jest.fn()` / `createMock()` |
+| **Handlers** | Lógica del caso de uso con repositorios mockeados | `jest.fn()` — nunca instanciar repositorios reales |
 
 ### Ejecutar un solo archivo
 
 ```bash
 npx jest src/auth/application/dto/create-permission.dto.spec.ts
 ```
+
+### Cobertura
+
+Al finalizar una sesión de trabajo en tests, siempre ejecutar el reporte de cobertura completo:
+
+```bash
+npm run test:cov
+```
+
+Revisar las métricas de **Statements**, **Branches**, **Functions** y **Lines** por módulo.  
+Identificar archivos con cobertura baja y añadir specs adicionales antes de hacer merge.
 
 ---
 
