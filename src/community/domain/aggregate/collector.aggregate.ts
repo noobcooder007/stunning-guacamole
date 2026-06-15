@@ -9,6 +9,14 @@ import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
 import { AssignationId } from '@/community/domain/aggregate/assignation.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { CollectorDeactivatedEvent } from '@/community/application/events/collector-deactivated.event';
+import {
+  UpdateCollectorAddressCommand,
+  UpdateCollectorCommand,
+  UpdateCollectorContactCommand,
+  UpdateCollectorNotesCommand,
+  UpdateCollectorPaymentCommand,
+  UpdateCollectorPersonalCommand,
+} from '@/community/application/command/update-collector.command';
 
 export class CollectorId extends ValueObject<string> {
   private constructor(value: string) {
@@ -188,6 +196,47 @@ export class Collector extends AggregateRoot {
 
   public get collectorNumber(): number {
     return this.props.collectorNumber;
+  }
+
+  public update(command: UpdateCollectorCommand) {
+    if (command instanceof UpdateCollectorPersonalCommand) {
+      this.props = {
+        ...this.props,
+        firstname: command.firstname ?? this.props.firstname,
+        firstLastname: command.firstLastname ?? this.props.firstLastname,
+        secondLastname:
+          command.secondLastname !== undefined
+            ? command.secondLastname
+            : this.props.secondLastname,
+      };
+    } else if (command instanceof UpdateCollectorAddressCommand) {
+      this.props.address = this.address.updateWith(command);
+      this.props.addressHash = command.addressHash;
+    } else if (command instanceof UpdateCollectorContactCommand) {
+      if (command.phoneNumber !== undefined) {
+        this.props.phoneNumber = PhoneNumber.of(command.phoneNumber);
+        this.props.phoneNumberHash = command.phoneNumberHash;
+      }
+      if (command.telephoneNumber !== undefined) {
+        this.props.telephoneNumber = command.telephoneNumber
+          ? PhoneNumber.of(command.telephoneNumber)
+          : null;
+        this.props.telephoneNumberHash = command.telephoneNumberHash;
+      }
+    } else if (command instanceof UpdateCollectorPaymentCommand) {
+      this.props.paymentData = PaymentData.of({
+        commissionPercent:
+          command.commissionPercent ?? this.props.paymentData.commissionPercent,
+        nomina: command.nomina ?? this.props.paymentData.nomina,
+        transportAllowance:
+          command.transportAllowance ??
+          this.props.paymentData.transportAllowance,
+        bank: command.bank ?? this.props.paymentData.bank,
+        reference: command.reference ?? this.props.paymentData.reference,
+      });
+    } else if (command instanceof UpdateCollectorNotesCommand) {
+      this.props.notes = command.notes;
+    }
   }
 
   public addAssignation(

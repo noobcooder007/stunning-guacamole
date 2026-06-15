@@ -28,6 +28,8 @@ import { CreateChurchHandler } from '@/community/application/handlers/create-chu
 import { CreateBeneficientHandler } from '@/community/application/handlers/create-beneficient.handler';
 import { CreateCollectorHandler } from '@/community/application/handlers/create-collector.handler';
 import { UpdateChurchHandler } from '@/community/application/handlers/update-church.handler';
+import { UpdateBeneficientHandler } from '@/community/application/handlers/update-beneficient.handler';
+import { UpdateCollectorHandler } from '@/community/application/handlers/update-collector.handler';
 import { AssignBeneficientsToCollectorHandler } from '@/community/application/handlers/assign-beneficients-to-collector.handler';
 import { DesactivateAssignationHandler } from '@/community/application/handlers/deactivate-assignation.handler';
 import { DeactivateAssignationEventHandler } from '@/community/application/handlers/deactivate-assignation-event.handler';
@@ -79,6 +81,8 @@ import { BeneficientsRegistryQueryService } from './infrastructure/service/benef
     GetChurchPaginatedHandler,
     GetChurchByIdHandler,
     UpdateChurchHandler,
+    UpdateBeneficientHandler,
+    UpdateCollectorHandler,
     AssignBeneficientsToCollectorHandler,
     DesactivateAssignationHandler,
     ReassignBeneficientsToCollectorHandler,

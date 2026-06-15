@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
   Res,
@@ -26,6 +27,22 @@ import { GetBeneficientsRegistryQuery } from '@/community/application/query/get-
 import { PrintBeneficientsRegistryCommand } from '@/community/application/command/print-beneficients-registry.command';
 import { GetUnassignedBeneficientsQuery } from '@/community/application/query/get-unassigned-beneficients.query';
 import { GetUnassignedBeneficientsQueryDto } from '@/community/application/dto/get-unassigned-beneficients-query.dto';
+import {
+  UpdateBeneficientAddressCommand,
+  UpdateBeneficientChurchCommand,
+  UpdateBeneficientContactCommand,
+  UpdateBeneficientPersonalCommand,
+  UpdateBeneficientPrivacyCommand,
+  UpdateBeneficientTaxCommand,
+} from '@/community/application/command/update-beneficient.command';
+import {
+  UpdateBeneficientAddressDto,
+  UpdateBeneficientChurchDto,
+  UpdateBeneficientContactDto,
+  UpdateBeneficientPersonalDto,
+  UpdateBeneficientPrivacyDto,
+  UpdateBeneficientTaxDto,
+} from '@/community/application/dto/update-beneficient.dto';
 
 @Controller('beneficient')
 export class BeneficientController {
@@ -167,11 +184,94 @@ export class BeneficientController {
     );
   }
 
-  // @Patch(':id')
-  // updateBeneficient(
-  //   @Param('id', new ParseUUIDPipe()) id: string,
-  //   @Body() updateBeneficientDto: UpdateBeneficientCommand,
-  // ) {
-  //   return this.beneficientService.update(id, updateBeneficientDto);
-  // }
+  @Patch(':id/personal')
+  @Auth(PermissionNames.EDIT_BENEFICIENT)
+  updatePersonal(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateBeneficientPersonalDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateBeneficientPersonalCommand(
+        id,
+        dto.title,
+        dto.firstname,
+        dto.firstLastname,
+        dto.secondLastname,
+        dto.birthday,
+        dto.genre,
+        dto.maritalStatus,
+        dto.weddingAnniversary,
+      ),
+    );
+  }
+
+  @Patch(':id/address')
+  @Auth(PermissionNames.EDIT_BENEFICIENT)
+  updateAddress(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateBeneficientAddressDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateBeneficientAddressCommand(
+        id,
+        dto.street,
+        dto.noExt,
+        dto.noInt,
+        dto.neighborhood,
+        dto.locality,
+        dto.city,
+        dto.state,
+        dto.zipCode,
+      ),
+    );
+  }
+
+  @Patch(':id/contact')
+  @Auth(PermissionNames.EDIT_BENEFICIENT)
+  updateContact(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateBeneficientContactDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateBeneficientContactCommand(id, dto.email, dto.phoneNumber),
+    );
+  }
+
+  @Patch(':id/church')
+  @Auth(PermissionNames.EDIT_BENEFICIENT)
+  updateChurch(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateBeneficientChurchDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateBeneficientChurchCommand(id, dto.churchId),
+    );
+  }
+
+  @Patch(':id/tax')
+  @Auth(PermissionNames.EDIT_BENEFICIENT)
+  updateTax(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateBeneficientTaxDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateBeneficientTaxCommand(
+        id,
+        dto.person,
+        dto.registeredName,
+        dto.rfc,
+      ),
+    );
+  }
+
+  @Patch(':id/privacy')
+  @Auth(PermissionNames.EDIT_BENEFICIENT)
+  updatePrivacy(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateBeneficientPrivacyDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateBeneficientPrivacyCommand(id, dto.keepPrivate),
+    );
+  }
 }

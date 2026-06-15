@@ -7,6 +7,7 @@ import {
   Param,
   ParseFilePipeBuilder,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -27,6 +28,20 @@ import { GetCollectorByIdQuery } from '@/community/application/query/get-collect
 import { GetCollectorsActiveListQuery } from '@/community/application/query/get-collectors-active-list.query';
 import { CreateCollectorDto } from '@/community/application/dto/create-collector.dto';
 import { GetCollectorsQueryDto } from '@/community/application/dto/get-collectors-query.dto';
+import {
+  UpdateCollectorAddressCommand,
+  UpdateCollectorContactCommand,
+  UpdateCollectorNotesCommand,
+  UpdateCollectorPaymentCommand,
+  UpdateCollectorPersonalCommand,
+} from '@/community/application/command/update-collector.command';
+import {
+  UpdateCollectorAddressDto,
+  UpdateCollectorContactDto,
+  UpdateCollectorNotesDto,
+  UpdateCollectorPaymentDto,
+  UpdateCollectorPersonalDto,
+} from '@/community/application/dto/update-collector.dto';
 
 @Controller('collector')
 export class CollectorController {
@@ -130,5 +145,86 @@ export class CollectorController {
   @Auth(PermissionNames.EDIT_COLLECTOR)
   reactivate(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.commandBus.execute(new ReactivateCollectorCommand(id));
+  }
+
+  @Patch(':id/personal')
+  @Auth(PermissionNames.EDIT_COLLECTOR)
+  updatePersonal(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateCollectorPersonalDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateCollectorPersonalCommand(
+        id,
+        dto.firstname,
+        dto.firstLastname,
+        dto.secondLastname,
+      ),
+    );
+  }
+
+  @Patch(':id/address')
+  @Auth(PermissionNames.EDIT_COLLECTOR)
+  updateAddress(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateCollectorAddressDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateCollectorAddressCommand(
+        id,
+        dto.street,
+        dto.noExt,
+        dto.noInt,
+        dto.neighborhood,
+        dto.locality,
+        dto.city,
+        dto.state,
+        dto.zipCode,
+      ),
+    );
+  }
+
+  @Patch(':id/contact')
+  @Auth(PermissionNames.EDIT_COLLECTOR)
+  updateContact(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateCollectorContactDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateCollectorContactCommand(
+        id,
+        dto.phoneNumber,
+        dto.telephoneNumber,
+      ),
+    );
+  }
+
+  @Patch(':id/payment')
+  @Auth(PermissionNames.EDIT_COLLECTOR)
+  updatePayment(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateCollectorPaymentDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateCollectorPaymentCommand(
+        id,
+        dto.commissionPercent,
+        dto.nomina,
+        dto.transportAllowance,
+        dto.bank,
+        dto.reference,
+      ),
+    );
+  }
+
+  @Patch(':id/notes')
+  @Auth(PermissionNames.EDIT_COLLECTOR)
+  updateNotes(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateCollectorNotesDto,
+  ) {
+    return this.commandBus.execute(
+      new UpdateCollectorNotesCommand(id, dto.notes),
+    );
   }
 }
