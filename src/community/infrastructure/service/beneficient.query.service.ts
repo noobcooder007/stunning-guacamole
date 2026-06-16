@@ -6,7 +6,10 @@ import { PaginationMetaDto } from '@/shared/domain/dto/pagination.meta.dto';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
 import { BeneficientMapper } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
-import { GetBeneficientQueryParams } from '@/community/application/query/get-beneficient-paginated.query';
+import {
+  GetBeneficientQueryParams,
+  SearchBeneficientsQuery,
+} from '@/community/application/query/get-beneficient-paginated.query';
 import { GetUnassignedBeneficientsQuery } from '@/community/application/query/get-unassigned-beneficients.query';
 import { BeneficientResponse } from '@/community/application/dto/beneficient.response';
 import { UnassignedBeneficientResponse } from '@/community/application/dto/unassigned-beneficient.response';
@@ -17,20 +20,27 @@ export class BeneficientQueryService extends BaseQueryService {
     super(dataSource);
   }
 
-  async searchBeneficients(
+  async getPaginated(
     query: GetBeneficientQueryParams,
   ): Promise<Paginated<BeneficientResponse>> {
-    const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(BeneficientSchema, 'beneficient');
-    this.applyFilters(qb, 'beneficient', filters);
-    this.applyPagination(qb, page, limit);
+    this.applyPagination(qb, query.page, query.limit);
     const [items, total] = await qb.getManyAndCount();
-
-    const meta = new PaginationMetaDto(page, limit, total);
+    const meta = new PaginationMetaDto(query.page, query.limit, total);
     return new Paginated(
       items.map((item) => BeneficientMapper.fromModelToResponse(item)),
       meta,
     );
+  }
+
+  async filterBeneficients(
+    query: SearchBeneficientsQuery,
+  ): Promise<BeneficientResponse[]> {
+    const qb = this.getQueryBuilder(BeneficientSchema, 'beneficient');
+    this.applyFilters(qb, 'beneficient', query);
+    qb.take(20);
+    const items = await qb.getMany();
+    return items.map((item) => BeneficientMapper.fromModelToResponse(item));
   }
 
   async searchUnassigned(

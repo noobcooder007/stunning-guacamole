@@ -1,16 +1,24 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
 
-export class GetBeneficientsQueryDto extends PaginationDto {
+export class GetBeneficientsQueryDto extends PaginationDto {}
+
+export class SearchBeneficientsQueryDto {
+  @IsString()
   @IsOptional()
-  firstname: string;
+  firstname?: string;
+
+  @IsString()
   @IsOptional()
-  firstLastname: string;
+  firstLastname?: string;
+
+  @IsString()
   @IsOptional()
-  secondLastname: string;
+  secondLastname?: string;
+
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  beneficientNumber: number;
+  beneficientNumber?: number;
 }

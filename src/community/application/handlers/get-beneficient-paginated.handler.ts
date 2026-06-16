@@ -23,7 +23,7 @@ export class GetBeneficientPaginatedHandler extends BaseQueryHandler<
     query: GetBeneficientQueryParams,
   ): Promise<Result<Paginated<BeneficientResponse>>> {
     const paginatedChurches =
-      await this.beneficientQueryService.searchBeneficients(query);
+      await this.beneficientQueryService.getPaginated(query);
     return Result.ok<Paginated<BeneficientResponse>>(paginatedChurches);
   }
 }

@@ -3,22 +3,22 @@ import { GetBeneficientQueryParams } from '@/community/application/query/get-ben
 
 describe('GetBeneficientPaginatedHandler', () => {
   let handler: GetBeneficientPaginatedHandler;
-  let beneficientQueryService: { searchBeneficients: jest.Mock };
+  let beneficientQueryService: { getPaginated: jest.Mock };
 
   beforeEach(() => {
-    beneficientQueryService = { searchBeneficients: jest.fn() };
+    beneficientQueryService = { getPaginated: jest.fn() };
     handler = new GetBeneficientPaginatedHandler({} as any, beneficientQueryService as any);
   });
 
   it('debería delegar al servicio y devolver Result.ok', async () => {
     const expected = { data: [], total: 0, page: 1, limit: 10 };
-    beneficientQueryService.searchBeneficients.mockResolvedValue(expected);
-    const query = new GetBeneficientQueryParams('Juan', undefined, undefined, 1, 10);
+    beneficientQueryService.getPaginated.mockResolvedValue(expected);
+    const query = new GetBeneficientQueryParams(1, 10);
 
     const result = await handler.execute(query);
 
     expect(result.isSuccess).toBe(true);
     expect(result.value).toEqual(expected);
-    expect(beneficientQueryService.searchBeneficients).toHaveBeenCalledWith(query);
+    expect(beneficientQueryService.getPaginated).toHaveBeenCalledWith(query);
   });
 });
