@@ -10,12 +10,6 @@ export class GetBeneficientsQueryDto extends PaginationDto {
   @IsOptional()
   secondLastname: string;
   @IsOptional()
-  city: string;
-  @IsOptional()
-  state: string;
-  @IsOptional()
-  zipCode: string;
-  @IsOptional()
   @Type(() => Number)
   @IsInt()
   beneficientNumber: number;
