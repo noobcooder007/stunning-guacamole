@@ -152,6 +152,7 @@ export class BeneficientController {
         params.zipCode,
         params.page,
         params.limit,
+        params.beneficientNumber,
       ),
     );
   }

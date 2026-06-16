@@ -8,5 +8,6 @@ export class GetBeneficientQueryParams {
     readonly zipCode?: string,
     readonly page?: number,
     readonly limit?: number,
+    readonly beneficientNumber?: number,
   ) {}
 }
