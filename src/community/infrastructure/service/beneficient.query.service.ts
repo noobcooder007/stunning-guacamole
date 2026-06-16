@@ -23,10 +23,12 @@ export class BeneficientQueryService extends BaseQueryService {
   async getPaginated(
     query: GetBeneficientQueryParams,
   ): Promise<Paginated<BeneficientResponse>> {
+    const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(BeneficientSchema, 'beneficient');
-    this.applyPagination(qb, query.page, query.limit);
+    this.applyFilters(qb, 'beneficient', filters);
+    this.applyPagination(qb, page, limit);
     const [items, total] = await qb.getManyAndCount();
-    const meta = new PaginationMetaDto(query.page, query.limit, total);
+    const meta = new PaginationMetaDto(page, limit, total);
     return new Paginated(
       items.map((item) => BeneficientMapper.fromModelToResponse(item)),
       meta,

@@ -20,7 +20,10 @@ import {
 import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
 import { CreateBeneficientDto } from '@/community/application/dto/create-beneficient.dto';
 import { GetBeneficientByIdQuery } from '@/community/application/query/get-beneficient-by-id.query';
-import { SearchBeneficientsQueryDto } from '../../application/dto/get-beneficients-query.dto';
+import {
+  GetBeneficientsQueryDto,
+  SearchBeneficientsQueryDto,
+} from '../../application/dto/get-beneficients-query.dto';
 import { DeactivateBeneficientCommand } from '@/community/application/command/deactivate-beneficient.command';
 import { DeactivateBeneficientDto } from '@/community/application/dto/deactivate-beneficient.dto';
 import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
@@ -144,9 +147,18 @@ export class BeneficientController {
 
   @Get()
   @Auth(PermissionNames.VIEW_BENEFICIENT)
-  async findAll(@Query() params: PaginationDto) {
+  async findAll(@Query() params: GetBeneficientsQueryDto) {
     return await this.queryBus.execute(
-      new GetBeneficientQueryParams(params.page, params.limit),
+      new GetBeneficientQueryParams(
+        params.firstname,
+        params.firstLastname,
+        params.secondLastname,
+        params.city,
+        params.state,
+        params.zipCode,
+        params.page,
+        params.limit,
+      ),
     );
   }
 
