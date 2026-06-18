@@ -1,7 +1,3 @@
 export class OpenPeriodCommand {
-  constructor(
-    public readonly month: number,
-    public readonly year: number,
-    public readonly userId: string,
-  ) {}
+  constructor(public readonly userId: string) {}
 }

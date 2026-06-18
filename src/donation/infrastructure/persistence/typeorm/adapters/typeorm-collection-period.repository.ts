@@ -21,6 +21,15 @@ export class TypeORMCollectionPeriodRepository
     return CollectionPeriodMapper.toDomain(raw);
   }
 
+  async findLastClosed(): Promise<CollectionPeriod | null> {
+    const raw = await this.repository.findOne({
+      where: { status: 'CLOSED' },
+      order: { year: 'DESC', month: 'DESC' },
+    });
+    if (!raw) return null;
+    return CollectionPeriodMapper.toDomain(raw);
+  }
+
   async findById(id: string): Promise<CollectionPeriod | null> {
     const raw = await this.repository.findOne({ where: { id } });
     if (!raw) return null;

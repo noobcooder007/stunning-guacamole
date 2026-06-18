@@ -16,7 +16,6 @@ import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { GetUser } from '@/auth/infrastructure/decorators/get-user.decorator';
 import { IPrinterService } from '@/shared/infrastructure/services/print.service';
-import { OpenPeriodDto } from '@/donation/application/dto/open-period.dto';
 import { OpenPeriodCommand } from '@/donation/application/command/open-period.command';
 import { ClosePeriodCommand } from '@/donation/application/command/close-period.command';
 import { GetCurrentPeriodQuery } from '@/donation/application/query/get-current-period.query';
@@ -41,10 +40,8 @@ export class CollectionPeriodController {
 
   @Post('/open')
   @Auth(PermissionNames.EDIT_INVOICE)
-  async openPeriod(@Body() dto: OpenPeriodDto, @GetUser() user: any) {
-    return await this.commandBus.execute(
-      new OpenPeriodCommand(dto.month, dto.year, user.id),
-    );
+  async openPeriod(@GetUser() user: any) {
+    return await this.commandBus.execute(new OpenPeriodCommand(user.id));
   }
 
   @Post('/close')

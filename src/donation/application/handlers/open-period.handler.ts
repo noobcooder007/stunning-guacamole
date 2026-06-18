@@ -24,18 +24,30 @@ export class OpenPeriodHandler extends BaseCommandHandler<
   protected async process(
     command: OpenPeriodCommand,
   ): Promise<Result<PeriodResponseDto>> {
-    const existing = await this.periodRepository.findOpen();
-    if (existing) {
+    const openPeriod = await this.periodRepository.findOpen();
+    if (openPeriod) {
       return Result.fail({
         type: ErrorType.CONFLICT,
-        message: `There is already an open period for ${existing.month}/${existing.year}`,
+        message: `Period ${openPeriod.month}/${openPeriod.year} is still open. Close it before opening a new one`,
         entity: OpenPeriodHandler.name,
       });
     }
 
+    const lastClosed = await this.periodRepository.findLastClosed();
+    if (!lastClosed) {
+      return Result.fail({
+        type: ErrorType.NOT_FOUND,
+        message: 'No closed period found. Close the current period before opening a new one',
+        entity: OpenPeriodHandler.name,
+      });
+    }
+
+    const nextMonth = lastClosed.month === 12 ? 1 : lastClosed.month + 1;
+    const nextYear = lastClosed.month === 12 ? lastClosed.year + 1 : lastClosed.year;
+
     const period = CollectionPeriod.open(
-      command.month,
-      command.year,
+      nextMonth,
+      nextYear,
       UserId.of(command.userId),
     );
     await this.periodRepository.save(period);
