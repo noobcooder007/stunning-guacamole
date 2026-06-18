@@ -104,7 +104,7 @@ export class ReceiptMapper {
       folio: ReceiptFolio.of(raw.folio),
       type: raw.type as ReceiptType,
       origin: raw.origin as ReceiptOrigin,
-      amount: Money.of(raw.amount, raw.currency as 'MXN' | 'USD'),
+      amount: Money.of(Number(raw.amount), raw.currency as 'MXN' | 'USD'),
       paymentMethod: raw.paymentMethod as PaymentMethod,
       externalReference: raw.externalReference,
       promiseDonation: PromiseDonationId.of(raw.promiseDonationId),

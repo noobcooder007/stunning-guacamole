@@ -113,8 +113,8 @@ export class CollectorMapper {
       paymentData: PaymentData.of({
         bank: raw.bank,
         commissionPercent: raw.commissionPercent,
-        nomina: raw.nomina,
-        transportAllowance: raw.transportAllowance,
+        nomina: Number(raw.nomina),
+        transportAllowance: Number(raw.transportAllowance),
         reference: raw.reference,
       }),
       notes: raw.notes,

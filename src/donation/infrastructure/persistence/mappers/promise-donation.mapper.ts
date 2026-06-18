@@ -55,7 +55,7 @@ export class PromiseDonationMapper {
   ): PromiseDonation {
     return PromiseDonation.recreate(promiseDonation.id, {
       beneficientId: BeneficientId.of(promiseDonation.beneficientId),
-      promiseAmount: promiseDonation.promiseAmount,
+      promiseAmount: Number(promiseDonation.promiseAmount),
       currency: promiseDonation.currency,
       method: promiseDonation.method,
       startDate: promiseDonation.startDate,
