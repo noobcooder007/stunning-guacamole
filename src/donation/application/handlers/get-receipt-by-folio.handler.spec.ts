@@ -1,0 +1,79 @@
+import { GetReceiptByFolioHandler } from './get-receipt-by-folio.handler';
+import { GetReceiptByFolioQuery } from '@/donation/application/query/get-receipt-by-folio.query';
+import { ReceiptMapper } from '@/donation/infrastructure/persistence/mappers/receipt.mapper';
+import { ErrorType } from '@/shared/domain/dto/result.dto';
+
+const FOLIO = 'ENE2025-001-R-0001';
+
+function makeReceiptRow(overrides = {}) {
+  return {
+    id: '01907c2a-0000-7000-8000-000000000001',
+    status: 'PENDING',
+    folio: FOLIO,
+    type: 'RECURRING',
+    origin: 'PROMISE',
+    amount: 500,
+    currency: 'MXN',
+    paymentMethod: null,
+    externalReference: null,
+    promiseDonationId: null,
+    periodMonth: 1,
+    periodYear: 2025,
+    beneficientId: '01907c2a-0000-7000-8000-000000000003',
+    collectorId: '01907c2a-0000-7000-8000-000000000004',
+    collectionPeriodId: null,
+    printCount: 0,
+    lastPrintedAt: null,
+    voidReason: null,
+    paidAt: null,
+    createdAt: new Date('2025-01-15'),
+    updatedAt: new Date('2025-01-15'),
+    createdBy: '01907c2a-0000-7000-8000-000000000005',
+    updatedBy: '01907c2a-0000-7000-8000-000000000005',
+    chainValidator: null,
+    ...overrides,
+  };
+}
+
+function makeDataSource(getOneResult: unknown) {
+  const getOne = jest.fn().mockResolvedValue(getOneResult);
+  const where = jest.fn().mockReturnValue({ getOne });
+  const createQueryBuilder = jest.fn().mockReturnValue({ where });
+  const getRepository = jest.fn().mockReturnValue({ createQueryBuilder });
+  return { getRepository } as any;
+}
+
+describe('GetReceiptByFolioHandler', () => {
+  it('debería devolver NOT_FOUND cuando el recibo no existe', async () => {
+    const handler = new GetReceiptByFolioHandler(makeDataSource(null));
+
+    const result = await handler.execute(new GetReceiptByFolioQuery(FOLIO));
+
+    expect(result.isSuccess).toBe(false);
+    expect(result.error.type).toBe(ErrorType.NOT_FOUND);
+    expect(result.error.entity).toBe('Receipt');
+  });
+
+  it('debería devolver el recibo mapeado cuando existe', async () => {
+    const row = makeReceiptRow();
+    const handler = new GetReceiptByFolioHandler(makeDataSource(row));
+
+    const result = await handler.execute(new GetReceiptByFolioQuery(FOLIO));
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value).toEqual(ReceiptMapper.toResponse(row as any));
+  });
+
+  it('debería buscar por el folio recibido en el query', async () => {
+    const getOne = jest.fn().mockResolvedValue(null);
+    const where = jest.fn().mockReturnValue({ getOne });
+    const createQueryBuilder = jest.fn().mockReturnValue({ where });
+    const getRepository = jest.fn().mockReturnValue({ createQueryBuilder });
+    const datasource = { getRepository } as any;
+
+    const handler = new GetReceiptByFolioHandler(datasource);
+    await handler.execute(new GetReceiptByFolioQuery(FOLIO));
+
+    expect(where).toHaveBeenCalledWith('receipt.folio = :folio', { folio: FOLIO });
+  });
+});

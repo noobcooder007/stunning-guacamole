@@ -162,6 +162,36 @@ describe('ClosePeriodHandler', () => {
     expect(s1.totalCollected).toBe(1000);
   });
 
+  it('debería ignorar recibos pagados que no tienen colector asignado', async () => {
+    const period = makePeriod();
+    periodRepository.findOpen.mockResolvedValue(period);
+    receiptRepository.findByCollectionPeriodId.mockResolvedValue([
+      { status: 'PAID', collector: null, amount: { amount: 500 } },
+    ]);
+
+    const result = await handler.execute(command);
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.settlements).toHaveLength(0);
+  });
+
+  it('debería usar 0 como totalCollected cuando el colector no aparece en el mapa de totales', async () => {
+    const OTHER_COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000099';
+    const period = makePeriod();
+    periodRepository.findOpen.mockResolvedValue(period);
+    receiptRepository.findByCollectionPeriodId.mockResolvedValue([
+      makeReceipt(COLLECTOR_ID, 1000, 'PAID'),
+    ]);
+    // findById devuelve un colector con un ID diferente al que está en el mapa
+    collectorRepository.findById.mockResolvedValue(makeCollector(OTHER_COLLECTOR_ID, 10, 0, 0));
+
+    const result = await handler.execute(command);
+
+    const settlement = result.value.settlements[0];
+    expect(settlement.totalCollected).toBe(0);
+    expect(settlement.commissionAmount).toBe(0);
+  });
+
   it('debería persistir dentro de una transacción', async () => {
     const period = makePeriod();
     const collector = makeCollector(COLLECTOR_ID, 10, 0, 0);
