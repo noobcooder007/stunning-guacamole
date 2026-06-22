@@ -40,6 +40,7 @@ import { GetCollectorEfficiencyHandler } from '@/donation/application/handlers/g
 import { PrintCollectorEfficiencyHandler } from '@/donation/application/handlers/print-collector-efficiency.handler';
 import { CollectorEfficiencyQueryService } from '@/donation/infrastructure/service/collector-efficiency.query.service';
 import { ValidateReceiptHandler } from '@/donation/application/handlers/validate-receipt.handler';
+import { GetReceiptByFolioHandler } from '@/donation/application/handlers/get-receipt-by-folio.handler';
 import { GetReceiptsReportByPeriodHandler } from '@/donation/application/handlers/get-receipts-report-by-period.handler';
 import { PrintReceiptsReportByPeriodHandler } from '@/donation/application/handlers/print-receipts-report-by-period.handler';
 import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/receipts-report.query.service';
@@ -89,6 +90,7 @@ import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/re
     CollectorEfficiencyQueryService,
     PrintCollectorEfficiencyHandler,
     ValidateReceiptHandler,
+    GetReceiptByFolioHandler,
     GetReceiptsReportByPeriodHandler,
     PrintReceiptsReportByPeriodHandler,
     ReceiptsReportQueryService,

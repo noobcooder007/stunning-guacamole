@@ -31,6 +31,7 @@ import { CancelReceiptCommand } from '@/donation/application/command/cancel-rece
 import { GetCollectorEfficiencyQuery } from '@/donation/application/query/get-collector-efficiency.query';
 import { PrintCollectorEfficiencyCommand } from '@/donation/application/command/print-collector-efficiency.command';
 import { ValidateReceiptQuery } from '@/donation/application/query/validate-receipt.query';
+import { GetReceiptByFolioQuery } from '@/donation/application/query/get-receipt-by-folio.query';
 
 @Controller('receipts')
 export class ReceiptController {
@@ -206,6 +207,12 @@ export class ReceiptController {
   @Get('/validate/:folio')
   async validateReceipt(@Param('folio') folio: string) {
     return this.queryBus.execute(new ValidateReceiptQuery(folio));
+  }
+
+  @Get('/:folio')
+  @Auth(PermissionNames.VIEW_INVOICE)
+  async findByFolio(@Param('folio') folio: string) {
+    return this.queryBus.execute(new GetReceiptByFolioQuery(folio));
   }
 
   @Get('/collectors/:collectorId/efficiency')
