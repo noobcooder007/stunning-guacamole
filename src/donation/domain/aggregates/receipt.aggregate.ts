@@ -183,6 +183,8 @@ export class Receipt extends AggregateRoot {
     createdBy: UserId,
     chainValidator: string,
     beneficientId: BeneficientId,
+    month: number,
+    year: number,
     collectionPeriodId?: string,
   ): Receipt {
     GeneralGuard.againstNullOrUndefined(
@@ -200,8 +202,8 @@ export class Receipt extends AggregateRoot {
       printCount: 0,
       collector: collectorId,
       beneficient: beneficientId,
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
+      month,
+      year,
       createdBy,
       updatedBy: createdBy,
       createdAt: new Date(),

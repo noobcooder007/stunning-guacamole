@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   Post,
+  Put,
   Query,
   Res,
 } from '@nestjs/common';
@@ -160,11 +161,15 @@ export class ReceiptController {
     pdfStream.pipe(res);
   }
 
-  @Post('/cancel')
+  @Put('/:folio/cancel')
   @Auth(PermissionNames.EDIT_INVOICE)
-  async cancelReceipt(@Body() dto: CancelReceiptDto, @GetUser() user: any) {
+  async cancelReceipt(
+    @Param('folio') folio: string,
+    @Body() dto: CancelReceiptDto,
+    @GetUser() user: any,
+  ) {
     return this.commandBus.execute(
-      new CancelReceiptCommand(dto.receiptId, dto.reason, user.id),
+      new CancelReceiptCommand(folio, dto.reason, user.id),
     );
   }
 

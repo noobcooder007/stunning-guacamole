@@ -18,7 +18,7 @@ export class CancelReceiptCommandHandler extends BaseCommandHandler<CancelReceip
   protected async process(
     command: CancelReceiptCommand,
   ): Promise<Result<any, IErrorResult>> {
-    const receipt = await this.receiptRepository.findById(command.receiptId);
+    const receipt = await this.receiptRepository.findByFolio(command.folio);
     if (!receipt) return Result.ok(null);
     receipt.cancel(command.reason, command.userId);
     await this.receiptRepository.save(receipt);

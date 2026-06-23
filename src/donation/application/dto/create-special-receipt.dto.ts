@@ -1,11 +1,4 @@
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsUUID,
-  Min,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsUUID, Min } from 'class-validator';
 
 enum actualCurrencies {
   USD = 'USD',

@@ -94,17 +94,23 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
       'DIC',
     ];
     const openPeriod = await this.periodRepository.findOpen();
-    const collectionPeriodId = openPeriod?._id.unpack();
+    if (!openPeriod) {
+      return Result.fail({
+        type: ErrorType.VALIDATION,
+        message: 'No hay un periodo abierto. Abre un periodo antes de crear un recibo especial.',
+        entity: 'CollectionPeriod',
+      });
+    }
 
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
+    const periodMonth = openPeriod.month;
+    const periodYear = openPeriod.year;
+    const collectionPeriodId = openPeriod._id.unpack();
 
     const alreadyExists = await this.receiptRepository.existsSpecial(
       command.beneficientId,
       command.collectorId,
-      month,
-      year,
+      periodMonth,
+      periodYear,
     );
     if (alreadyExists) {
       return Result.fail({
@@ -114,10 +120,13 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
       });
     }
 
+    const periodDate = new Date(periodYear, periodMonth - 1, 1);
+
     const { specialReceipt } = await this.uow.runInTransaction(async () => {
       const folio = await this.folioProvider.generateNext(
         command.collectorId,
         'SPECIAL',
+        periodDate,
       );
       const specialReceipt = Receipt.createSpecial(
         folio,
@@ -126,6 +135,8 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
         UserId.of(command.userId),
         null,
         BeneficientId.of(command.beneficientId),
+        periodMonth,
+        periodYear,
         collectionPeriodId,
       );
       specialReceipt.updatePrintCount();

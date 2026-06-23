@@ -148,12 +148,16 @@ describe('Receipt.createSpecial()', () => {
       UserId.of(USER_ID),
       'CHAIN456',
       BeneficientId.of(BENEFICIENT_ID),
+      1,
+      2025,
     );
 
     expect(receipt.status).toBe('PENDING');
     expect(receipt.type).toBe('SPECIAL');
     expect(receipt.origin).toBe('NON_PROMISE');
     expect(receipt.printCount).toBe(0);
+    expect(receipt.periodMonth).toBe(1);
+    expect(receipt.periodYear).toBe(2025);
   });
 
   it('debería lanzar si beneficientId es null', () => {
@@ -165,6 +169,8 @@ describe('Receipt.createSpecial()', () => {
         UserId.of(USER_ID),
         'CHAIN456',
         null,
+        1,
+        2025,
       ),
     ).toThrow();
   });
