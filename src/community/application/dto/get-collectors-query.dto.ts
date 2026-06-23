@@ -1,5 +1,5 @@
-import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
 import { IsOptional, IsString } from 'class-validator';
+import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
 
 export class GetCollectorsQueryDto extends PaginationDto {
   @IsOptional()

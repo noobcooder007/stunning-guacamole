@@ -11,11 +11,3 @@ export class GetBeneficientQueryParams {
   ) {}
 }
 
-export class SearchBeneficientsQuery {
-  constructor(
-    readonly firstname?: string,
-    readonly firstLastname?: string,
-    readonly secondLastname?: string,
-    readonly beneficientNumber?: number,
-  ) {}
-}

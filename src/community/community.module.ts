@@ -20,7 +20,7 @@ import { GetChurchByIdHandler } from '@/community/application/handlers/get-churc
 import { GetChurchPaginatedHandler } from '@/community/application/handlers/get-church-paginated.handler';
 import { GetBeneficientByIdHandler } from '@/community/application/handlers/get-beneficient-by-id.handler';
 import { GetBeneficientPaginatedHandler } from '@/community/application/handlers/get-beneficient-paginated.handler';
-import { SearchBeneficientsHandler } from '@/community/application/handlers/search-beneficients.handler';
+import { GetBeneficientsActiveListHandler } from '@/community/application/handlers/get-beneficients-active-list.handler';
 import { GetCollectorByIdHandler } from '@/community/application/handlers/get-collector-by-id.handler';
 import { GetCollectorPaginatedHandler } from '@/community/application/handlers/get-collector-paginated.handler';
 import { DeactivateCollectorHanlder } from '@/community/application/handlers/deactivate-collector.handler';
@@ -73,7 +73,7 @@ import { BeneficientsRegistryQueryService } from './infrastructure/service/benef
     CreateCollectorHandler,
     CreateChurchHandler,
     GetBeneficientPaginatedHandler,
-    SearchBeneficientsHandler,
+    GetBeneficientsActiveListHandler,
     GetBeneficientByIdHandler,
     DeactivateBeneficientHanlder,
     GetCollectorPaginatedHandler,

@@ -13,17 +13,12 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
-import {
-  GetBeneficientQueryParams,
-  SearchBeneficientsQuery,
-} from '@/community/application/query/get-beneficient-paginated.query';
+import { GetBeneficientQueryParams } from '@/community/application/query/get-beneficient-paginated.query';
+import { GetBeneficientsActiveListQuery } from '@/community/application/query/get-beneficients-active-list.query';
 import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
 import { CreateBeneficientDto } from '@/community/application/dto/create-beneficient.dto';
 import { GetBeneficientByIdQuery } from '@/community/application/query/get-beneficient-by-id.query';
-import {
-  GetBeneficientsQueryDto,
-  SearchBeneficientsQueryDto,
-} from '../../application/dto/get-beneficients-query.dto';
+import { GetBeneficientsQueryDto } from '../../application/dto/get-beneficients-query.dto';
 import { DeactivateBeneficientCommand } from '@/community/application/command/deactivate-beneficient.command';
 import { DeactivateBeneficientDto } from '@/community/application/dto/deactivate-beneficient.dto';
 import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
@@ -162,17 +157,10 @@ export class BeneficientController {
     );
   }
 
-  @Get('search')
+  @Get('active-list')
   @Auth(PermissionNames.VIEW_BENEFICIENT)
-  search(@Query() params: SearchBeneficientsQueryDto) {
-    return this.queryBus.execute(
-      new SearchBeneficientsQuery(
-        params.firstname,
-        params.firstLastname,
-        params.secondLastname,
-        params.beneficientNumber,
-      ),
-    );
+  getActiveList(@Query('search') search?: string) {
+    return this.queryBus.execute(new GetBeneficientsActiveListQuery(search));
   }
 
   @Get('unassigned')

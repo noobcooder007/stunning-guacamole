@@ -10,3 +10,4 @@ export class GetCollectorQueryParams {
     readonly limit?: number,
   ) {}
 }
+
