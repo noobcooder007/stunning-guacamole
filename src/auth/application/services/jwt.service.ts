@@ -14,12 +14,12 @@ export interface RefreshJwtPayload {
 
 export class JWTService extends JwtService {
   REFRESHTOKENVALIDITYMS = 30 * 24 * 60 * 60 * 1000;
-  ACCESSTOKENVALIDITYMS = 15 * 60 * 1000;
+  ACCESSTOKENVALIDITYMS = 5 * 60 * 1000;
 
   constructor() {
     super({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '15m' },
+      signOptions: { expiresIn: '5m' },
     });
   }
 
