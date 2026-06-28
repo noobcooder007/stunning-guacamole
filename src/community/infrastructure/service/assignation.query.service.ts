@@ -35,6 +35,16 @@ export class AssignationQueryService extends BaseQueryService {
     );
   }
 
+  async getActivesList(collectorId: string): Promise<ActiveAssignationsResponse[]> {
+    const assignations = await this.getQueryBuilder(AssignationSchema, 'assignation')
+      .where('assignation.isActive = :isActive', { isActive: true })
+      .andWhere('assignation.collectorId = :collectorId', { collectorId })
+      .leftJoinAndSelect('assignation.beneficient', 'beneficient')
+      .leftJoinAndSelect('assignation.collector', 'collector')
+      .getMany();
+    return assignations.map((item) => AssignationMapper.toResponse(item));
+  }
+
   async getOrphans(): Promise<OrphansAssignationsResponse[]> {
     const qb = this.getQueryBuilder(AssignationSchema, 'a')
       .leftJoinAndSelect('a.collector', 'b')

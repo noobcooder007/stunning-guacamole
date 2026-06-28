@@ -36,6 +36,7 @@ import { DesactivateAssignationHandler } from '@/community/application/handlers/
 import { DeactivateAssignationEventHandler } from '@/community/application/handlers/deactivate-assignation-event.handler';
 import { ReassignBeneficientsToCollectorHandler } from '@/community/application/handlers/reassign-beneficients-to-collector.handler';
 import { GetActivesAssignationsHandler } from '@/community/application/handlers/get-actives-assignations.handler';
+import { GetAssignationsListHandler } from '@/community/application/handlers/get-assignations-list.handler';
 import { GetOrphansAssignationsQueryHandler } from './application/handlers/get-orphans-assignations.handler';
 import { GetUnassignedBeneficientsHandler } from './application/handlers/get-unassigned-beneficients.handler';
 import { GetCollectorsActiveListHandler } from './application/handlers/get-collectors-active-list.handler';
@@ -90,6 +91,7 @@ import { BeneficientsRegistryQueryService } from './infrastructure/service/benef
     ReassignBeneficientsToCollectorHandler,
     DeactivateAssignationEventHandler,
     GetActivesAssignationsHandler,
+    GetAssignationsListHandler,
     GetOrphansAssignationsQueryHandler,
     GetUnassignedBeneficientsHandler,
     GetCollectorsActiveListHandler,

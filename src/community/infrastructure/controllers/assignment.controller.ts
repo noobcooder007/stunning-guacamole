@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
@@ -11,6 +11,7 @@ import { AssignBeneficientsDto } from '@/community/application/dto/assign-benefi
 import { ReassignAssignationsDto } from '@/community/application/dto/reassign-assignations.dto';
 import { DeactivateAssignationsDto } from '@/community/application/dto/deactivate-assignations.dto';
 import { GetActiveAssignationsQueryDto } from '@/community/application/dto/get-active-assignations-query.dto';
+import { GetAssignationsListQuery } from '@/community/application/query/get-assignations-list.query';
 
 @Controller('assignment')
 export class AssignmentController {
@@ -27,7 +28,7 @@ export class AssignmentController {
     );
   }
 
-  @Post('reasign')
+  @Post('reassign')
   @Auth(PermissionNames.EDIT_COLLECTOR)
   reasignBeneficientsToCollector(@Body() dto: ReassignAssignationsDto) {
     return this.commandBus.execute(
@@ -44,6 +45,12 @@ export class AssignmentController {
     return this.commandBus.execute(
       new DeactivateAssignationsCommand(dto.deactivateAssignations),
     );
+  }
+
+  @Get('active-list')
+  @Auth(PermissionNames.VIEW_COLLECTOR)
+  getActiveList(@Query('collectorId', new ParseUUIDPipe()) collectorId: string) {
+    return this.queryBus.execute(new GetAssignationsListQuery(collectorId));
   }
 
   @Get('actives')
