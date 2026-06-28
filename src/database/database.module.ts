@@ -30,7 +30,7 @@ import { AuditLogSchema } from '@/shared/infrastructure/persistence/audit-log.sc
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: configService.get('NODE_ENV') !== 'production',
       }),
     }),
     TypeOrmModule.forFeature([
