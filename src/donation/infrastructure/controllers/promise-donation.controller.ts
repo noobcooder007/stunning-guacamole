@@ -18,6 +18,19 @@ import { CreatePromiseDonationCommand } from '@/donation/application/command/cre
 import { GetPromiseDonationByIdQuery } from '@/donation/application/query/get-promise-donation-by-id.query';
 import { GetPromiseDonationQueryParams } from '@/donation/application/query/get-promise-donation-paginated.query';
 import { DeactivatePromiseDonationCommand } from '@/donation/application/command/deactivate-promise-donation.command';
+import { ReactivatePromiseDonationCommand } from '@/donation/application/command/reactivate-promise-donation.command';
+import {
+  UpdatePromiseDonationAmountCommand,
+  UpdatePromiseDonationRecurrenceCommand,
+  UpdatePromiseDonationInstructionsCommand,
+} from '@/donation/application/command/update-promise-donation.command';
+import {
+  UpdatePromiseDonationAmountDto,
+  UpdatePromiseDonationRecurrenceDto,
+  UpdatePromiseDonationInstructionsDto,
+  recurrenceMap,
+  UpdateRecurrence,
+} from '@/donation/application/dto/update-promise-donation.dto';
 import { GetPromiseDonationWithBeneficientsQueryParams } from '@/donation/application/query/get-promise-donation-with-beneficients-paginated.query';
 
 @Controller('promises')
@@ -81,6 +94,54 @@ export class PromiseDonationController {
   ) {
     return await this.commandBus.execute(
       new DeactivatePromiseDonationCommand(id, reason),
+    );
+  }
+
+  @Patch(':id/reactivate')
+  @Auth(PermissionNames.EDIT_PROMISE_DONATION)
+  async reactivate(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.commandBus.execute(
+      new ReactivatePromiseDonationCommand(id),
+    );
+  }
+
+  @Patch(':id/amount')
+  @Auth(PermissionNames.EDIT_PROMISE_DONATION)
+  async updateAmount(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdatePromiseDonationAmountDto,
+  ) {
+    return await this.commandBus.execute(
+      new UpdatePromiseDonationAmountCommand(
+        id,
+        dto.promiseAmount,
+        dto.currency,
+      ),
+    );
+  }
+
+  @Patch(':id/recurrence')
+  @Auth(PermissionNames.EDIT_PROMISE_DONATION)
+  async updateRecurrence(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdatePromiseDonationRecurrenceDto,
+  ) {
+    return await this.commandBus.execute(
+      new UpdatePromiseDonationRecurrenceCommand(
+        id,
+        recurrenceMap[dto.recurrence as UpdateRecurrence],
+      ),
+    );
+  }
+
+  @Patch(':id/instructions')
+  @Auth(PermissionNames.EDIT_PROMISE_DONATION)
+  async updateInstructions(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdatePromiseDonationInstructionsDto,
+  ) {
+    return await this.commandBus.execute(
+      new UpdatePromiseDonationInstructionsCommand(id, dto.instructions),
     );
   }
 }

@@ -29,8 +29,8 @@ export class WeeklySchedule {
   @IsNotEmpty()
   hours: string;
   @IsString()
-  @IsNotEmpty()
-  note: string;
+  @IsOptional()
+  note?: string;
 }
 
 export class InstructionsDto {

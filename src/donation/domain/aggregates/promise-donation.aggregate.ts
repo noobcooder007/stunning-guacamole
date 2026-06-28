@@ -23,11 +23,11 @@ export class PromiseDonationId extends ValueObject<string> {
   }
 }
 
-interface ICollectorInstructions {
+export interface ICollectorInstructions {
   weeklySchedule: {
     day: string;
     hours: string;
-    note: string;
+    note?: string;
   }[];
   generalObservations: string;
 }
@@ -47,7 +47,7 @@ export interface PromiseDonationProps {
   lastDonation?: Date;
   nextDonation?: Date;
   reasonDeactivate?: string;
-  collectorInstructions?: ICollectorInstructions;
+  instructions?: ICollectorInstructions;
 }
 
 export class PromiseDonation extends AggregateRoot {
@@ -142,8 +142,8 @@ export class PromiseDonation extends AggregateRoot {
     return this.props.reasonDeactivate;
   }
 
-  public get collectorInstructions(): ICollectorInstructions | undefined {
-    return this.props.collectorInstructions;
+  public get instructions(): ICollectorInstructions | undefined {
+    return this.props.instructions;
   }
 
   public get createdBy(): UserId {
@@ -158,12 +158,45 @@ export class PromiseDonation extends AggregateRoot {
     return this.props.updatedAt;
   }
 
+  public updateAmount(promiseAmount: number, currency: string): void {
+    this.props.promiseAmount = promiseAmount;
+    this.props.currency = currency;
+    this.props.updatedAt = new Date();
+  }
+
+  public updateRecurrence(recurrence: number): void {
+    this.props.recurrence = recurrence;
+    this.props.updatedAt = new Date();
+  }
+
+  public updateInstructions(instructions: ICollectorInstructions): void {
+    this.props.instructions = instructions;
+    this.props.updatedAt = new Date();
+  }
+
   public deactivate(reason: string): void {
     this.props.isActive = false;
     this.props.reasonDeactivate = reason;
-    this.props.updatedAt = new Date();
-    this.props.startDate = null;
     this.props.nextDonation = null;
+    this.props.updatedAt = new Date();
+  }
+
+  public reactivate(): void {
+    const anchorDay = this.props.startDate.getDate();
+    const now = new Date();
+    const daysInCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const targetDay = Math.min(anchorDay, daysInCurrentMonth);
+    const candidate = new Date(now.getFullYear(), now.getMonth(), targetDay, 0, 0, 0, 0);
+    if (candidate > now) {
+      this.props.nextDonation = candidate;
+    } else {
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const daysInNextMonth = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).getDate();
+      this.props.nextDonation = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), Math.min(anchorDay, daysInNextMonth), 0, 0, 0, 0);
+    }
+    this.props.isActive = true;
+    this.props.reasonDeactivate = null;
+    this.props.updatedAt = new Date();
   }
 
   public updateNextDonation(): void {

@@ -13,6 +13,12 @@ import { GetPromiseDonationsPaginatedHandler } from '@/donation/application/hand
 import { GetPromiseDonationsWithBeneficientPaginatedHandler } from './application/handlers/get-promise-donation-with-beneficients-paginated.handler';
 import { GetReceiptsPaginatedHandler } from './application/handlers/get-receipts-paginated.handler';
 import { DeactivatePromiseDonationHandler } from '@/donation/application/handlers/deactivate-promise-donation.handler';
+import { ReactivatePromiseDonationHandler } from '@/donation/application/handlers/reactivate-promise-donation.handler';
+import {
+  UpdatePromiseDonationAmountHandler,
+  UpdatePromiseDonationRecurrenceHandler,
+  UpdatePromiseDonationInstructionsHandler,
+} from '@/donation/application/handlers/update-promise-donation.handler';
 import { PromiseDonationQueryService } from '@/donation/infrastructure/service/promise-donation.query.service';
 import { ReceiptsQueryService } from '@/donation/infrastructure/service/receipt.query.service';
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
@@ -71,6 +77,10 @@ import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/re
     GetReceiptsPaginatedHandler,
     GetPromiseDonationByIdHandler,
     DeactivatePromiseDonationHandler,
+    ReactivatePromiseDonationHandler,
+    UpdatePromiseDonationAmountHandler,
+    UpdatePromiseDonationRecurrenceHandler,
+    UpdatePromiseDonationInstructionsHandler,
     PromiseDonationQueryService,
     ReceiptsQueryService,
     GenerateRecurringReceiptsHandler,
