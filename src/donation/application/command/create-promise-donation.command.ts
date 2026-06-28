@@ -32,7 +32,7 @@ export class CreatePromiseDonationCommand {
     public readonly recurring: boolean,
     public readonly recurrence: number,
     public readonly createdBy: string,
-    public readonly collectorInstructions?: InstructionsDto,
+    public readonly instructions?: InstructionsDto,
   ) {}
 
   static fromDto(

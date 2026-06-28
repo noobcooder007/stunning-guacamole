@@ -3,7 +3,7 @@ import { BeneficientId } from '../../../../community/domain/aggregate/beneficien
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 
 export interface ICollectorInstructionsPersistence {
-  weeklySchedule: { day: string; hours: string; note: string }[];
+  weeklySchedule: { day: string; hours: string; note?: string }[];
   generalObservations: string;
 }
 
@@ -23,7 +23,7 @@ export interface IPromiseDonationPersistence {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
-  collectorInstructions?: ICollectorInstructionsPersistence;
+  instructions?: ICollectorInstructionsPersistence;
 }
 
 export class PromiseDonationMapper {
@@ -46,7 +46,7 @@ export class PromiseDonationMapper {
       createdBy: promiseDonation.createdBy.unpack(),
       createdAt: promiseDonation.createdAt,
       updatedAt: promiseDonation.updatedAt,
-      collectorInstructions: promiseDonation.collectorInstructions,
+      instructions: promiseDonation.instructions,
     };
   }
 
@@ -68,7 +68,7 @@ export class PromiseDonationMapper {
       updatedAt: promiseDonation.updatedAt,
       lastDonation: promiseDonation.lastDonation,
       nextDonation: promiseDonation.nextDonation,
-      collectorInstructions: promiseDonation.collectorInstructions,
+      instructions: promiseDonation.instructions,
     });
   }
 }

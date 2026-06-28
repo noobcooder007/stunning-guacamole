@@ -38,7 +38,7 @@ export class CreatePromiseDonationHandler extends BaseCommandHandler<
       recurring: command.recurring,
       recurrence: command.recurrence,
       createdBy: UserId.of(command.createdBy),
-      collectorInstructions: command.collectorInstructions,
+      instructions: command.instructions,
     });
     const exists = await this.promiseDonationRepository.exists(
       command.beneficientId,

@@ -101,15 +101,15 @@ describe('PromiseDonationMapper', () => {
       expect(promise.reasonDeactivate).toBe('Baja');
     });
 
-    it('debería preservar collectorInstructions cuando están presentes', () => {
+    it('debería preservar instructions cuando están presentes', () => {
       const instructions = {
         weeklySchedule: [{ day: 'Lunes', hours: '10:00-12:00', note: '' }],
         generalObservations: 'Sin observaciones',
       };
-      const raw = { ...validRaw, collectorInstructions: instructions };
+      const raw = { ...validRaw, instructions: instructions };
       const promise = PromiseDonationMapper.toDomain(raw);
 
-      expect(promise.collectorInstructions).toEqual(instructions);
+      expect(promise.instructions).toEqual(instructions);
     });
   });
 });

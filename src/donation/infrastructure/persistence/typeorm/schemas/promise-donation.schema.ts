@@ -81,5 +81,5 @@ export class PromiseDonationSchema implements IPromiseDonationPersistence {
   @Column('json', {
     nullable: true,
   })
-  collectorInstructions?: ICollectorInstructionsPersistence;
+  instructions?: ICollectorInstructionsPersistence;
 }
