@@ -92,7 +92,7 @@ export class BeneficientController {
     );
   }
 
-  @Get('print-report')
+  @Get('report/pdf')
   @Auth(PermissionNames.VIEW_BENEFICIENT)
   async printReport(@Res() res: Response) {
     const result = await this.commandBus.execute(
@@ -120,7 +120,7 @@ export class BeneficientController {
     );
   }
 
-  @Get('print-registry')
+  @Get('registry/pdf')
   @Auth(PermissionNames.VIEW_BENEFICIENT)
   async printRegistry(@Res() res: Response) {
     const result = await this.commandBus.execute(

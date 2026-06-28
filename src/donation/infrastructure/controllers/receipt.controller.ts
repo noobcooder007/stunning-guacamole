@@ -104,7 +104,7 @@ export class ReceiptController {
     );
   }
 
-  @Get('/print')
+  @Get('/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async printReceipts(
     @Res() res: Response,
@@ -179,7 +179,7 @@ export class ReceiptController {
     return this.commandBus.execute(new MarkAsPaidReceiptsCommand(dto.receipts));
   }
 
-  @Get('/print/delivery-letter')
+  @Get('/delivery-letter/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async printDeliveryLetter(
     @Res() res: Response,
@@ -205,7 +205,10 @@ export class ReceiptController {
       return;
     }
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'attachment; filename=delivery-letter.pdf');
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=delivery-letter.pdf',
+    );
     pdfStream.pipe(res);
   }
 
@@ -226,7 +229,7 @@ export class ReceiptController {
     return this.queryBus.execute(new GetCollectorEfficiencyQuery(collectorId));
   }
 
-  @Get('/collectors/:collectorId/efficiency/export')
+  @Get('/collectors/:collectorId/efficiency/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async exportCollectorEfficiency(
     @Param('collectorId') collectorId: string,

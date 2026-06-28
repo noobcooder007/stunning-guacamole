@@ -67,7 +67,7 @@ export class CollectionPeriodController {
     );
   }
 
-  @Get('/report/export')
+  @Get('/report/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async exportReceiptsReport(
     @Query('month', ParseIntPipe) month: number,
@@ -98,7 +98,7 @@ export class CollectionPeriodController {
     return this.queryBus.execute(new GetPeriodSettlementsQuery(periodId));
   }
 
-  @Get('/:periodId/settlement-letters')
+  @Get('/:periodId/settlement-letters/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async printSettlementLetters(
     @Param('periodId') periodId: string,

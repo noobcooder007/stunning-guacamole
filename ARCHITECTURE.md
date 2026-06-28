@@ -167,8 +167,8 @@ POST /api/periods/close
     → UnitOfWork: guarda periodo + CollectorSettlements en transacción
     → Retorna totales + detalle de liquidaciones
 
-GET /api/periods/:id/settlement-letters  → PDF carta de liquidación por colector
-GET /api/periods/:id/delivery-letters    → PDF carta de entrega de recibos
+GET /api/periods/:id/settlement-letters/pdf  → PDF carta de liquidación por colector
+GET /api/receipts/delivery-letter/pdf        → PDF carta de entrega de recibos
   (requiere que todos los recibos del periodo tengan printCount ≥ 1)
 ```
 
@@ -287,6 +287,12 @@ Solo puede existir un periodo `OPEN` a la vez (índice único parcial en Postgre
 | GET | `/` | `view:beneficient` |
 | GET | `/:id` | `view:beneficient` |
 | POST | `/deactivate` | `edit:beneficient` |
+| GET | `/report` | `view:beneficient` |
+| GET | `/report/pdf` | `view:beneficient` |
+| GET | `/registry` | `view:beneficient` |
+| GET | `/registry/pdf` | `view:beneficient` |
+| GET | `/active-list` | `view:beneficient` |
+| GET | `/unassigned` | `view:beneficient` |
 
 ### Asignación (`/api/assignment`)
 | Método | Ruta | Auth |
@@ -312,12 +318,14 @@ Solo puede existir un periodo `OPEN` a la vez (índice único parcial en Postgre
 | POST | `/generate/recurring` | `add:invoice` | Generar recibos recurrentes del mes (enlaza al periodo abierto) |
 | POST | `/generate/special` | `add:invoice` | Generar recibo especial (devuelve PDF) |
 | GET | `/` | `view:invoice` | Listar recibos (paginado, filtrable) |
-| GET | `/print` | `view:invoice` | Imprimir recibos por colector/mes/año (PDF); incrementa printCount |
-| GET | `/print/collector-letter` | `view:invoice` | Carta de entrega de recibos impresos (PDF); requiere printCount ≥ 1 |
-| POST | `/cancel` | `edit:invoice` | Cancelar recibo con motivo |
+| GET | `/pdf` | `view:invoice` | Imprimir recibos por colector/mes/año (PDF); incrementa printCount |
+| GET | `/delivery-letter/pdf` | `view:invoice` | Carta de entrega de recibos impresos (PDF); requiere printCount ≥ 1 |
+| PUT | `/:folio/cancel` | `edit:invoice` | Cancelar recibo con motivo |
 | POST | `/mark-as-paid` | `edit:invoice` | Marcar recibos como pagados; enlaza al periodo abierto actual |
+| GET | `/validate/:folio` | No | Validación pública de autenticidad de recibo |
+| GET | `/:folio` | `view:invoice` | Consulta recibo por folio |
 | GET | `/collectors/:id/efficiency` | `view:invoice` | Eficiencia de cobranza por periodo, año e histórico (JSON) |
-| GET | `/collectors/:id/efficiency/export` | `view:invoice` | Eficiencia de cobranza (PDF) |
+| GET | `/collectors/:id/efficiency/pdf` | `view:invoice` | Eficiencia de cobranza (PDF) |
 
 ### Periodos de Cobranza (`/api/periods`)
 | Método | Ruta | Auth | Descripción |
@@ -325,9 +333,13 @@ Solo puede existir un periodo `OPEN` a la vez (índice único parcial en Postgre
 | POST | `/open` | `edit:invoice` | Abrir nuevo periodo (409 si ya existe uno OPEN) |
 | POST | `/close` | `edit:invoice` | Cerrar periodo; calcula totales y liquidaciones por colector |
 | GET | `/current` | `view:invoice` | Obtener periodo abierto actual (404 si no existe) |
+| GET | `/report` | `view:invoice` | Reporte de recibos por mes/año (JSON) |
+| GET | `/report/pdf` | `view:invoice` | Reporte de recibos por mes/año (PDF) |
 | GET | `/:periodId/settlements` | `view:invoice` | Listar liquidaciones del periodo |
-| GET | `/:periodId/settlement-letters` | `view:invoice` | Cartas de liquidación por colector (PDF) |
-| GET | `/:periodId/delivery-letters` | `view:invoice` | Cartas de entrega de recibos por colector (PDF) |
+| GET | `/:periodId/settlement-letters/pdf` | `view:invoice` | Cartas de liquidación por colector (PDF) |
+| POST | `/settlements/:settlementId/payments` | `edit:invoice` | Registrar pago individual de liquidación |
+| POST | `/:periodId/payments/bulk` | `edit:invoice` | Registrar pagos en lote del periodo |
+| GET | `/settlements/:settlementId/payments` | `view:invoice` | Pagos de una liquidación |
 
 ### Permisos (`/api/permissions`)
 | Método | Ruta | Auth | Descripción |
