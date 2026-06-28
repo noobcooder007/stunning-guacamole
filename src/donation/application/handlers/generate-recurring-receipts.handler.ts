@@ -14,7 +14,7 @@ import { IPromiseDonationRepository } from '@/donation/domain/repositories/promi
 import { ReceiptFolioProvider } from '@/donation/infrastructure/service/receipt-folio.provider';
 import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { ICollectionPeriodRepository } from '@/donation/domain/repositories/collection-period.repository';
-import { Result } from '@/shared/domain/dto/result.dto';
+import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 
 @CommandHandler(GenerateRecurringReceiptsCommand)
 export class GenerateRecurringReceiptsHandler implements ICommandHandler<GenerateRecurringReceiptsCommand, Result<void>> {
@@ -39,6 +39,18 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<Generat
     const lastDayOfCurrentMonth = new Date(currentYear, currentMonth, 0, 23, 59, 59);
 
     const openPeriod = await this.periodRepository.findOpen();
+
+    if (
+      openPeriod &&
+      (openPeriod.month !== currentMonth || openPeriod.year !== currentYear)
+    ) {
+      return Result.fail({
+        type: ErrorType.CONFLICT,
+        message: `El periodo abierto corresponde a ${openPeriod.month}/${openPeriod.year}. No se pueden generar recibos de ${currentMonth}/${currentYear} hasta que inicie ese mes.`,
+        entity: GenerateRecurringReceiptsHandler.name,
+      });
+    }
+
     const collectionPeriodId = openPeriod?._id.unpack();
 
     await this.uow.runInTransaction(async () => {
