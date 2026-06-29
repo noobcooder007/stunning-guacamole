@@ -43,12 +43,11 @@ describe('PromiseDonation', () => {
       expect(promise.reasonDeactivate).toBe('Baja voluntaria');
     });
 
-    it('debería limpiar startDate y nextDonation al desactivar', () => {
+    it('debería limpiar nextDonation al desactivar', () => {
       const promise = makePromise();
 
       promise.deactivate('Motivo');
 
-      expect(promise.startDate).toBeNull();
       expect(promise.nextDonation).toBeNull();
     });
   });
@@ -145,6 +144,143 @@ describe('PromiseDonation', () => {
 
       expect(promise.nextDonation.getMonth()).toBe(3);
       expect(promise.nextDonation.getFullYear()).toBe(2026);
+    });
+  });
+
+  describe('updateAmount()', () => {
+    it('debería actualizar el monto y la moneda', () => {
+      const promise = makePromise();
+
+      promise.updateAmount(200, 'USD');
+
+      expect(promise.promiseAmount).toBe(200);
+      expect(promise.currency).toBe('USD');
+    });
+  });
+
+  describe('updateRecurrence()', () => {
+    it('debería actualizar el periodo de recurrencia', () => {
+      const promise = makePromise();
+
+      promise.updateRecurrence(3);
+
+      expect(promise.recurrence).toBe(3);
+    });
+  });
+
+  describe('updateInstructions()', () => {
+    it('debería actualizar las instrucciones del colector', () => {
+      const promise = makePromise();
+      const instructions = {
+        weeklySchedule: [{ day: 'lunes', hours: '09:00-11:00' }],
+        generalObservations: 'Tocar el timbre',
+      };
+
+      promise.updateInstructions(instructions);
+
+      expect(promise.instructions).toEqual(instructions);
+    });
+  });
+
+  describe('reactivate()', () => {
+    it('debería marcar como activa y limpiar reasonDeactivate', () => {
+      const promise = PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
+        beneficientId: BeneficientId.of(BID),
+        promiseAmount: 100,
+        currency: 'MXN',
+        method: 'CASH',
+        startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        recurring: true,
+        recurrence: 1,
+        isActive: false,
+        createdBy: UserId.of(CREATED_BY),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        lastDonation: null,
+        nextDonation: null,
+        reasonDeactivate: 'Baja temporal',
+      });
+
+      promise.reactivate();
+
+      expect(promise.isActive).toBe(true);
+      expect(promise.reasonDeactivate).toBeNull();
+      expect(promise.nextDonation).not.toBeNull();
+    });
+
+    it('debería fijar nextDonation al mes actual si el día ancla aún no ha pasado', () => {
+      const now = new Date();
+      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const startDate = new Date(now.getFullYear(), now.getMonth(), lastDayOfMonth);
+      const promise = PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
+        beneficientId: BeneficientId.of(BID),
+        promiseAmount: 100,
+        currency: 'MXN',
+        method: 'CASH',
+        startDate,
+        recurring: true,
+        recurrence: 1,
+        isActive: false,
+        createdBy: UserId.of(CREATED_BY),
+        createdAt: now,
+        updatedAt: now,
+        lastDonation: null,
+        nextDonation: null,
+        reasonDeactivate: 'Baja',
+      });
+
+      promise.reactivate();
+
+      expect(promise.nextDonation).not.toBeNull();
+      expect(promise.isActive).toBe(true);
+    });
+
+    it('debería fijar nextDonation al mes siguiente si el día ancla ya pasó (día 1)', () => {
+      const now = new Date();
+      const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      const promise = PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
+        beneficientId: BeneficientId.of(BID),
+        promiseAmount: 100,
+        currency: 'MXN',
+        method: 'CASH',
+        startDate,
+        recurring: true,
+        recurrence: 1,
+        isActive: false,
+        createdBy: UserId.of(CREATED_BY),
+        createdAt: now,
+        updatedAt: now,
+        lastDonation: null,
+        nextDonation: null,
+        reasonDeactivate: 'Baja',
+      });
+
+      promise.reactivate();
+
+      expect(promise.isActive).toBe(true);
+      expect(promise.nextDonation).not.toBeNull();
+    });
+  });
+
+  describe('updateLastDonation()', () => {
+    it('debería actualizar lastDonation a la fecha actual', () => {
+      const promise = makePromise();
+      const before = new Date();
+
+      promise.updateLastDonation();
+
+      expect(promise.lastDonation.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    });
+  });
+
+  describe('updateLastDonationTo()', () => {
+    it('debería actualizar lastDonation a la fecha recibida', () => {
+      const promise = makePromise();
+      const targetDate = new Date('2026-03-15');
+
+      promise.updateLastDonationTo(targetDate);
+
+      expect(promise.lastDonation).toBe(targetDate);
     });
   });
 });

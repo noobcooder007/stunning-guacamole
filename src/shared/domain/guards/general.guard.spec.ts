@@ -103,4 +103,46 @@ describe('GeneralGuard', () => {
       expect(() => GeneralGuard.againstValueIsEqualTo('A', 'A', 'Entity')).toThrow(InvalidAttributeException);
     });
   });
+
+  describe('againstArrayLengthIsGreaterThan()', () => {
+    it('no debería lanzar cuando el tamaño supera el límite', () => {
+      expect(() => GeneralGuard.againstArrayLengthIsGreaterThan(5, 3, 'msg', 'Entity')).not.toThrow();
+    });
+
+    it('debería lanzar cuando el tamaño no supera el límite', () => {
+      expect(() => GeneralGuard.againstArrayLengthIsGreaterThan(2, 3, 'msg', 'Entity')).toThrow(InvalidAttributeException);
+    });
+
+    it('debería lanzar cuando el tamaño es igual al límite', () => {
+      expect(() => GeneralGuard.againstArrayLengthIsGreaterThan(3, 3, 'msg', 'Entity')).toThrow(InvalidAttributeException);
+    });
+  });
+
+  describe('againstArrayLengthIsLessThan()', () => {
+    it('no debería lanzar cuando el tamaño supera el límite', () => {
+      expect(() => GeneralGuard.againstArrayLengthIsLessThan(5, 3, 'msg', 'Entity')).not.toThrow();
+    });
+
+    it('debería lanzar cuando el tamaño no supera el límite', () => {
+      expect(() => GeneralGuard.againstArrayLengthIsLessThan(2, 3, 'msg', 'Entity')).toThrow(InvalidAttributeException);
+    });
+
+    it('debería lanzar cuando el tamaño es igual al límite', () => {
+      expect(() => GeneralGuard.againstArrayLengthIsLessThan(3, 3, 'msg', 'Entity')).toThrow(InvalidAttributeException);
+    });
+  });
+
+  describe('againstIPNotValid()', () => {
+    it('no debería lanzar con una IP válida', () => {
+      expect(() => GeneralGuard.againstIPNotValid('192.168.1.1', 'Entity')).not.toThrow();
+    });
+
+    it('debería lanzar con una IP inválida', () => {
+      expect(() => GeneralGuard.againstIPNotValid('999.999.999.999', 'Entity')).toThrow(InvalidAttributeException);
+    });
+
+    it('debería lanzar con un string que no es IP', () => {
+      expect(() => GeneralGuard.againstIPNotValid('no-es-una-ip', 'Entity')).toThrow(InvalidAttributeException);
+    });
+  });
 });

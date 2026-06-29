@@ -82,4 +82,73 @@ describe('Church', () => {
       expect(church.isActive).toBe(true);
     });
   });
+
+  describe('update()', () => {
+    let church: Church;
+    beforeEach(() => { church = makeChurch(); });
+
+    it('debería actualizar la dirección con UpdateChurchAddressCommand', () => {
+      const { UpdateChurchAddressCommand } = require('@/community/application/command/update-church.command');
+      const cmd = new UpdateChurchAddressCommand(
+        CHURCH_ID,
+        'Av. Reforma',
+        '500',
+        null,
+        'Juárez',
+        null,
+        'CDMX',
+        'CDMX',
+        '06600',
+      );
+
+      church.update(cmd);
+
+      expect(church.address.street).toBe('Av. Reforma');
+    });
+
+    it('debería actualizar el sacerdote con UpdateChurchPriestCommand', () => {
+      const { UpdateChurchPriestCommand } = require('@/community/application/command/update-church.command');
+      const cmd = new UpdateChurchPriestCommand(CHURCH_ID, 'Carlos', 'Ramírez', 'Torres');
+
+      church.update(cmd);
+
+      expect(church.priest.firstname).toBe('Carlos');
+      expect(church.priest.firstLastname).toBe('Ramírez');
+    });
+
+    it('debería actualizar el sacerdote auxiliar con UpdateChurchAuxiliarPriestCommand', () => {
+      const { UpdateChurchAuxiliarPriestCommand } = require('@/community/application/command/update-church.command');
+      const cmd = new UpdateChurchAuxiliarPriestCommand(CHURCH_ID, 'Miguel', 'Soto', null);
+
+      church.update(cmd);
+
+      expect(church.auxiliarPriest.firstname).toBe('Miguel');
+    });
+
+    it('debería actualizar la identidad eclesial con UpdateChurchEcclesialIdentityCommand', () => {
+      const { UpdateChurchEcclesialIdentityCommand } = require('@/community/application/command/update-church.command');
+      const cmd = new UpdateChurchEcclesialIdentityCommand(
+        CHURCH_ID,
+        'Parroquia Santa María',
+        'Sur',
+        'D2',
+        'Santa María',
+        'Capilla Norte',
+      );
+
+      church.update(cmd);
+
+      expect(church.ecclesialIdentity.name).toBe('Parroquia Santa María');
+      expect(church.ecclesialIdentity.vicaria).toBe('Sur');
+    });
+
+    it('debería actualizar el teléfono con UpdateChurchPhoneNumberCommand', () => {
+      const { UpdateChurchPhoneNumberCommand } = require('@/community/application/command/update-church.command');
+      const cmd = new UpdateChurchPhoneNumberCommand(CHURCH_ID, '5598765432');
+
+      church.update(cmd);
+
+      expect(church.phoneNumber.unpack()).toBe('5598765432');
+    });
+  });
 });
