@@ -6,8 +6,11 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { minutes } from '@nestjs/throttler';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { CreatePermissionCommand } from '@/auth/application/commands/create-permission.command';
@@ -26,6 +29,8 @@ export class PermissionsController {
 
   @Get()
   @Auth(PermissionNames.VIEW_PERMISSION)
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(minutes(5))
   findAll() {
     return this.queryBus.execute(new GetAllPermissionsQuery());
   }

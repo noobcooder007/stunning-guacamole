@@ -8,9 +8,12 @@ import {
   Post,
   Query,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { Throttle, minutes } from '@nestjs/throttler';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { GetBeneficientQueryParams } from '@/community/application/query/get-beneficient-paginated.query';
@@ -92,6 +95,7 @@ export class BeneficientController {
     );
   }
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('report/pdf')
   @Auth(PermissionNames.VIEW_BENEFICIENT)
   async printReport(@Res() res: Response) {
@@ -120,6 +124,7 @@ export class BeneficientController {
     );
   }
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('registry/pdf')
   @Auth(PermissionNames.VIEW_BENEFICIENT)
   async printRegistry(@Res() res: Response) {
@@ -159,6 +164,8 @@ export class BeneficientController {
 
   @Get('active-list')
   @Auth(PermissionNames.VIEW_BENEFICIENT)
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(minutes(2))
   getActiveList(@Query('search') search?: string) {
     return this.queryBus.execute(new GetBeneficientsActiveListQuery(search));
   }

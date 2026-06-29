@@ -15,6 +15,8 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { Throttle, minutes } from '@nestjs/throttler';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { profileMulterOptions } from '@/shared/infrastructure/interceptors/multer.constants';
@@ -50,6 +52,7 @@ export class CollectorController {
     private readonly queryBus: QueryBus,
   ) {}
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Post()
   @Auth(PermissionNames.ADD_COLLECTOR)
   @UseInterceptors(FileInterceptor('profilePicture', profileMulterOptions))
@@ -108,6 +111,8 @@ export class CollectorController {
 
   @Get('active-list')
   @Auth(PermissionNames.VIEW_COLLECTOR)
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(minutes(2))
   getActiveList(@Query('search') search?: string) {
     return this.queryBus.execute(new GetCollectorsActiveListQuery(search));
   }

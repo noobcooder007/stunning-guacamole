@@ -9,9 +9,12 @@ import {
   Post,
   Query,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { Throttle, minutes, seconds } from '@nestjs/throttler';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { GetUser } from '@/auth/infrastructure/decorators/get-user.decorator';
@@ -52,6 +55,8 @@ export class CollectionPeriodController {
 
   @Get('/current')
   @Auth(PermissionNames.VIEW_INVOICE)
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(seconds(30))
   async getCurrent() {
     return await this.queryBus.execute(new GetCurrentPeriodQuery());
   }
@@ -67,6 +72,7 @@ export class CollectionPeriodController {
     );
   }
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('/report/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async exportReceiptsReport(
@@ -98,6 +104,7 @@ export class CollectionPeriodController {
     return this.queryBus.execute(new GetPeriodSettlementsQuery(periodId));
   }
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('/:periodId/settlement-letters/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async printSettlementLetters(

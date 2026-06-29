@@ -2,6 +2,7 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ConfigService } from '@nestjs/config';
 import { CookieOptions, Response } from 'express';
+import { Throttle, minutes } from '@nestjs/throttler';
 import { Result } from '@/shared/domain/dto/result.dto';
 import { CommandMetadata } from '@/shared/application/dto/command-metadata.dto';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
@@ -35,6 +36,7 @@ export class AuthController {
   ) {}
 
   // Establecer cookie secure: false y sameSite: 'lax' para desarrollo
+  @Throttle({ default: { limit: 5, ttl: minutes(1) } })
   @Post('login')
   async login(
     @Body() dto: LoginUserDto,
@@ -58,6 +60,7 @@ export class AuthController {
     return result;
   }
 
+  @Throttle({ default: { limit: 5, ttl: minutes(1) } })
   @Auth(PermissionNames.ADD_USER)
   @Post('register')
   register(@Body() dto: CreateUserDto) {
@@ -66,6 +69,7 @@ export class AuthController {
     );
   }
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Post('refresh')
   async session(
     @Body() dto: RefreshSessionDto,

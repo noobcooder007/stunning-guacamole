@@ -1,5 +1,7 @@
-import { Body, Controller, Get, ParseUUIDPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, ParseUUIDPipe, Post, Query, UseInterceptors } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { minutes } from '@nestjs/throttler';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { AssignBeneficientsCommand } from '@/community/application/command/assign-beneficients.command';
@@ -49,6 +51,8 @@ export class AssignmentController {
 
   @Get('active-list')
   @Auth(PermissionNames.VIEW_COLLECTOR)
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(minutes(2))
   getActiveList(@Query('collectorId', new ParseUUIDPipe()) collectorId: string) {
     return this.queryBus.execute(new GetAssignationsListQuery(collectorId));
   }
@@ -67,6 +71,8 @@ export class AssignmentController {
 
   @Get('orphans')
   @Auth(PermissionNames.VIEW_COLLECTOR)
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(minutes(1))
   getOrphans() {
     return this.queryBus.execute(new GetOrphansAssignationsQuery());
   }

@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
+import { Throttle, minutes } from '@nestjs/throttler';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
 import { GetUser } from '@/auth/infrastructure/decorators/get-user.decorator';
@@ -43,6 +44,7 @@ export class ReceiptController {
     private readonly pdfService: IPrinterService,
   ) {}
 
+  @Throttle({ default: { limit: 3, ttl: minutes(1) } })
   @Post('/generate/recurring')
   @Auth(PermissionNames.ADD_INVOICE)
   generateRecurringReceipts(@GetUser() user: any) {
@@ -104,6 +106,7 @@ export class ReceiptController {
     );
   }
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async printReceipts(
@@ -179,6 +182,7 @@ export class ReceiptController {
     return this.commandBus.execute(new MarkAsPaidReceiptsCommand(dto.receipts));
   }
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('/delivery-letter/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async printDeliveryLetter(
@@ -212,6 +216,7 @@ export class ReceiptController {
     pdfStream.pipe(res);
   }
 
+  @Throttle({ default: { limit: 30, ttl: minutes(1) } })
   @Get('/validate/:folio')
   async validateReceipt(@Param('folio') folio: string) {
     return this.queryBus.execute(new ValidateReceiptQuery(folio));
@@ -229,6 +234,7 @@ export class ReceiptController {
     return this.queryBus.execute(new GetCollectorEfficiencyQuery(collectorId));
   }
 
+  @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('/collectors/:collectorId/efficiency/pdf')
   @Auth(PermissionNames.VIEW_INVOICE)
   async exportCollectorEfficiency(
