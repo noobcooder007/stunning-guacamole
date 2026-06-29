@@ -19,6 +19,11 @@ export class TypeORMUserRepository
     return await this.repository.count();
   }
 
+  async findAll(): Promise<User[]> {
+    const users = await this.repository.find();
+    return users.map(UserMapper.fromModelToDomain);
+  }
+
   async findOneById(id: string): Promise<User | null> {
     const userModel = await this.repository.findOne({
       where: {

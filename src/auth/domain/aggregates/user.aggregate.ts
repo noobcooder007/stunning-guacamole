@@ -132,4 +132,16 @@ export class User extends AggregateRoot {
   public deactivate() {
     this.props.isActive = false;
   }
+
+  public activate() {
+    this.props.isActive = true;
+  }
+
+  public changePassword(hashedPassword: string) {
+    this.props.password = hashedPassword;
+  }
+
+  public changeUsername(newUsername: string) {
+    this.props.username = newUsername;
+  }
 }

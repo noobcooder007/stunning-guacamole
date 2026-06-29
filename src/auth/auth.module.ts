@@ -25,8 +25,13 @@ import { AssignPermissionsToRoleHandler } from '@/auth/application/handlers/assi
 import { GetAllPermissionsHandler } from '@/auth/application/handlers/get-all-permissions.handler';
 import { GetAllRolesHandler } from '@/auth/application/handlers/get-all-roles.handler';
 import { GetRoleByIdHandler } from '@/auth/application/handlers/get-role-by-id.handler';
+import { GetAllUsersHandler } from '@/auth/application/handlers/get-all-users.handler';
+import { SetUserActiveStatusHandler } from '@/auth/application/handlers/set-user-active-status.handler';
+import { ChangeUserPasswordHandler } from '@/auth/application/handlers/change-user-password.handler';
+import { ChangeUsernameHandler } from '@/auth/application/handlers/change-username.handler';
 import { PermissionsController } from '@/auth/infrastructure/controllers/permissions.controller';
 import { RolesController } from '@/auth/infrastructure/controllers/roles.controller';
+import { UsersController } from '@/auth/infrastructure/controllers/users.controller';
 
 @Module({
   imports: [
@@ -50,7 +55,7 @@ import { RolesController } from '@/auth/infrastructure/controllers/roles.control
     }),
     SharedModule,
   ],
-  controllers: [AuthController, SeedController, PermissionsController, RolesController],
+  controllers: [AuthController, SeedController, PermissionsController, RolesController, UsersController],
   providers: [
     JwtStrategy,
     JWTService,
@@ -66,6 +71,10 @@ import { RolesController } from '@/auth/infrastructure/controllers/roles.control
     GetAllPermissionsHandler,
     GetAllRolesHandler,
     GetRoleByIdHandler,
+    GetAllUsersHandler,
+    SetUserActiveStatusHandler,
+    ChangeUserPasswordHandler,
+    ChangeUsernameHandler,
   ],
   exports: [
     TypeOrmModule,
