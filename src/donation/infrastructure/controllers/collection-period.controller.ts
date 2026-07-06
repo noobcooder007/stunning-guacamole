@@ -24,6 +24,7 @@ import { ClosePeriodCommand } from '@/donation/application/command/close-period.
 import { GetCurrentPeriodQuery } from '@/donation/application/query/get-current-period.query';
 import { GetPeriodSettlementsQuery } from '@/donation/application/query/get-period-settlements.query';
 import { GetReceiptsReportByPeriodQuery } from '@/donation/application/query/get-receipts-report-by-period.query';
+import { GetDonationGrowthReportQuery } from '@/donation/application/query/get-donation-growth-report.query';
 import { PrintSettlementLettersCommand } from '@/donation/application/command/print-settlement-letters.command';
 import { PrintReceiptsReportByPeriodCommand } from '@/donation/application/command/print-receipts-report-by-period.command';
 import { RegisterCollectorPaymentCommand } from '@/donation/application/command/register-collector-payment.command';
@@ -96,6 +97,17 @@ export class CollectionPeriodController {
       `attachment; filename=reporte-recibos-${month}-${year}.pdf`,
     );
     result.value.pipe(res);
+  }
+
+  @Get('/growth-report')
+  @Auth(PermissionNames.VIEW_INVOICE)
+  async getGrowthReport(
+    @Query('month', ParseIntPipe) month: number,
+    @Query('year', ParseIntPipe) year: number,
+  ) {
+    return this.queryBus.execute(
+      new GetDonationGrowthReportQuery(month, year),
+    );
   }
 
   @Get('/:periodId/settlements')

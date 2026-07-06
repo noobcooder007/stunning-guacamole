@@ -50,6 +50,10 @@ import { GetReceiptByFolioHandler } from '@/donation/application/handlers/get-re
 import { GetReceiptsReportByPeriodHandler } from '@/donation/application/handlers/get-receipts-report-by-period.handler';
 import { PrintReceiptsReportByPeriodHandler } from '@/donation/application/handlers/print-receipts-report-by-period.handler';
 import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/receipts-report.query.service';
+import { GetDonationGrowthReportHandler } from '@/donation/application/handlers/get-donation-growth-report.handler';
+import { DonationGrowthReportQueryService } from '@/donation/infrastructure/service/donation-growth-report.query.service';
+import { GetConsolidatedCollectorEfficiencyHandler } from '@/donation/application/handlers/get-consolidated-collector-efficiency.handler';
+import { ConsolidatedCollectorEfficiencyQueryService } from '@/donation/infrastructure/service/consolidated-collector-efficiency.query.service';
 
 @Module({
   imports: [
@@ -104,6 +108,10 @@ import { ReceiptsReportQueryService } from '@/donation/infrastructure/service/re
     GetReceiptsReportByPeriodHandler,
     PrintReceiptsReportByPeriodHandler,
     ReceiptsReportQueryService,
+    GetDonationGrowthReportHandler,
+    DonationGrowthReportQueryService,
+    GetConsolidatedCollectorEfficiencyHandler,
+    ConsolidatedCollectorEfficiencyQueryService,
     RegisterCollectorPaymentHandler,
     RegisterBulkCollectorPaymentsHandler,
     GetSettlementPaymentsHandler,
