@@ -35,7 +35,9 @@ describe('GetPromiseDonationByIdHandler', () => {
   it('debería devolver NOT_FOUND cuando la promesa no existe', async () => {
     const handler = new GetPromiseDonationByIdHandler(makeDataSource(null));
 
-    const result = await handler.execute(new GetPromiseDonationByIdQuery(PROMISE_ID));
+    const result = await handler.execute(
+      new GetPromiseDonationByIdQuery(PROMISE_ID),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.NOT_FOUND);
@@ -46,7 +48,9 @@ describe('GetPromiseDonationByIdHandler', () => {
     const row = makePromiseRow();
     const handler = new GetPromiseDonationByIdHandler(makeDataSource(row));
 
-    const result = await handler.execute(new GetPromiseDonationByIdQuery(PROMISE_ID));
+    const result = await handler.execute(
+      new GetPromiseDonationByIdQuery(PROMISE_ID),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(result.value).toBe(row);

@@ -3,7 +3,9 @@ import {
   CollectorLetterData,
 } from './collector-letter.template';
 
-function makeLetter(overrides: Partial<CollectorLetterData> = {}): CollectorLetterData {
+function makeLetter(
+  overrides: Partial<CollectorLetterData> = {},
+): CollectorLetterData {
   return {
     collectorName: 'Juan Pérez García',
     collectorNumber: 3,
@@ -40,7 +42,11 @@ describe('collectorLetterTemplate', () => {
   });
 
   it('debería añadir pageBreak en todas excepto la última', () => {
-    const doc = collectorLetterTemplate([makeLetter(), makeLetter(), makeLetter()]);
+    const doc = collectorLetterTemplate([
+      makeLetter(),
+      makeLetter(),
+      makeLetter(),
+    ]);
     const content = doc.content as any[];
 
     expect(content[0].pageBreak).toBe('after');
@@ -54,7 +60,9 @@ describe('collectorLetterTemplate', () => {
   });
 
   it('debería manejar lista de recibos vacía', () => {
-    expect(() => collectorLetterTemplate([makeLetter({ receipts: [] })])).not.toThrow();
+    expect(() =>
+      collectorLetterTemplate([makeLetter({ receipts: [] })]),
+    ).not.toThrow();
   });
 
   it('debería retornar content vacío para array vacío de cartas', () => {

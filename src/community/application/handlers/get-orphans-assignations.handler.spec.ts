@@ -7,7 +7,10 @@ describe('GetOrphansAssignationsQueryHandler', () => {
 
   beforeEach(() => {
     assignationsService = { getOrphans: jest.fn() };
-    handler = new GetOrphansAssignationsQueryHandler({} as any, assignationsService as any);
+    handler = new GetOrphansAssignationsQueryHandler(
+      {} as any,
+      assignationsService as any,
+    );
   });
 
   it('debería delegar al servicio y devolver Result.ok', async () => {

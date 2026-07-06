@@ -45,7 +45,10 @@ describe('CreateCollectorDto', () => {
 
   describe('username', () => {
     it('debería rechazar username con menos de 4 caracteres', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, username: 'ab' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        username: 'ab',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'username')).toBeDefined();
     });
@@ -62,7 +65,10 @@ describe('CreateCollectorDto', () => {
 
   describe('password', () => {
     it('debería rechazar password con menos de 8 caracteres', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, password: 'short' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        password: 'short',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'password')).toBeDefined();
     });
@@ -79,13 +85,19 @@ describe('CreateCollectorDto', () => {
 
   describe('firstname / firstLastname', () => {
     it('debería rechazar firstname vacío', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, firstname: '' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        firstname: '',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'firstname')).toBeDefined();
     });
 
     it('debería rechazar firstLastname vacío', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, firstLastname: '' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        firstLastname: '',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'firstLastname')).toBeDefined();
     });
@@ -93,19 +105,28 @@ describe('CreateCollectorDto', () => {
 
   describe('nss', () => {
     it('debería rechazar NSS con menos de 11 dígitos', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, nss: '123456789' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        nss: '123456789',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'nss')).toBeDefined();
     });
 
     it('debería rechazar NSS con más de 11 caracteres', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, nss: '123456789012' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        nss: '123456789012',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'nss')).toBeDefined();
     });
 
     it('debería rechazar NSS con caracteres no numéricos', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, nss: '1234567890A' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        nss: '1234567890A',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'nss')).toBeDefined();
     });
@@ -113,7 +134,10 @@ describe('CreateCollectorDto', () => {
 
   describe('phoneNumber', () => {
     it('debería rechazar phoneNumber inválido para México', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, phoneNumber: '12345' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        phoneNumber: '12345',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'phoneNumber')).toBeDefined();
     });
@@ -121,13 +145,19 @@ describe('CreateCollectorDto', () => {
 
   describe('datos de pago', () => {
     it('debería rechazar bank vacío', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, bank: '' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        bank: '',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'bank')).toBeDefined();
     });
 
     it('debería rechazar reference vacío', async () => {
-      const dto = plainToInstance(CreateCollectorDto, { ...validPayload, reference: '' });
+      const dto = plainToInstance(CreateCollectorDto, {
+        ...validPayload,
+        reference: '',
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'reference')).toBeDefined();
     });
@@ -138,7 +168,9 @@ describe('CreateCollectorDto', () => {
         commissionPercent: 'diez' as any,
       });
       const errors = await validate(dto);
-      expect(errors.find((e) => e.property === 'commissionPercent')).toBeDefined();
+      expect(
+        errors.find((e) => e.property === 'commissionPercent'),
+      ).toBeDefined();
     });
   });
 });

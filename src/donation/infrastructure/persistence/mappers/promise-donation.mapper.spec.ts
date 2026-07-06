@@ -12,10 +12,12 @@ const CREATED_BY = '01907c2a-0000-7000-8000-000000000020';
 
 const now = new Date('2026-06-01');
 
-function makeDomainPromise(overrides: Partial<{
-  startDate: Date;
-  isActive: boolean;
-}> = {}): PromiseDonation {
+function makeDomainPromise(
+  overrides: Partial<{
+    startDate: Date;
+    isActive: boolean;
+  }> = {},
+): PromiseDonation {
   return PromiseDonation.recreate(PROMISE_ID, {
     beneficientId: BeneficientId.of(BID),
     promiseAmount: 200,
@@ -94,7 +96,12 @@ describe('PromiseDonationMapper', () => {
     });
 
     it('debería reconstruir una promesa inactiva', () => {
-      const raw = { ...validRaw, isActive: false, reasonDeactivate: 'Baja', startDate: null };
+      const raw = {
+        ...validRaw,
+        isActive: false,
+        reasonDeactivate: 'Baja',
+        startDate: null,
+      };
       const promise = PromiseDonationMapper.toDomain(raw);
 
       expect(promise.isActive).toBe(false);

@@ -50,8 +50,16 @@ export class CollectionPeriod extends AggregateRoot {
     year: number,
     createdBy: UserId,
   ): CollectionPeriod {
-    GeneralGuard.againstNullOrUndefined(month, 'Month is required', CollectionPeriod.name);
-    GeneralGuard.againstNullOrUndefined(year, 'Year is required', CollectionPeriod.name);
+    GeneralGuard.againstNullOrUndefined(
+      month,
+      'Month is required',
+      CollectionPeriod.name,
+    );
+    GeneralGuard.againstNullOrUndefined(
+      year,
+      'Year is required',
+      CollectionPeriod.name,
+    );
     return new CollectionPeriod(CollectionPeriodId.create(), {
       month,
       year,

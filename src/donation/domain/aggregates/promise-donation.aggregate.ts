@@ -184,15 +184,39 @@ export class PromiseDonation extends AggregateRoot {
   public reactivate(): void {
     const anchorDay = this.props.startDate.getDate();
     const now = new Date();
-    const daysInCurrentMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const daysInCurrentMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+    ).getDate();
     const targetDay = Math.min(anchorDay, daysInCurrentMonth);
-    const candidate = new Date(now.getFullYear(), now.getMonth(), targetDay, 0, 0, 0, 0);
+    const candidate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      targetDay,
+      0,
+      0,
+      0,
+      0,
+    );
     if (candidate > now) {
       this.props.nextDonation = candidate;
     } else {
       const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-      const daysInNextMonth = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0).getDate();
-      this.props.nextDonation = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), Math.min(anchorDay, daysInNextMonth), 0, 0, 0, 0);
+      const daysInNextMonth = new Date(
+        nextMonth.getFullYear(),
+        nextMonth.getMonth() + 1,
+        0,
+      ).getDate();
+      this.props.nextDonation = new Date(
+        nextMonth.getFullYear(),
+        nextMonth.getMonth(),
+        Math.min(anchorDay, daysInNextMonth),
+        0,
+        0,
+        0,
+        0,
+      );
     }
     this.props.isActive = true;
     this.props.reasonDeactivate = null;

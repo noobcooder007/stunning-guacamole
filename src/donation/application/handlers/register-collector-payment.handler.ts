@@ -9,9 +9,7 @@ import { CollectorPaymentResponseDto } from '@/donation/application/dto/collecto
 import { ICollectorSettlementRepository } from '@/donation/domain/repositories/collector-settlement.repository';
 import { ICollectorPaymentRepository } from '@/donation/domain/repositories/collector-payment.repository';
 import { CollectorPayment } from '@/donation/domain/entities/collector-payment.entity';
-import {
-  CollectorId,
-} from '@/community/domain/aggregate/collector.aggregate';
+import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { CollectorSettlementPaymentStatus } from '@/donation/domain/entities/collector-settlement.entity';
 
@@ -33,7 +31,9 @@ export class RegisterCollectorPaymentHandler extends BaseCommandHandler<
   protected async process(
     command: RegisterCollectorPaymentCommand,
   ): Promise<Result<CollectorPaymentResponseDto>> {
-    const settlement = await this.settlementRepository.findById(command.settlementId);
+    const settlement = await this.settlementRepository.findById(
+      command.settlementId,
+    );
     if (!settlement) {
       return Result.fail({
         type: ErrorType.NOT_FOUND,

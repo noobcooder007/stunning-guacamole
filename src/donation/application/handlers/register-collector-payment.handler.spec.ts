@@ -18,24 +18,21 @@ function makeSettlement(
   totalPaid = 0,
   status = CollectorSettlementPaymentStatus.PENDING,
 ): CollectorSettlement {
-  return CollectorSettlement.recreate(
-    { unpack: () => SETTLEMENT_ID } as any,
-    {
-      collectionPeriodId: PERIOD_ID,
-      collectorId: CollectorId.of(COLLECTOR_ID),
-      month: 6,
-      year: 2026,
-      totalCollected: 2000,
-      commissionPercent: 10,
-      commissionAmount: 200,
-      nomina: 50,
-      transportAllowance: 50,
-      netCommission,
-      paymentStatus: status,
-      totalPaid,
-      createdAt: new Date(),
-    },
-  );
+  return CollectorSettlement.recreate({ unpack: () => SETTLEMENT_ID } as any, {
+    collectionPeriodId: PERIOD_ID,
+    collectorId: CollectorId.of(COLLECTOR_ID),
+    month: 6,
+    year: 2026,
+    totalCollected: 2000,
+    commissionPercent: 10,
+    commissionAmount: 200,
+    nomina: 50,
+    transportAllowance: 50,
+    netCommission,
+    paymentStatus: status,
+    totalPaid,
+    createdAt: new Date(),
+  });
 }
 
 function makeCommand(amount = 100): RegisterCollectorPaymentCommand {
@@ -63,7 +60,9 @@ describe('RegisterCollectorPaymentHandler', () => {
       save: jest.fn().mockResolvedValue(undefined),
     };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     handler = new RegisterCollectorPaymentHandler(
       settlementRepository as any,
@@ -93,9 +92,7 @@ describe('RegisterCollectorPaymentHandler', () => {
   });
 
   it('debería fallar con CONFLICT cuando el monto supera el saldo restante', async () => {
-    settlementRepository.findById.mockResolvedValue(
-      makeSettlement(200, 150),
-    );
+    settlementRepository.findById.mockResolvedValue(makeSettlement(200, 150));
 
     const result = await handler.execute(makeCommand(100));
 
@@ -124,7 +121,9 @@ describe('RegisterCollectorPaymentHandler', () => {
     await handler.execute(makeCommand(80));
 
     expect(settlement.totalPaid).toBe(80);
-    expect(settlement.paymentStatus).toBe(CollectorSettlementPaymentStatus.PARTIALLY_PAID);
+    expect(settlement.paymentStatus).toBe(
+      CollectorSettlementPaymentStatus.PARTIALLY_PAID,
+    );
   });
 
   it('debería ejecutar la persistencia dentro de una transacción', async () => {

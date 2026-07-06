@@ -74,6 +74,8 @@ describe('GetReceiptByFolioHandler', () => {
     const handler = new GetReceiptByFolioHandler(datasource);
     await handler.execute(new GetReceiptByFolioQuery(FOLIO));
 
-    expect(where).toHaveBeenCalledWith('receipt.folio = :folio', { folio: FOLIO });
+    expect(where).toHaveBeenCalledWith('receipt.folio = :folio', {
+      folio: FOLIO,
+    });
   });
 });

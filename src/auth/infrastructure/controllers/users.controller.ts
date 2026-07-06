@@ -69,8 +69,6 @@ export class UsersController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: ChangeUsernameDto,
   ) {
-    return this.commandBus.execute(
-      new ChangeUsernameCommand(id, dto.username),
-    );
+    return this.commandBus.execute(new ChangeUsernameCommand(id, dto.username));
   }
 }

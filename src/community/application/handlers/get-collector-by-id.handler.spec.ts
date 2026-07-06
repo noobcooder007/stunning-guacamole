@@ -12,7 +12,10 @@ describe('GetCollectorByIdHandler', () => {
 
   beforeEach(() => {
     collectorRepository = { findById: jest.fn() };
-    handler = new GetCollectorByIdHandler({} as any, collectorRepository as any);
+    handler = new GetCollectorByIdHandler(
+      {} as any,
+      collectorRepository as any,
+    );
     jest.restoreAllMocks();
   });
 
@@ -28,12 +31,16 @@ describe('GetCollectorByIdHandler', () => {
   it('debería devolver el colector mapeado cuando existe', async () => {
     const mockCollector = {};
     collectorRepository.findById.mockResolvedValue(mockCollector);
-    jest.spyOn(CollectorMapper, 'fromDomainToResponse').mockReturnValue({ id: COLLECTOR_ID } as any);
+    jest
+      .spyOn(CollectorMapper, 'fromDomainToResponse')
+      .mockReturnValue({ id: COLLECTOR_ID } as any);
 
     const result = await handler.execute(query);
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.id).toBe(COLLECTOR_ID);
-    expect(CollectorMapper.fromDomainToResponse).toHaveBeenCalledWith(mockCollector);
+    expect(CollectorMapper.fromDomainToResponse).toHaveBeenCalledWith(
+      mockCollector,
+    );
   });
 });

@@ -39,7 +39,9 @@ describe('CancelReceiptCommandHandler', () => {
     const receipt = makeReceipt('F-042');
     receiptRepository.findByFolio.mockResolvedValue(receipt);
 
-    const result = await handler.execute(new CancelReceiptCommand('F-042', 'Error en captura', USER_ID));
+    const result = await handler.execute(
+      new CancelReceiptCommand('F-042', 'Error en captura', USER_ID),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(result.value).toBe('F-042');

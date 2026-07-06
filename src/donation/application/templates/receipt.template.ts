@@ -59,7 +59,10 @@ function createReceipt(
                     canvas: [
                       {
                         type: 'line',
-                        x1: 0, y1: 0, x2: 250, y2: 0,
+                        x1: 0,
+                        y1: 0,
+                        x2: 250,
+                        y2: 0,
                         lineWidth: 0.5,
                         lineColor: '#cccccc',
                       },
@@ -163,7 +166,10 @@ function createReceipt(
                     canvas: [
                       {
                         type: 'line',
-                        x1: 0, y1: 0, x2: 250, y2: 0,
+                        x1: 0,
+                        y1: 0,
+                        x2: 250,
+                        y2: 0,
                         lineWidth: 0.5,
                         lineColor: '#cccccc',
                       },

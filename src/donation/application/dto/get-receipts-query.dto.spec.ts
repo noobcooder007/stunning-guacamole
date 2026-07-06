@@ -26,7 +26,9 @@ describe('GetReceiptsQueryDto', () => {
   });
 
   it('debería rechazar collectorId que no sea UUID', async () => {
-    const dto = plainToInstance(GetReceiptsQueryDto, { collectorId: 'no-es-uuid' });
+    const dto = plainToInstance(GetReceiptsQueryDto, {
+      collectorId: 'no-es-uuid',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'collectorId')).toBeDefined();
   });

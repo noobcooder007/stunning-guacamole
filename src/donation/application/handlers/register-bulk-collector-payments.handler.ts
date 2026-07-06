@@ -34,9 +34,8 @@ export class RegisterBulkCollectorPaymentsHandler extends BaseCommandHandler<
   protected async process(
     command: RegisterBulkCollectorPaymentsCommand,
   ): Promise<Result<BulkPaymentResult>> {
-    const pendingSettlements = await this.settlementRepository.findPendingByPeriodId(
-      command.periodId,
-    );
+    const pendingSettlements =
+      await this.settlementRepository.findPendingByPeriodId(command.periodId);
 
     if (pendingSettlements.length === 0) {
       return Result.fail({

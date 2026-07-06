@@ -70,9 +70,8 @@ export class ReassignBeneficientsToCollectorHandler extends BaseCommandHandler<
         ),
       );
       if (stillActiveIds.length > 0) {
-        const assignamentsDeactivated = await this.assignationService.deactivate(
-          stillActiveIds,
-        );
+        const assignamentsDeactivated =
+          await this.assignationService.deactivate(stillActiveIds);
         if (!assignamentsDeactivated.isSuccess) {
           throw new DomainException(
             assignamentsDeactivated.error.message,

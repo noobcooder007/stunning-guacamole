@@ -1,9 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
 
 export type AuditStatus = 'SUCCESS' | 'FAILURE';
 

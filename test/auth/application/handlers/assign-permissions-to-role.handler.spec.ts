@@ -63,8 +63,12 @@ describe('AssignPermissionsToRoleHandler', () => {
       makePermission(PERM_UUID_1, 'add:church'),
       makePermission(PERM_UUID_2, 'edit:church'),
     ];
-    const roleRepo = makeRoleRepo({ findById: jest.fn().mockResolvedValue(role) });
-    const permRepo = makePermRepo({ findByIds: jest.fn().mockResolvedValue(perms) });
+    const roleRepo = makeRoleRepo({
+      findById: jest.fn().mockResolvedValue(role),
+    });
+    const permRepo = makePermRepo({
+      findByIds: jest.fn().mockResolvedValue(perms),
+    });
     const handler = new AssignPermissionsToRoleHandler(roleRepo, permRepo);
 
     const result = await handler.execute(
@@ -91,10 +95,14 @@ describe('AssignPermissionsToRoleHandler', () => {
 
   it('devuelve NOT_FOUND si algún permiso no existe', async () => {
     const role = makeRole();
-    const roleRepo = makeRoleRepo({ findById: jest.fn().mockResolvedValue(role) });
+    const roleRepo = makeRoleRepo({
+      findById: jest.fn().mockResolvedValue(role),
+    });
     // Solo devuelve 1 de los 2 solicitados
     const permRepo = makePermRepo({
-      findByIds: jest.fn().mockResolvedValue([makePermission(PERM_UUID_1, 'add:church')]),
+      findByIds: jest
+        .fn()
+        .mockResolvedValue([makePermission(PERM_UUID_1, 'add:church')]),
     });
     const handler = new AssignPermissionsToRoleHandler(roleRepo, permRepo);
 
@@ -113,8 +121,12 @@ describe('AssignPermissionsToRoleHandler', () => {
       makePermission(PERM_UUID_1, 'add:church', true),
       makePermission(PERM_UUID_2, 'edit:church', false), // inactivo
     ];
-    const roleRepo = makeRoleRepo({ findById: jest.fn().mockResolvedValue(role) });
-    const permRepo = makePermRepo({ findByIds: jest.fn().mockResolvedValue(perms) });
+    const roleRepo = makeRoleRepo({
+      findById: jest.fn().mockResolvedValue(role),
+    });
+    const permRepo = makePermRepo({
+      findByIds: jest.fn().mockResolvedValue(perms),
+    });
     const handler = new AssignPermissionsToRoleHandler(roleRepo, permRepo);
 
     const result = await handler.execute(

@@ -5,13 +5,10 @@ import { ReceiptsReportByPeriodResponseDto } from '@/donation/application/dto/re
 import { Result } from '@/shared/domain/dto/result.dto';
 
 @QueryHandler(GetReceiptsReportByPeriodQuery)
-export class GetReceiptsReportByPeriodHandler
-  implements
-    IQueryHandler<
-      GetReceiptsReportByPeriodQuery,
-      Result<ReceiptsReportByPeriodResponseDto>
-    >
-{
+export class GetReceiptsReportByPeriodHandler implements IQueryHandler<
+  GetReceiptsReportByPeriodQuery,
+  Result<ReceiptsReportByPeriodResponseDto>
+> {
   constructor(private readonly reportService: ReceiptsReportQueryService) {}
 
   async execute(

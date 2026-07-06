@@ -1,5 +1,9 @@
 import 'reflect-metadata';
-import { AuthResponse, SessionDto, UserDto } from '@/auth/application/dto/auth.response';
+import {
+  AuthResponse,
+  SessionDto,
+  UserDto,
+} from '@/auth/application/dto/auth.response';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 describe('AuthResponse', () => {

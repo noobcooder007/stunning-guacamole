@@ -7,9 +7,10 @@ import { CollectorPaymentResponseDto } from '@/donation/application/dto/collecto
 import { Result } from '@/shared/domain/dto/result.dto';
 
 @QueryHandler(GetSettlementPaymentsQuery)
-export class GetSettlementPaymentsHandler
-  implements IQueryHandler<GetSettlementPaymentsQuery, Result<CollectorPaymentResponseDto[]>>
-{
+export class GetSettlementPaymentsHandler implements IQueryHandler<
+  GetSettlementPaymentsQuery,
+  Result<CollectorPaymentResponseDto[]>
+> {
   constructor(
     @Inject(REPOSITORY_TOKENS.COLLECTOR_PAYMENT)
     private readonly paymentRepository: ICollectorPaymentRepository,

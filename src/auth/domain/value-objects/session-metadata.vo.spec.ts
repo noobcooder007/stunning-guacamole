@@ -30,12 +30,18 @@ describe('SessionMetadata', () => {
 
   describe('validateFingerprint()', () => {
     it('debería retornar true cuando el userAgent coincide', () => {
-      const meta = SessionMetadata.of({ ip: '10.0.0.1', userAgent: 'Chrome/120' });
+      const meta = SessionMetadata.of({
+        ip: '10.0.0.1',
+        userAgent: 'Chrome/120',
+      });
       expect(meta.validateFingerprint('Chrome/120')).toBe(true);
     });
 
     it('debería retornar false cuando el userAgent difiere', () => {
-      const meta = SessionMetadata.of({ ip: '10.0.0.1', userAgent: 'Chrome/120' });
+      const meta = SessionMetadata.of({
+        ip: '10.0.0.1',
+        userAgent: 'Chrome/120',
+      });
       expect(meta.validateFingerprint('Firefox/110')).toBe(false);
     });
   });

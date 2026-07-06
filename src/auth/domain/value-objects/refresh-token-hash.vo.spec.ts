@@ -8,7 +8,9 @@ describe('RefreshTokenHash', () => {
     });
 
     it('debería lanzar si el valor es null', () => {
-      expect(() => RefreshTokenHash.of(null)).toThrow(InvalidAttributeException);
+      expect(() => RefreshTokenHash.of(null)).toThrow(
+        InvalidAttributeException,
+      );
     });
 
     it('debería retornar el valor almacenado', () => {

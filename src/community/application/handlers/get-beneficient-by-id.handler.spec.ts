@@ -3,7 +3,10 @@ import { GetBeneficientByIdQuery } from '@/community/application/query/get-benef
 import { Beneficient } from '@/community/domain/aggregate/beneficient.aggregate';
 import { BeneficientMapper } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { ErrorType } from '@/shared/domain/dto/result.dto';
 
@@ -43,7 +46,10 @@ describe('GetBeneficientByIdHandler', () => {
 
   beforeEach(() => {
     beneficientRepository = { findById: jest.fn() };
-    handler = new GetBeneficientByIdHandler(datasource, beneficientRepository as any);
+    handler = new GetBeneficientByIdHandler(
+      datasource,
+      beneficientRepository as any,
+    );
   });
 
   it('debería fallar con NOT_FOUND cuando el beneficiario no existe', async () => {
@@ -67,7 +73,9 @@ describe('GetBeneficientByIdHandler', () => {
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.firstname).toBe('Juan');
-    expect(BeneficientMapper.fromDomainToResponse).toHaveBeenCalledWith(beneficient);
+    expect(BeneficientMapper.fromDomainToResponse).toHaveBeenCalledWith(
+      beneficient,
+    );
   });
 
   it('debería buscar por el id de la query', async () => {

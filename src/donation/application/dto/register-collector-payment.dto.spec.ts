@@ -44,8 +44,14 @@ describe('RegisterCollectorPaymentDto', () => {
   });
 
   it('debería rechazar amount negativo o cero', async () => {
-    const dtoZero = plainToInstance(RegisterCollectorPaymentDto, { ...validPayload, amount: 0 });
-    const dtoNeg = plainToInstance(RegisterCollectorPaymentDto, { ...validPayload, amount: -5 });
+    const dtoZero = plainToInstance(RegisterCollectorPaymentDto, {
+      ...validPayload,
+      amount: 0,
+    });
+    const dtoNeg = plainToInstance(RegisterCollectorPaymentDto, {
+      ...validPayload,
+      amount: -5,
+    });
     const errorsZero = await validate(dtoZero);
     const errorsNeg = await validate(dtoNeg);
     expect(errorsZero.find((e) => e.property === 'amount')).toBeDefined();

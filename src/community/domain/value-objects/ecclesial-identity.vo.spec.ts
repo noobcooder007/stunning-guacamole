@@ -1,4 +1,7 @@
-import { EcclesialIdentity, EcclesialIdentityProps } from './ecclesial-identity.vo';
+import {
+  EcclesialIdentity,
+  EcclesialIdentityProps,
+} from './ecclesial-identity.vo';
 
 const validProps: EcclesialIdentityProps = {
   name: 'Parroquia San Pedro',
@@ -17,7 +20,9 @@ describe('EcclesialIdentity', () => {
 
   describe('getters', () => {
     let vo: EcclesialIdentity;
-    beforeEach(() => { vo = EcclesialIdentity.of(validProps); });
+    beforeEach(() => {
+      vo = EcclesialIdentity.of(validProps);
+    });
 
     it('name debería retornar el valor correcto', () => {
       expect(vo.name).toBe('Parroquia San Pedro');

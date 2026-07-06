@@ -1,6 +1,10 @@
 import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
-import { Result, IErrorResult, ErrorType } from '@/shared/domain/dto/result.dto';
+import {
+  Result,
+  IErrorResult,
+  ErrorType,
+} from '@/shared/domain/dto/result.dto';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { ReactivatePromiseDonationCommand } from '@/donation/application/command/reactivate-promise-donation.command';
 import { IPromiseDonationRepository } from '@/donation/domain/repositories/promise-donation.repository';
@@ -22,7 +26,9 @@ export class ReactivatePromiseDonationHandler extends BaseCommandHandler<
   protected async process(
     command: ReactivatePromiseDonationCommand,
   ): Promise<Result<void, IErrorResult>> {
-    const promiseDonation = await this.promiseDonationRepository.findById(command.id);
+    const promiseDonation = await this.promiseDonationRepository.findById(
+      command.id,
+    );
     if (!promiseDonation) {
       return Result.fail({
         message: 'Promise donation not found',

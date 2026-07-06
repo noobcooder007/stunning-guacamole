@@ -8,9 +8,10 @@ import { ValidateReceiptResponseDto } from '@/donation/application/dto/validate-
 import { Result } from '@/shared/domain/dto/result.dto';
 
 @QueryHandler(ValidateReceiptQuery)
-export class ValidateReceiptHandler
-  implements IQueryHandler<ValidateReceiptQuery, Result<ValidateReceiptResponseDto>>
-{
+export class ValidateReceiptHandler implements IQueryHandler<
+  ValidateReceiptQuery,
+  Result<ValidateReceiptResponseDto>
+> {
   constructor(
     @Inject(REPOSITORY_TOKENS.RECEIPT)
     private readonly receiptRepository: IReceiptRepository,
@@ -18,7 +19,9 @@ export class ValidateReceiptHandler
     private readonly hasher: IDataHasher,
   ) {}
 
-  async execute(query: ValidateReceiptQuery): Promise<Result<ValidateReceiptResponseDto>> {
+  async execute(
+    query: ValidateReceiptQuery,
+  ): Promise<Result<ValidateReceiptResponseDto>> {
     const receipt = await this.receiptRepository.findByFolio(query.folio);
     if (!receipt || !receipt.chainValidator) {
       return Result.ok({ valid: false });
@@ -31,15 +34,25 @@ export class ValidateReceiptHandler
 
     // Try all legacy amount × beneficient combinations to support receipts
     // created before normalization: TypeORM decimal → string, undefined vs null
-    const amountVariants: Array<number | string> = [Number(rawAmount), rawAmount];
+    const amountVariants: Array<number | string> = [
+      Number(rawAmount),
+      rawAmount,
+    ];
     // When no beneficient: creation may have stored `undefined` (JS) or `null`
-    const beneficientVariants = beneficientId === null
-      ? [null, undefined]
-      : [beneficientId];
+    const beneficientVariants =
+      beneficientId === null ? [null, undefined] : [beneficientId];
 
     for (const amount of amountVariants) {
       for (const ben of beneficientVariants) {
-        if (await this.matchesChain(receipt.chainValidator, id, folio, amount, ben)) {
+        if (
+          await this.matchesChain(
+            receipt.chainValidator,
+            id,
+            folio,
+            amount,
+            ben,
+          )
+        ) {
           return Result.ok({
             valid: true,
             folio,

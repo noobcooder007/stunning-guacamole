@@ -9,7 +9,10 @@ import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
 const PERIOD_ID = '01907c2a-0000-7000-8000-000000000010';
 
-function makeSettlement(totalCollected = 1000, netCommission = 70): CollectorSettlement {
+function makeSettlement(
+  totalCollected = 1000,
+  netCommission = 70,
+): CollectorSettlement {
   return CollectorSettlement.create({
     collectionPeriodId: PERIOD_ID,
     collectorId: CollectorId.of(COLLECTOR_ID),

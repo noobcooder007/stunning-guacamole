@@ -6,8 +6,18 @@ import {
 } from '@/donation/application/dto/collector-efficiency.response.dto';
 
 const MONTH_LABELS = [
-  'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
-  'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
+  'ENE',
+  'FEB',
+  'MAR',
+  'ABR',
+  'MAY',
+  'JUN',
+  'JUL',
+  'AGO',
+  'SEP',
+  'OCT',
+  'NOV',
+  'DIC',
 ];
 
 function fmt(amount: number): string {
@@ -19,7 +29,17 @@ function rate(value: number): string {
 }
 
 const divider = (width: number): Content => ({
-  canvas: [{ type: 'line', x1: 0, y1: 0, x2: width, y2: 0, lineWidth: 0.5, lineColor: '#cccccc' }],
+  canvas: [
+    {
+      type: 'line',
+      x1: 0,
+      y1: 0,
+      x2: width,
+      y2: 0,
+      lineWidth: 0.5,
+      lineColor: '#cccccc',
+    },
+  ],
   margin: [0, 0, 0, 6],
 });
 
@@ -46,24 +66,60 @@ export const collectorEfficiencyTemplate = (
   const historicalRows: Content[][] = [
     [
       { text: 'Monto asignado', fontSize: 9 },
-      { text: fmt(efficiency.historical.assignedAmount), fontSize: 9, alignment: 'right' },
-      { text: String(efficiency.historical.assignedCount), fontSize: 9, alignment: 'center' },
+      {
+        text: fmt(efficiency.historical.assignedAmount),
+        fontSize: 9,
+        alignment: 'right',
+      },
+      {
+        text: String(efficiency.historical.assignedCount),
+        fontSize: 9,
+        alignment: 'center',
+      },
     ],
     [
       { text: 'Monto cobrado', fontSize: 9 },
-      { text: fmt(efficiency.historical.collectedAmount), fontSize: 9, alignment: 'right', color: '#2e7d32' },
-      { text: String(efficiency.historical.collectedCount), fontSize: 9, alignment: 'center', color: '#2e7d32' },
+      {
+        text: fmt(efficiency.historical.collectedAmount),
+        fontSize: 9,
+        alignment: 'right',
+        color: '#2e7d32',
+      },
+      {
+        text: String(efficiency.historical.collectedCount),
+        fontSize: 9,
+        alignment: 'center',
+        color: '#2e7d32',
+      },
     ],
     [
       { text: 'Pendiente por cobrar', fontSize: 9 },
-      { text: fmt(efficiency.historical.pendingAmount), fontSize: 9, alignment: 'right', color: '#e65100' },
-      { text: String(efficiency.historical.pendingCount), fontSize: 9, alignment: 'center', color: '#e65100' },
+      {
+        text: fmt(efficiency.historical.pendingAmount),
+        fontSize: 9,
+        alignment: 'right',
+        color: '#e65100',
+      },
+      {
+        text: String(efficiency.historical.pendingCount),
+        fontSize: 9,
+        alignment: 'center',
+        color: '#e65100',
+      },
     ],
     [
-      { text: 'Eficiencia de cobranza', bold: true, fontSize: 10, fillColor: '#f5f5f5' },
+      {
+        text: 'Eficiencia de cobranza',
+        bold: true,
+        fontSize: 10,
+        fillColor: '#f5f5f5',
+      },
       {
         text: rate(efficiency.historical.collectionRate),
-        bold: true, fontSize: 14, alignment: 'right', fillColor: '#f5f5f5',
+        bold: true,
+        fontSize: 14,
+        alignment: 'right',
+        fillColor: '#f5f5f5',
         colSpan: 2,
       } as any,
       {} as any,
@@ -74,11 +130,36 @@ export const collectorEfficiencyTemplate = (
     (y: YearEfficiencyDto) => [
       { text: String(y.year), fontSize: 9, bold: true },
       { text: fmt(y.assignedAmount), fontSize: 9, alignment: 'right' },
-      { text: fmt(y.collectedAmount), fontSize: 9, alignment: 'right', color: '#2e7d32' },
-      { text: fmt(y.pendingAmount), fontSize: 9, alignment: 'right', color: '#e65100' },
-      { text: String(y.assignedCount), fontSize: 8, alignment: 'center', color: '#888888' },
-      { text: String(y.collectedCount), fontSize: 8, alignment: 'center', color: '#2e7d32' },
-      { text: rate(y.collectionRate), fontSize: 9, alignment: 'right', bold: true },
+      {
+        text: fmt(y.collectedAmount),
+        fontSize: 9,
+        alignment: 'right',
+        color: '#2e7d32',
+      },
+      {
+        text: fmt(y.pendingAmount),
+        fontSize: 9,
+        alignment: 'right',
+        color: '#e65100',
+      },
+      {
+        text: String(y.assignedCount),
+        fontSize: 8,
+        alignment: 'center',
+        color: '#888888',
+      },
+      {
+        text: String(y.collectedCount),
+        fontSize: 8,
+        alignment: 'center',
+        color: '#2e7d32',
+      },
+      {
+        text: rate(y.collectionRate),
+        fontSize: 9,
+        alignment: 'right',
+        bold: true,
+      },
     ],
   );
 
@@ -86,19 +167,46 @@ export const collectorEfficiencyTemplate = (
     (p: PeriodEfficiencyDto) => [
       {
         text: `${MONTH_LABELS[p.month - 1]} ${p.year}`,
-        fontSize: 9, bold: true,
+        fontSize: 9,
+        bold: true,
       },
       {
         text: p.periodStatus === 'OPEN' ? 'ABIERTO' : 'CERRADO',
-        fontSize: 7, alignment: 'center',
+        fontSize: 7,
+        alignment: 'center',
         color: p.periodStatus === 'OPEN' ? '#1565c0' : '#555555',
       },
       { text: fmt(p.assignedAmount), fontSize: 9, alignment: 'right' },
-      { text: fmt(p.collectedAmount), fontSize: 9, alignment: 'right', color: '#2e7d32' },
-      { text: fmt(p.pendingAmount), fontSize: 9, alignment: 'right', color: '#e65100' },
-      { text: String(p.assignedCount), fontSize: 8, alignment: 'center', color: '#888888' },
-      { text: String(p.collectedCount), fontSize: 8, alignment: 'center', color: '#2e7d32' },
-      { text: rate(p.collectionRate), fontSize: 9, alignment: 'right', bold: true },
+      {
+        text: fmt(p.collectedAmount),
+        fontSize: 9,
+        alignment: 'right',
+        color: '#2e7d32',
+      },
+      {
+        text: fmt(p.pendingAmount),
+        fontSize: 9,
+        alignment: 'right',
+        color: '#e65100',
+      },
+      {
+        text: String(p.assignedCount),
+        fontSize: 8,
+        alignment: 'center',
+        color: '#888888',
+      },
+      {
+        text: String(p.collectedCount),
+        fontSize: 8,
+        alignment: 'center',
+        color: '#2e7d32',
+      },
+      {
+        text: rate(p.collectionRate),
+        fontSize: 9,
+        alignment: 'right',
+        bold: true,
+      },
     ],
   );
 
@@ -106,7 +214,10 @@ export const collectorEfficiencyTemplate = (
     content: [
       {
         text: 'REPORTE DE EFICIENCIA DE COBRANZA',
-        bold: true, fontSize: 11, alignment: 'center', color: '#333333',
+        bold: true,
+        fontSize: 11,
+        alignment: 'center',
+        color: '#333333',
         margin: [0, 0, 0, 4],
       },
       divider(515),
@@ -115,19 +226,46 @@ export const collectorEfficiencyTemplate = (
           {
             stack: [
               { text: 'COLECTOR', fontSize: 8, color: '#888888' },
-              { text: data.collectorName, bold: true, fontSize: 13, margin: [0, 2, 0, 0] },
+              {
+                text: data.collectorName,
+                bold: true,
+                fontSize: 13,
+                margin: [0, 2, 0, 0],
+              },
             ],
           },
           {
             stack: [
-              { text: 'No. COLECTOR', fontSize: 8, color: '#888888', alignment: 'right' },
-              { text: String(data.collectorNumber), bold: true, fontSize: 13, alignment: 'right', margin: [0, 2, 0, 0] },
+              {
+                text: 'No. COLECTOR',
+                fontSize: 8,
+                color: '#888888',
+                alignment: 'right',
+              },
+              {
+                text: String(data.collectorNumber),
+                bold: true,
+                fontSize: 13,
+                alignment: 'right',
+                margin: [0, 2, 0, 0],
+              },
             ],
           },
           {
             stack: [
-              { text: 'GENERADO', fontSize: 8, color: '#888888', alignment: 'right' },
-              { text: data.generatedAt, bold: false, fontSize: 9, alignment: 'right', margin: [0, 2, 0, 0] },
+              {
+                text: 'GENERADO',
+                fontSize: 8,
+                color: '#888888',
+                alignment: 'right',
+              },
+              {
+                text: data.generatedAt,
+                bold: false,
+                fontSize: 9,
+                alignment: 'right',
+                margin: [0, 2, 0, 0],
+              },
             ],
           },
         ],
@@ -144,8 +282,20 @@ export const collectorEfficiencyTemplate = (
           body: [
             [
               { text: 'Concepto', bold: true, fontSize: 8, color: '#555555' },
-              { text: 'Monto', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
-              { text: 'Recibos', bold: true, fontSize: 8, alignment: 'center', color: '#555555' },
+              {
+                text: 'Monto',
+                bold: true,
+                fontSize: 8,
+                alignment: 'right',
+                color: '#555555',
+              },
+              {
+                text: 'Recibos',
+                bold: true,
+                fontSize: 8,
+                alignment: 'center',
+                color: '#555555',
+              },
             ],
             ...historicalRows,
           ],
@@ -165,12 +315,48 @@ export const collectorEfficiencyTemplate = (
                 body: [
                   [
                     { text: 'AÑO', bold: true, fontSize: 8, color: '#555555' },
-                    { text: 'ASIGNADO', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
-                    { text: 'COBRADO', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
-                    { text: 'PENDIENTE', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
-                    { text: 'REC.', bold: true, fontSize: 8, alignment: 'center', color: '#555555' },
-                    { text: 'COB.', bold: true, fontSize: 8, alignment: 'center', color: '#555555' },
-                    { text: 'EFICIENCIA', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
+                    {
+                      text: 'ASIGNADO',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'right',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'COBRADO',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'right',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'PENDIENTE',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'right',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'REC.',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'center',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'COB.',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'center',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'EFICIENCIA',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'right',
+                      color: '#555555',
+                    },
                   ],
                   ...yearRows,
                 ],
@@ -191,14 +377,61 @@ export const collectorEfficiencyTemplate = (
                 widths: ['auto', 'auto', '*', '*', '*', 'auto', 'auto', 'auto'],
                 body: [
                   [
-                    { text: 'PERIODO', bold: true, fontSize: 8, color: '#555555' },
-                    { text: 'ESTADO', bold: true, fontSize: 8, alignment: 'center', color: '#555555' },
-                    { text: 'ASIGNADO', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
-                    { text: 'COBRADO', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
-                    { text: 'PENDIENTE', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
-                    { text: 'REC.', bold: true, fontSize: 8, alignment: 'center', color: '#555555' },
-                    { text: 'COB.', bold: true, fontSize: 8, alignment: 'center', color: '#555555' },
-                    { text: 'EFICIENCIA', bold: true, fontSize: 8, alignment: 'right', color: '#555555' },
+                    {
+                      text: 'PERIODO',
+                      bold: true,
+                      fontSize: 8,
+                      color: '#555555',
+                    },
+                    {
+                      text: 'ESTADO',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'center',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'ASIGNADO',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'right',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'COBRADO',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'right',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'PENDIENTE',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'right',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'REC.',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'center',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'COB.',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'center',
+                      color: '#555555',
+                    },
+                    {
+                      text: 'EFICIENCIA',
+                      bold: true,
+                      fontSize: 8,
+                      alignment: 'right',
+                      color: '#555555',
+                    },
                   ],
                   ...periodRows,
                 ],

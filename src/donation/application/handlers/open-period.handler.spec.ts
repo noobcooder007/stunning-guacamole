@@ -16,13 +16,16 @@ function makePeriod(month: number, year: number) {
   };
 }
 
-function makeHandler(overrides: {
-  findOpen?: jest.Mock;
-  findLastClosed?: jest.Mock;
-} = {}) {
+function makeHandler(
+  overrides: {
+    findOpen?: jest.Mock;
+    findLastClosed?: jest.Mock;
+  } = {},
+) {
   const repo = {
     findOpen: overrides.findOpen ?? jest.fn().mockResolvedValue(null),
-    findLastClosed: overrides.findLastClosed ?? jest.fn().mockResolvedValue(null),
+    findLastClosed:
+      overrides.findLastClosed ?? jest.fn().mockResolvedValue(null),
     save: jest.fn().mockResolvedValue(undefined),
   };
   return { handler: new OpenPeriodHandler(repo as any), repo };

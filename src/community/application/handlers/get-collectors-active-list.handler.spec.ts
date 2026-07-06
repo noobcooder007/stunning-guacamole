@@ -8,7 +8,10 @@ describe('GetCollectorsActiveListHandler', () => {
 
   beforeEach(() => {
     collectorQueryService = { getActiveList: jest.fn() };
-    handler = new GetCollectorsActiveListHandler(datasource, collectorQueryService as any);
+    handler = new GetCollectorsActiveListHandler(
+      datasource,
+      collectorQueryService as any,
+    );
   });
 
   it('debería delegar en collectorQueryService y devolver ok con el resultado', async () => {

@@ -7,11 +7,13 @@ import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
 const PERIOD_ID = '01907c2a-0000-7000-8000-000000000010';
 
-function makeSettlement(overrides: Partial<{
-  netCommission: number;
-  totalPaid: number;
-  paymentStatus: CollectorSettlementPaymentStatus;
-}> = {}): CollectorSettlement {
+function makeSettlement(
+  overrides: Partial<{
+    netCommission: number;
+    totalPaid: number;
+    paymentStatus: CollectorSettlementPaymentStatus;
+  }> = {},
+): CollectorSettlement {
   const netCommission = overrides.netCommission ?? 100;
   return CollectorSettlement.create({
     collectionPeriodId: PERIOD_ID,
@@ -24,7 +26,8 @@ function makeSettlement(overrides: Partial<{
     nomina: 50,
     transportAllowance: 50,
     netCommission,
-    paymentStatus: overrides.paymentStatus ?? CollectorSettlementPaymentStatus.PENDING,
+    paymentStatus:
+      overrides.paymentStatus ?? CollectorSettlementPaymentStatus.PENDING,
     totalPaid: overrides.totalPaid ?? 0,
     createdAt: new Date(),
   });
@@ -38,7 +41,9 @@ describe('CollectorSettlement', () => {
       settlement.registerPayment(60);
 
       expect(settlement.totalPaid).toBe(60);
-      expect(settlement.paymentStatus).toBe(CollectorSettlementPaymentStatus.PARTIALLY_PAID);
+      expect(settlement.paymentStatus).toBe(
+        CollectorSettlementPaymentStatus.PARTIALLY_PAID,
+      );
     });
 
     it('debería cambiar status a PAID cuando el monto cubre el total', () => {
@@ -47,7 +52,9 @@ describe('CollectorSettlement', () => {
       settlement.registerPayment(100);
 
       expect(settlement.totalPaid).toBe(100);
-      expect(settlement.paymentStatus).toBe(CollectorSettlementPaymentStatus.PAID);
+      expect(settlement.paymentStatus).toBe(
+        CollectorSettlementPaymentStatus.PAID,
+      );
     });
 
     it('debería acumular pagos sucesivos y marcar PAID al completar', () => {
@@ -56,7 +63,9 @@ describe('CollectorSettlement', () => {
       settlement.registerPayment(60);
 
       expect(settlement.totalPaid).toBe(100);
-      expect(settlement.paymentStatus).toBe(CollectorSettlementPaymentStatus.PAID);
+      expect(settlement.paymentStatus).toBe(
+        CollectorSettlementPaymentStatus.PAID,
+      );
     });
 
     it('debería lanzar Error cuando el monto supera el saldo restante', () => {
@@ -80,8 +89,11 @@ describe('CollectorSettlement', () => {
     });
 
     it('debería redondear correctamente con centavos', () => {
-      const settlement = makeSettlement({ netCommission: 100.33, totalPaid: 0 });
-      settlement.registerPayment(50.10);
+      const settlement = makeSettlement({
+        netCommission: 100.33,
+        totalPaid: 0,
+      });
+      settlement.registerPayment(50.1);
 
       expect(settlement.remainingBalance).toBeCloseTo(50.23, 2);
     });

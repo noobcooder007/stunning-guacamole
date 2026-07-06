@@ -12,7 +12,10 @@ const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
 const PERIOD_ID = '01907c2a-0000-7000-8000-000000000010';
 const REGISTERED_BY = '01907c2a-0000-7000-8000-000000000030';
 
-function makeSettlement(netCommission: number, totalPaid = 0): CollectorSettlement {
+function makeSettlement(
+  netCommission: number,
+  totalPaid = 0,
+): CollectorSettlement {
   return CollectorSettlement.create({
     collectionPeriodId: PERIOD_ID,
     collectorId: CollectorId.of(COLLECTOR_ID),
@@ -42,7 +45,10 @@ function makeCommand(): RegisterBulkCollectorPaymentsCommand {
 
 describe('RegisterBulkCollectorPaymentsHandler', () => {
   let handler: RegisterBulkCollectorPaymentsHandler;
-  let settlementRepository: { findPendingByPeriodId: jest.Mock; save: jest.Mock };
+  let settlementRepository: {
+    findPendingByPeriodId: jest.Mock;
+    save: jest.Mock;
+  };
   let paymentRepository: { saveMany: jest.Mock };
   let uow: { runInTransaction: jest.Mock };
 
@@ -55,7 +61,9 @@ describe('RegisterBulkCollectorPaymentsHandler', () => {
       saveMany: jest.fn().mockResolvedValue(undefined),
     };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     handler = new RegisterBulkCollectorPaymentsHandler(
       settlementRepository as any,
@@ -86,10 +94,7 @@ describe('RegisterBulkCollectorPaymentsHandler', () => {
   });
 
   it('debería omitir liquidaciones con saldo cero o negativo', async () => {
-    const settlements = [
-      makeSettlement(100, 100),
-      makeSettlement(50, 0),
-    ];
+    const settlements = [makeSettlement(100, 100), makeSettlement(50, 0)];
     settlementRepository.findPendingByPeriodId.mockResolvedValue(settlements);
 
     const result = await handler.execute(makeCommand());
@@ -111,7 +116,9 @@ describe('RegisterBulkCollectorPaymentsHandler', () => {
   });
 
   it('debería ejecutar la persistencia dentro de una transacción', async () => {
-    settlementRepository.findPendingByPeriodId.mockResolvedValue([makeSettlement(100)]);
+    settlementRepository.findPendingByPeriodId.mockResolvedValue([
+      makeSettlement(100),
+    ]);
 
     await handler.execute(makeCommand());
 

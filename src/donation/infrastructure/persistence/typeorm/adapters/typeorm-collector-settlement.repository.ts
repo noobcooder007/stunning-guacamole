@@ -19,12 +19,16 @@ export class TypeORMCollectorSettlementRepository
   }
 
   async saveMany(settlements: CollectorSettlement[]): Promise<void> {
-    const rows = settlements.map((s) => CollectorSettlementMapper.toPersistence(s));
+    const rows = settlements.map((s) =>
+      CollectorSettlementMapper.toPersistence(s),
+    );
     await this.repository.save(rows);
   }
 
   async save(settlement: CollectorSettlement): Promise<void> {
-    await this.repository.save(CollectorSettlementMapper.toPersistence(settlement));
+    await this.repository.save(
+      CollectorSettlementMapper.toPersistence(settlement),
+    );
   }
 
   async findByPeriodId(periodId: string): Promise<CollectorSettlement[]> {
@@ -39,7 +43,9 @@ export class TypeORMCollectorSettlementRepository
     return row ? CollectorSettlementMapper.toDomain(row) : null;
   }
 
-  async findPendingByPeriodId(periodId: string): Promise<CollectorSettlement[]> {
+  async findPendingByPeriodId(
+    periodId: string,
+  ): Promise<CollectorSettlement[]> {
     const rows = await this.repository.find({
       where: {
         collectionPeriodId: periodId,

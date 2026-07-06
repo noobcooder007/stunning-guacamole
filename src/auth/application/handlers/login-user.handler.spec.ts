@@ -21,7 +21,10 @@ function makeUser(): User {
   });
 }
 
-function makeCommand(username = 'testuser', password = 'password'): LoginUserCommand {
+function makeCommand(
+  username = 'testuser',
+  password = 'password',
+): LoginUserCommand {
   return Object.assign(new LoginUserCommand(username, password), {
     metadata: { ip: '127.0.0.1', userAgent: 'TestAgent/1.0' },
   });
@@ -48,10 +51,14 @@ describe('LoginUserHandler', () => {
       save: jest.fn().mockResolvedValue(undefined),
     };
     sessionRepository = { save: jest.fn().mockResolvedValue(undefined) };
-    roleRepository = { findById: jest.fn().mockResolvedValue({ name: 'collector' }) };
+    roleRepository = {
+      findById: jest.fn().mockResolvedValue({ name: 'collector' }),
+    };
     permissionRepository = { findByRoleId: jest.fn().mockResolvedValue([]) };
     hasherService = { compare: jest.fn().mockResolvedValue(true) };
-    hasherTokenService = { hash: jest.fn().mockResolvedValue('hashed-refresh-token') };
+    hasherTokenService = {
+      hash: jest.fn().mockResolvedValue('hashed-refresh-token'),
+    };
     jwtService = {
       createAccessToken: jest.fn().mockReturnValue('access-token'),
       createRefreshToken: jest.fn().mockReturnValue('refresh-token'),
@@ -83,7 +90,9 @@ describe('LoginUserHandler', () => {
     userRepository.findOneByUsername.mockResolvedValue(makeUser());
     hasherService.compare.mockResolvedValue(false);
 
-    const result = await handler.execute(makeCommand('testuser', 'wrong-password'));
+    const result = await handler.execute(
+      makeCommand('testuser', 'wrong-password'),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.UNAUTHORIZED);

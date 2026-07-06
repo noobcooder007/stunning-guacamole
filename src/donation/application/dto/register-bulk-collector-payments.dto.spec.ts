@@ -44,8 +44,14 @@ describe('RegisterBulkCollectorPaymentsDto', () => {
   });
 
   it('debería aceptar ambos métodos de pago válidos', async () => {
-    for (const paymentMethod of [CollectorPaymentMethod.CASH, CollectorPaymentMethod.TRANSFER]) {
-      const dto = plainToInstance(RegisterBulkCollectorPaymentsDto, { ...validPayload, paymentMethod });
+    for (const paymentMethod of [
+      CollectorPaymentMethod.CASH,
+      CollectorPaymentMethod.TRANSFER,
+    ]) {
+      const dto = plainToInstance(RegisterBulkCollectorPaymentsDto, {
+        ...validPayload,
+        paymentMethod,
+      });
       const errors = await validate(dto);
       expect(errors.length).toBe(0);
     }

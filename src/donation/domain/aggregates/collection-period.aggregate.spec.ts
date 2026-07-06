@@ -36,9 +36,9 @@ describe('CollectionPeriod', () => {
     });
 
     it('debería lanzar si year es null', () => {
-      expect(() =>
-        CollectionPeriod.open(6, null, UserId.of(USER_ID)),
-      ).toThrow(InvalidAttributeException);
+      expect(() => CollectionPeriod.open(6, null, UserId.of(USER_ID))).toThrow(
+        InvalidAttributeException,
+      );
     });
   });
 

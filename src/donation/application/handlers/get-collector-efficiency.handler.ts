@@ -5,9 +5,10 @@ import { CollectorEfficiencyResponseDto } from '@/donation/application/dto/colle
 import { Result } from '@/shared/domain/dto/result.dto';
 
 @QueryHandler(GetCollectorEfficiencyQuery)
-export class GetCollectorEfficiencyHandler
-  implements IQueryHandler<GetCollectorEfficiencyQuery, Result<CollectorEfficiencyResponseDto>>
-{
+export class GetCollectorEfficiencyHandler implements IQueryHandler<
+  GetCollectorEfficiencyQuery,
+  Result<CollectorEfficiencyResponseDto>
+> {
   constructor(
     private readonly efficiencyService: CollectorEfficiencyQueryService,
   ) {}

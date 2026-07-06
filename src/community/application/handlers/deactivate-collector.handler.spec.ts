@@ -6,7 +6,10 @@ import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
@@ -30,7 +33,13 @@ function makeCollector(): Collector {
     addressHash: 'h',
     phoneNumber: PhoneNumber.of('5512345678'),
     phoneNumberHash: 'h',
-    paymentData: PaymentData.of({ commissionPercent: 10, bank: 'BBVA', reference: 'R', nomina: 0, transportAllowance: 0 }),
+    paymentData: PaymentData.of({
+      commissionPercent: 10,
+      bank: 'BBVA',
+      reference: 'R',
+      nomina: 0,
+      transportAllowance: 0,
+    }),
     profilePath: '/p.jpg',
     assignations: new Set(),
     isActive: true,
@@ -39,7 +48,11 @@ function makeCollector(): Collector {
 
 describe('DeactivateCollectorHandler', () => {
   let handler: DeactivateCollectorHanlder;
-  let collectorRepository: { findById: jest.Mock; exists: jest.Mock; save: jest.Mock };
+  let collectorRepository: {
+    findById: jest.Mock;
+    exists: jest.Mock;
+    save: jest.Mock;
+  };
   let publisher: { mergeObjectContext: jest.Mock };
   let uow: { runInTransaction: jest.Mock };
 
@@ -58,7 +71,9 @@ describe('DeactivateCollectorHandler', () => {
       }),
     };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     handler = new DeactivateCollectorHanlder(
       collectorRepository as any,

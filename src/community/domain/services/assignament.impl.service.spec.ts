@@ -12,7 +12,10 @@ import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { ErrorType } from '@/shared/domain/dto/result.dto';
 
@@ -50,7 +53,9 @@ function makeCollector(existingAssignationIds: string[] = []): Collector {
       transportAllowance: 50,
     }),
     profilePath: '/profiles/pic.jpg',
-    assignations: new Set(existingAssignationIds.map((id) => AssignationId.of(id))),
+    assignations: new Set(
+      existingAssignationIds.map((id) => AssignationId.of(id)),
+    ),
     isActive: true,
   });
 }
@@ -118,7 +123,10 @@ describe('AssignamentService', () => {
       collectorRepository.isActive.mockResolvedValue(true);
       beneficientRepository.inIds.mockResolvedValue([{}]);
 
-      const result = await service.createOrReactivate(COLLECTOR_ID, [BID1, BID2]);
+      const result = await service.createOrReactivate(COLLECTOR_ID, [
+        BID1,
+        BID2,
+      ]);
 
       expect(result.isSuccess).toBe(false);
       expect(result.error.type).toBe(ErrorType.NOT_FOUND);
@@ -127,14 +135,21 @@ describe('AssignamentService', () => {
     it('debería retornar ok con cero asignados cuando todos están activos en otro colector', async () => {
       collectorRepository.isActive.mockResolvedValue(true);
       beneficientRepository.inIds.mockResolvedValue([{}, {}]);
-      collectorRepository.findByIdWithAssignations.mockResolvedValue(makeCollector());
-      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue([]);
+      collectorRepository.findByIdWithAssignations.mockResolvedValue(
+        makeCollector(),
+      );
+      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue(
+        [],
+      );
       assignationRepository.findAssignationsWithElsewhere.mockResolvedValue([
         makeAssignation(AID1, BID1, OTHER_COLLECTOR_ID),
         makeAssignation(AID2, BID2, OTHER_COLLECTOR_ID),
       ]);
 
-      const result = await service.createOrReactivate(COLLECTOR_ID, [BID1, BID2]);
+      const result = await service.createOrReactivate(COLLECTOR_ID, [
+        BID1,
+        BID2,
+      ]);
 
       expect(result.isSuccess).toBe(true);
       expect(result.value.report.addedCount).toBe(0);
@@ -145,11 +160,18 @@ describe('AssignamentService', () => {
     it('debería crear nuevas asignaciones en el caso exitoso', async () => {
       collectorRepository.isActive.mockResolvedValue(true);
       beneficientRepository.inIds.mockResolvedValue([{}, {}]);
-      collectorRepository.findByIdWithAssignations.mockResolvedValue(makeCollector());
-      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue([]);
+      collectorRepository.findByIdWithAssignations.mockResolvedValue(
+        makeCollector(),
+      );
+      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue(
+        [],
+      );
       assignationRepository.findAssignationsWithElsewhere.mockResolvedValue([]);
 
-      const result = await service.createOrReactivate(COLLECTOR_ID, [BID1, BID2]);
+      const result = await service.createOrReactivate(COLLECTOR_ID, [
+        BID1,
+        BID2,
+      ]);
 
       expect(result.isSuccess).toBe(true);
       expect(result.value.report.addedCount).toBe(2);
@@ -162,13 +184,20 @@ describe('AssignamentService', () => {
     });
 
     it('debería reactivar asignaciones inactivas previas del mismo colector', async () => {
-      const inactiveAssignation = makeAssignation(AID1, BID1, COLLECTOR_ID, false);
+      const inactiveAssignation = makeAssignation(
+        AID1,
+        BID1,
+        COLLECTOR_ID,
+        false,
+      );
       collectorRepository.isActive.mockResolvedValue(true);
       beneficientRepository.inIds.mockResolvedValue([{}]);
-      collectorRepository.findByIdWithAssignations.mockResolvedValue(makeCollector());
-      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue([
-        inactiveAssignation,
-      ]);
+      collectorRepository.findByIdWithAssignations.mockResolvedValue(
+        makeCollector(),
+      );
+      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue(
+        [inactiveAssignation],
+      );
       assignationRepository.findAssignationsWithElsewhere.mockResolvedValue([]);
 
       const result = await service.createOrReactivate(COLLECTOR_ID, [BID1]);
@@ -186,9 +215,9 @@ describe('AssignamentService', () => {
       collectorRepository.findByIdWithAssignations.mockResolvedValue(
         makeCollector([AID1]),
       );
-      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue([
-        activeAssignation,
-      ]);
+      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue(
+        [activeAssignation],
+      );
       assignationRepository.findAssignationsWithElsewhere.mockResolvedValue([]);
 
       const result = await service.createOrReactivate(COLLECTOR_ID, [BID1]);
@@ -196,17 +225,25 @@ describe('AssignamentService', () => {
       expect(result.isSuccess).toBe(true);
       expect(result.value.report.addedCount).toBe(0);
       expect(
-        result.value.report.ignoredIds.some((i) => i.reason === 'Already assigned to this collector'),
+        result.value.report.ignoredIds.some(
+          (i) => i.reason === 'Already assigned to this collector',
+        ),
       ).toBe(true);
     });
 
     it('debería omitir la validación del colector cuando validateCollector=false', async () => {
       beneficientRepository.inIds.mockResolvedValue([{}]);
-      collectorRepository.findByIdWithAssignations.mockResolvedValue(makeCollector());
-      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue([]);
+      collectorRepository.findByIdWithAssignations.mockResolvedValue(
+        makeCollector(),
+      );
+      assignationRepository.findByCollectorIdWithAssignations.mockResolvedValue(
+        [],
+      );
       assignationRepository.findAssignationsWithElsewhere.mockResolvedValue([]);
 
-      await service.createOrReactivate(COLLECTOR_ID, [BID1], { validateCollector: false });
+      await service.createOrReactivate(COLLECTOR_ID, [BID1], {
+        validateCollector: false,
+      });
 
       expect(collectorRepository.isActive).not.toHaveBeenCalled();
     });
@@ -216,7 +253,9 @@ describe('AssignamentService', () => {
     it('debería fallar con NOT_FOUND cuando no hay asignaciones activas', async () => {
       assignationRepository.findActivesByIds.mockResolvedValue([]);
 
-      const result = await service.deactivate([{ assignationId: AID1, reason: 'Motivo' }]);
+      const result = await service.deactivate([
+        { assignationId: AID1, reason: 'Motivo' },
+      ]);
 
       expect(result.isSuccess).toBe(false);
       expect(result.error.type).toBe(ErrorType.NOT_FOUND);

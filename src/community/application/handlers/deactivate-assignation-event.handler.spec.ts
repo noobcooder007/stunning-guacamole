@@ -18,10 +18,16 @@ function makeAssignation(id: string): Assignation {
 
 describe('DeactivateAssignationEventHandler', () => {
   let handler: DeactivateAssignationEventHandler;
-  let assignationRepository: { findActivesByCollectorId: jest.Mock; save: jest.Mock };
+  let assignationRepository: {
+    findActivesByCollectorId: jest.Mock;
+    save: jest.Mock;
+  };
   let uow: { runInTransaction: jest.Mock };
 
-  const event = new CollectorDeactivatedEvent(COLLECTOR_ID, 'Colector desactivado');
+  const event = new CollectorDeactivatedEvent(
+    COLLECTOR_ID,
+    'Colector desactivado',
+  );
 
   beforeEach(() => {
     assignationRepository = {
@@ -29,7 +35,9 @@ describe('DeactivateAssignationEventHandler', () => {
       save: jest.fn().mockResolvedValue(undefined),
     };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     handler = new DeactivateAssignationEventHandler(
       assignationRepository as any,
@@ -57,7 +65,9 @@ describe('DeactivateAssignationEventHandler', () => {
   });
 
   it('debería persistir dentro de una transacción', async () => {
-    assignationRepository.findActivesByCollectorId.mockResolvedValue([makeAssignation(AID1)]);
+    assignationRepository.findActivesByCollectorId.mockResolvedValue([
+      makeAssignation(AID1),
+    ]);
 
     await handler.handle(event);
 
@@ -69,6 +79,8 @@ describe('DeactivateAssignationEventHandler', () => {
 
     await handler.handle(event);
 
-    expect(assignationRepository.findActivesByCollectorId).toHaveBeenCalledWith(COLLECTOR_ID);
+    expect(assignationRepository.findActivesByCollectorId).toHaveBeenCalledWith(
+      COLLECTOR_ID,
+    );
   });
 });

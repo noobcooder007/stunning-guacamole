@@ -63,11 +63,13 @@ export class CollectorSettlement {
         `Payment amount ${amount} exceeds remaining balance ${remaining}`,
       );
     }
-    this.props.totalPaid = Math.round((this.props.totalPaid + amount) * 100) / 100;
+    this.props.totalPaid =
+      Math.round((this.props.totalPaid + amount) * 100) / 100;
     if (this.props.totalPaid >= this.props.netCommission) {
       this.props.paymentStatus = CollectorSettlementPaymentStatus.PAID;
     } else {
-      this.props.paymentStatus = CollectorSettlementPaymentStatus.PARTIALLY_PAID;
+      this.props.paymentStatus =
+        CollectorSettlementPaymentStatus.PARTIALLY_PAID;
     }
   }
 
@@ -124,7 +126,9 @@ export class CollectorSettlement {
   }
 
   public get remainingBalance(): number {
-    return Math.round((this.props.netCommission - this.props.totalPaid) * 100) / 100;
+    return (
+      Math.round((this.props.netCommission - this.props.totalPaid) * 100) / 100
+    );
   }
 
   public get createdAt(): Date {

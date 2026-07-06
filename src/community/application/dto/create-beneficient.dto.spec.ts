@@ -34,49 +34,75 @@ describe('CreateBeneficientDto', () => {
   });
 
   it('debería rechazar firstname vacío', async () => {
-    const dto = plainToInstance(CreateBeneficientDto, { ...validPayload, firstname: '' });
+    const dto = plainToInstance(CreateBeneficientDto, {
+      ...validPayload,
+      firstname: '',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'firstname')).toBeDefined();
   });
 
   it('debería rechazar genre inválido', async () => {
-    const dto = plainToInstance(CreateBeneficientDto, { ...validPayload, genre: 'X' });
+    const dto = plainToInstance(CreateBeneficientDto, {
+      ...validPayload,
+      genre: 'X',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'genre')).toBeDefined();
   });
 
   it('debería aceptar F como género femenino', async () => {
-    const dto = plainToInstance(CreateBeneficientDto, { ...validPayload, genre: 'F' });
+    const dto = plainToInstance(CreateBeneficientDto, {
+      ...validPayload,
+      genre: 'F',
+    });
     expect((await validate(dto)).length).toBe(0);
   });
 
   it('debería rechazar maritalStatus inválido', async () => {
-    const dto = plainToInstance(CreateBeneficientDto, { ...validPayload, maritalStatus: 'Separado' });
+    const dto = plainToInstance(CreateBeneficientDto, {
+      ...validPayload,
+      maritalStatus: 'Separado',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'maritalStatus')).toBeDefined();
   });
 
   it('debería aceptar los cuatro estados civiles válidos', async () => {
     for (const status of ['Soltero', 'Casado', 'Divorciado', 'Viudo']) {
-      const dto = plainToInstance(CreateBeneficientDto, { ...validPayload, maritalStatus: status });
-      expect((await validate(dto)).find((e) => e.property === 'maritalStatus')).toBeUndefined();
+      const dto = plainToInstance(CreateBeneficientDto, {
+        ...validPayload,
+        maritalStatus: status,
+      });
+      expect(
+        (await validate(dto)).find((e) => e.property === 'maritalStatus'),
+      ).toBeUndefined();
     }
   });
 
   it('debería rechazar churchId que no sea UUID', async () => {
-    const dto = plainToInstance(CreateBeneficientDto, { ...validPayload, churchId: 'no-uuid' });
+    const dto = plainToInstance(CreateBeneficientDto, {
+      ...validPayload,
+      churchId: 'no-uuid',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'churchId')).toBeDefined();
   });
 
   it('debería rechazar email inválido cuando se provee', async () => {
-    const dto = plainToInstance(CreateBeneficientDto, { ...validPayload, email: 'no-es-email' });
+    const dto = plainToInstance(CreateBeneficientDto, {
+      ...validPayload,
+      email: 'no-es-email',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'email')).toBeDefined();
   });
 
   it('debería rechazar person inválido (no FISICA/MORAL)', async () => {
-    const dto = plainToInstance(CreateBeneficientDto, { ...validPayload, person: 'OTRO' });
+    const dto = plainToInstance(CreateBeneficientDto, {
+      ...validPayload,
+      person: 'OTRO',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'person')).toBeDefined();
   });

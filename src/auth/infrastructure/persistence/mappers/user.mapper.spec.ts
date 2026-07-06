@@ -52,7 +52,9 @@ describe('UserMapper', () => {
 
     it('debería funcionar sin gender opcional', () => {
       const { gender, ...rawNoGender } = validRaw;
-      const user = UserMapper.fromModelToDomain(rawNoGender as IUserPersistence);
+      const user = UserMapper.fromModelToDomain(
+        rawNoGender as IUserPersistence,
+      );
       expect(user.gender).toBeUndefined();
     });
   });

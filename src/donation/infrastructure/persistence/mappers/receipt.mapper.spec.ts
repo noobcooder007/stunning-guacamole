@@ -8,10 +8,7 @@ import {
   ReceiptFolio,
   ReceiptId,
 } from '@/donation/domain/aggregates/receipt.aggregate';
-import {
-  IReceiptPersistence,
-  ReceiptMapper,
-} from './receipt.mapper';
+import { IReceiptPersistence, ReceiptMapper } from './receipt.mapper';
 
 const ID = '01907c2a-0000-7000-8000-000000000001';
 const BENEFICIENT_ID = '01907c2a-0000-7000-8000-000000000002';
@@ -21,12 +18,14 @@ const PERIOD_ID = '01907c2a-0000-7000-8000-000000000005';
 const CREATED_BY = '01907c2a-0000-7000-8000-000000000006';
 const NOW = new Date('2025-03-15T10:00:00.000Z');
 
-function makeDomainReceipt(overrides: Partial<{
-  promiseDonation: PromiseDonationId;
-  beneficient: BeneficientId;
-  month: number;
-  year: number;
-}> = {}): Receipt {
+function makeDomainReceipt(
+  overrides: Partial<{
+    promiseDonation: PromiseDonationId;
+    beneficient: BeneficientId;
+    month: number;
+    year: number;
+  }> = {},
+): Receipt {
   return Receipt.recreate(ReceiptId.of(ID), {
     folio: ReceiptFolio.of('MAR2025-001-R-0001'),
     status: 'PENDING',

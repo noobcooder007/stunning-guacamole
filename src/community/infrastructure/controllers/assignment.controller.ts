@@ -1,4 +1,12 @@
-import { Body, Controller, Get, ParseUUIDPipe, Post, Query, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { minutes } from '@nestjs/throttler';
@@ -53,7 +61,9 @@ export class AssignmentController {
   @Auth(PermissionNames.VIEW_COLLECTOR)
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(minutes(2))
-  getActiveList(@Query('collectorId', new ParseUUIDPipe()) collectorId: string) {
+  getActiveList(
+    @Query('collectorId', new ParseUUIDPipe()) collectorId: string,
+  ) {
     return this.queryBus.execute(new GetAssignationsListQuery(collectorId));
   }
 

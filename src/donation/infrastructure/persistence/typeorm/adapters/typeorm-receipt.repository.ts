@@ -68,7 +68,9 @@ export class TypeORMReceiptRepository
     return ReceiptMapper.toDomain(receipt);
   }
 
-  async findAllForPrint(filters: PrintReceiptFilters): Promise<ReceiptSchema[]> {
+  async findAllForPrint(
+    filters: PrintReceiptFilters,
+  ): Promise<ReceiptSchema[]> {
     const qb = this.repository
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.promiseDonation', 'pd')

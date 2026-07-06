@@ -17,7 +17,9 @@ describe('TaxInformation', () => {
   describe('getters', () => {
     let vo: TaxInformation;
 
-    beforeEach(() => { vo = TaxInformation.of(validProps); });
+    beforeEach(() => {
+      vo = TaxInformation.of(validProps);
+    });
 
     it('rfc debería retornar el valor correcto', () => {
       expect(vo.rfc).toBe('XAXX010101000');
@@ -38,7 +40,9 @@ describe('TaxInformation', () => {
 
   describe('equals()', () => {
     it('debería ser igual para las mismas props', () => {
-      expect(TaxInformation.of(validProps).equals(TaxInformation.of(validProps))).toBe(true);
+      expect(
+        TaxInformation.of(validProps).equals(TaxInformation.of(validProps)),
+      ).toBe(true);
     });
 
     it('debería ser distinto cuando cambia el RFC', () => {

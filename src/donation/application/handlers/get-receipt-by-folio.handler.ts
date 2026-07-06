@@ -1,7 +1,11 @@
 import { QueryHandler } from '@nestjs/cqrs';
 import { DataSource } from 'typeorm';
 import { BaseQueryHandler } from '@/shared/application/handler/base-query.handler';
-import { ErrorType, IErrorResult, Result } from '@/shared/domain/dto/result.dto';
+import {
+  ErrorType,
+  IErrorResult,
+  Result,
+} from '@/shared/domain/dto/result.dto';
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
 import { ReceiptMapper } from '@/donation/infrastructure/persistence/mappers/receipt.mapper';
 import { ReceiptResponse } from '@/donation/application/dto/receipt.response.dto';

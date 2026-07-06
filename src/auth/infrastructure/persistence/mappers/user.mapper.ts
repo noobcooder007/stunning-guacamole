@@ -35,7 +35,8 @@ export class UserMapper {
       roleId: RoleId.of(raw.roleId),
       createdAt: raw.createdAt,
       isActive: raw.isActive,
-      gender: raw.gender as import('@/auth/domain/aggregates/user.aggregate').UserGender,
+      gender:
+        raw.gender as import('@/auth/domain/aggregates/user.aggregate').UserGender,
     });
   }
 }

@@ -55,7 +55,13 @@ import { UsersController } from '@/auth/infrastructure/controllers/users.control
     }),
     SharedModule,
   ],
-  controllers: [AuthController, SeedController, PermissionsController, RolesController, UsersController],
+  controllers: [
+    AuthController,
+    SeedController,
+    PermissionsController,
+    RolesController,
+    UsersController,
+  ],
   providers: [
     JwtStrategy,
     JWTService,

@@ -16,7 +16,9 @@ export class CollectorEfficiencyQueryService extends BaseQueryService {
     super(dataSource);
   }
 
-  async getEfficiency(collectorId: string): Promise<CollectorEfficiencyResponseDto> {
+  async getEfficiency(
+    collectorId: string,
+  ): Promise<CollectorEfficiencyResponseDto> {
     const [byPeriodRaw, byYearRaw, historicalRaw] = await Promise.all([
       this.queryByPeriod(collectorId),
       this.queryByYear(collectorId),
@@ -63,11 +65,7 @@ export class CollectorEfficiencyQueryService extends BaseQueryService {
         'pendingCount',
       )
       .from(ReceiptSchema, 'r')
-      .innerJoin(
-        CollectionPeriodSchema,
-        'cp',
-        'cp.id = r."collectionPeriodId"',
-      )
+      .innerJoin(CollectionPeriodSchema, 'cp', 'cp.id = r."collectionPeriodId"')
       .where('r."collectorId" = :collectorId', { collectorId })
       .groupBy('cp.id')
       .addGroupBy('cp.month')

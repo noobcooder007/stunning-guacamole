@@ -22,7 +22,9 @@ describe('DesactivateAssignationHandler', () => {
   beforeEach(() => {
     assignationService = { deactivate: jest.fn() };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     handler = new DesactivateAssignationHandler(
       assignationService as any,

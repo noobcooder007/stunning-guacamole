@@ -30,7 +30,10 @@ function makePromise(): PromiseDonation {
 
 describe('DeactivateDonationPromises', () => {
   let handler: DeactivateDonationPromises;
-  let promiseDonationsRepository: { findByBeneficientId: jest.Mock; save: jest.Mock };
+  let promiseDonationsRepository: {
+    findByBeneficientId: jest.Mock;
+    save: jest.Mock;
+  };
 
   const event = new BeneficientDeactivatedEvent(BID, 'Baja voluntaria');
 
@@ -54,10 +57,14 @@ describe('DeactivateDonationPromises', () => {
   });
 
   it('debería buscar la promesa con el beneficientId del evento', async () => {
-    promiseDonationsRepository.findByBeneficientId.mockResolvedValue(makePromise());
+    promiseDonationsRepository.findByBeneficientId.mockResolvedValue(
+      makePromise(),
+    );
 
     await handler.handle(event);
 
-    expect(promiseDonationsRepository.findByBeneficientId).toHaveBeenCalledWith(BID);
+    expect(promiseDonationsRepository.findByBeneficientId).toHaveBeenCalledWith(
+      BID,
+    );
   });
 });

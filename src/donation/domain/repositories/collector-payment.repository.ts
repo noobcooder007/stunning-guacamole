@@ -5,5 +5,7 @@ import { CollectorPayment } from '@/donation/domain/entities/collector-payment.e
 export abstract class ICollectorPaymentRepository {
   abstract save(payment: CollectorPayment): Promise<void>;
   abstract saveMany(payments: CollectorPayment[]): Promise<void>;
-  abstract findBySettlementId(settlementId: string): Promise<CollectorPayment[]>;
+  abstract findBySettlementId(
+    settlementId: string,
+  ): Promise<CollectorPayment[]>;
 }

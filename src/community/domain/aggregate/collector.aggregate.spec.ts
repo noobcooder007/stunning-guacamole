@@ -1,7 +1,10 @@
 import { Collector } from './collector.aggregate';
 import { AssignationId } from '@/community/domain/aggregate/assignation.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
@@ -28,7 +31,9 @@ function makeAddress() {
   });
 }
 
-function makeCollector(overrides: { isActive?: boolean; assignations?: Set<AssignationId> } = {}) {
+function makeCollector(
+  overrides: { isActive?: boolean; assignations?: Set<AssignationId> } = {},
+) {
   return Collector.recreate(COLLECTOR_ID, {
     userId: UserId.of(USER_ID),
     firstname: 'Juan',
@@ -62,7 +67,12 @@ describe('Collector', () => {
   describe('update()', () => {
     it('debería actualizar datos personales con UpdateCollectorPersonalCommand', () => {
       const collector = makeCollector();
-      const cmd = new UpdateCollectorPersonalCommand(COLLECTOR_ID, 'Pedro', 'Martínez', 'López');
+      const cmd = new UpdateCollectorPersonalCommand(
+        COLLECTOR_ID,
+        'Pedro',
+        'Martínez',
+        'López',
+      );
 
       collector.update(cmd);
 
@@ -73,7 +83,12 @@ describe('Collector', () => {
 
     it('debería respetar campos undefined en UpdateCollectorPersonalCommand', () => {
       const collector = makeCollector();
-      const cmd = new UpdateCollectorPersonalCommand(COLLECTOR_ID, undefined, undefined, undefined);
+      const cmd = new UpdateCollectorPersonalCommand(
+        COLLECTOR_ID,
+        undefined,
+        undefined,
+        undefined,
+      );
 
       collector.update(cmd);
 
@@ -104,7 +119,11 @@ describe('Collector', () => {
 
     it('debería actualizar teléfono con UpdateCollectorContactCommand', () => {
       const collector = makeCollector();
-      const cmd = new UpdateCollectorContactCommand(COLLECTOR_ID, '5598765432', undefined);
+      const cmd = new UpdateCollectorContactCommand(
+        COLLECTOR_ID,
+        '5598765432',
+        undefined,
+      );
       cmd.phoneNumberHash = 'hash-nuevo';
 
       collector.update(cmd);
@@ -115,7 +134,11 @@ describe('Collector', () => {
 
     it('debería actualizar teléfono fijo con UpdateCollectorContactCommand', () => {
       const collector = makeCollector();
-      const cmd = new UpdateCollectorContactCommand(COLLECTOR_ID, undefined, '5551234567');
+      const cmd = new UpdateCollectorContactCommand(
+        COLLECTOR_ID,
+        undefined,
+        '5551234567',
+      );
       cmd.telephoneNumberHash = 'hash-tel';
 
       collector.update(cmd);
@@ -138,7 +161,13 @@ describe('Collector', () => {
         phoneNumberHash: 'hash-phone',
         telephoneNumber: PhoneNumber.of('5551234567'),
         telephoneNumberHash: 'hash-tel',
-        paymentData: PaymentData.of({ commissionPercent: 10, bank: 'BBVA', reference: 'REF001', nomina: 1000, transportAllowance: 200 }),
+        paymentData: PaymentData.of({
+          commissionPercent: 10,
+          bank: 'BBVA',
+          reference: 'REF001',
+          nomina: 1000,
+          transportAllowance: 200,
+        }),
         assignations: new Set(),
         notes: null,
         createdAt: new Date(),
@@ -146,7 +175,11 @@ describe('Collector', () => {
         profilePath: 'profile.png',
         collectorNumber: 1,
       });
-      const cmd = new UpdateCollectorContactCommand(COLLECTOR_ID, undefined, null);
+      const cmd = new UpdateCollectorContactCommand(
+        COLLECTOR_ID,
+        undefined,
+        null,
+      );
       cmd.telephoneNumberHash = null;
 
       collectorWithTel.update(cmd);
@@ -156,7 +189,14 @@ describe('Collector', () => {
 
     it('debería actualizar datos de pago con UpdateCollectorPaymentCommand', () => {
       const collector = makeCollector();
-      const cmd = new UpdateCollectorPaymentCommand(COLLECTOR_ID, 15, 1200, 300, 'Banamex', 'REF999');
+      const cmd = new UpdateCollectorPaymentCommand(
+        COLLECTOR_ID,
+        15,
+        1200,
+        300,
+        'Banamex',
+        'REF999',
+      );
 
       collector.update(cmd);
 
@@ -167,7 +207,10 @@ describe('Collector', () => {
 
     it('debería actualizar notas con UpdateCollectorNotesCommand', () => {
       const collector = makeCollector();
-      const cmd = new UpdateCollectorNotesCommand(COLLECTOR_ID, 'Nuevas notas importantes');
+      const cmd = new UpdateCollectorNotesCommand(
+        COLLECTOR_ID,
+        'Nuevas notas importantes',
+      );
 
       collector.update(cmd);
 
@@ -186,7 +229,9 @@ describe('Collector', () => {
 
     it('debería agregar una asignación nueva al set', () => {
       const collector = makeCollector();
-      const assignationId = AssignationId.of('01907c2a-0000-7000-8000-000000000010');
+      const assignationId = AssignationId.of(
+        '01907c2a-0000-7000-8000-000000000010',
+      );
 
       collector.addAssignation([assignationId]);
 
@@ -194,8 +239,12 @@ describe('Collector', () => {
     });
 
     it('debería clasificar como alreadyAssigned cuando ya existe', () => {
-      const assignationId = AssignationId.of('01907c2a-0000-7000-8000-000000000010');
-      const collector = makeCollector({ assignations: new Set([assignationId]) });
+      const assignationId = AssignationId.of(
+        '01907c2a-0000-7000-8000-000000000010',
+      );
+      const collector = makeCollector({
+        assignations: new Set([assignationId]),
+      });
 
       const result = collector.addAssignation([assignationId]);
 

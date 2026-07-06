@@ -24,8 +24,18 @@ const RECURRENCE_LABELS: Record<number, string> = {
 };
 
 const MONTH_LABELS = [
-  'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
-  'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
+  'ENE',
+  'FEB',
+  'MAR',
+  'ABR',
+  'MAY',
+  'JUN',
+  'JUL',
+  'AGO',
+  'SEP',
+  'OCT',
+  'NOV',
+  'DIC',
 ];
 
 @CommandHandler(PrintReceiptsByRangeCommand)
@@ -80,7 +90,9 @@ export class PrintReceiptsByRangeHandler extends BaseCommandHandler<
 
       let photoBase64 = collectorPhotosCache.get(receipt.collectorId);
       if (!photoBase64 && receipt.collector.profilePath) {
-        photoBase64 = await this.getBase64FromUrl(receipt.collector.profilePath);
+        photoBase64 = await this.getBase64FromUrl(
+          receipt.collector.profilePath,
+        );
         collectorPhotosCache.set(receipt.collectorId, photoBase64);
       }
 

@@ -7,15 +7,18 @@ import { SettlementResponseDto } from '@/donation/application/dto/settlement.res
 import { Result } from '@/shared/domain/dto/result.dto';
 
 @QueryHandler(GetPeriodSettlementsQuery)
-export class GetPeriodSettlementsHandler
-  implements IQueryHandler<GetPeriodSettlementsQuery, Result<SettlementResponseDto[]>>
-{
+export class GetPeriodSettlementsHandler implements IQueryHandler<
+  GetPeriodSettlementsQuery,
+  Result<SettlementResponseDto[]>
+> {
   constructor(
     @Inject(REPOSITORY_TOKENS.COLLECTOR_SETTLEMENT)
     private readonly settlementRepository: ICollectorSettlementRepository,
   ) {}
 
-  async execute(query: GetPeriodSettlementsQuery): Promise<Result<SettlementResponseDto[]>> {
+  async execute(
+    query: GetPeriodSettlementsQuery,
+  ): Promise<Result<SettlementResponseDto[]>> {
     const settlements = await this.settlementRepository.findByPeriodId(
       query.periodId,
     );

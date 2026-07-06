@@ -175,5 +175,4 @@ export class CollectionPeriodController {
   ) {
     return this.queryBus.execute(new GetSettlementPaymentsQuery(settlementId));
   }
-
 }

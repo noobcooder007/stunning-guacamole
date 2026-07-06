@@ -37,13 +37,15 @@ export class OpenPeriodHandler extends BaseCommandHandler<
     if (!lastClosed) {
       return Result.fail({
         type: ErrorType.NOT_FOUND,
-        message: 'No closed period found. Close the current period before opening a new one',
+        message:
+          'No closed period found. Close the current period before opening a new one',
         entity: OpenPeriodHandler.name,
       });
     }
 
     const nextMonth = lastClosed.month === 12 ? 1 : lastClosed.month + 1;
-    const nextYear = lastClosed.month === 12 ? lastClosed.year + 1 : lastClosed.year;
+    const nextYear =
+      lastClosed.month === 12 ? lastClosed.year + 1 : lastClosed.year;
 
     const period = CollectionPeriod.open(
       nextMonth,

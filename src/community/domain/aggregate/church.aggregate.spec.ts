@@ -1,6 +1,9 @@
 import { Church, ChurchId } from './church.aggregate';
 import { EcclesialIdentity } from '@/community/domain/value-objects/ecclesial-identity.vo';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { Priest } from '@/community/domain/value-objects/priest.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
@@ -24,8 +27,16 @@ const validProps = {
     zipCode: ZipCode.of('06600'),
   }),
   phoneNumber: PhoneNumber.of('5512345678'),
-  priest: Priest.of({ firstname: 'Pedro', firstLastname: 'García', secondLastname: null }),
-  auxiliarPriest: Priest.of({ firstname: 'Juan', firstLastname: 'López', secondLastname: null }),
+  priest: Priest.of({
+    firstname: 'Pedro',
+    firstLastname: 'García',
+    secondLastname: null,
+  }),
+  auxiliarPriest: Priest.of({
+    firstname: 'Juan',
+    firstLastname: 'López',
+    secondLastname: null,
+  }),
   isActive: true,
   createdAt: new Date('2026-01-01'),
 };
@@ -52,7 +63,9 @@ describe('Church', () => {
 
   describe('getters', () => {
     let church: Church;
-    beforeEach(() => { church = makeChurch(); });
+    beforeEach(() => {
+      church = makeChurch();
+    });
 
     it('debería retornar ecclesialIdentity', () => {
       expect(church.ecclesialIdentity.name).toBe('Parroquia San Pedro');
@@ -85,10 +98,14 @@ describe('Church', () => {
 
   describe('update()', () => {
     let church: Church;
-    beforeEach(() => { church = makeChurch(); });
+    beforeEach(() => {
+      church = makeChurch();
+    });
 
     it('debería actualizar la dirección con UpdateChurchAddressCommand', () => {
-      const { UpdateChurchAddressCommand } = require('@/community/application/command/update-church.command');
+      const {
+        UpdateChurchAddressCommand,
+      } = require('@/community/application/command/update-church.command');
       const cmd = new UpdateChurchAddressCommand(
         CHURCH_ID,
         'Av. Reforma',
@@ -107,8 +124,15 @@ describe('Church', () => {
     });
 
     it('debería actualizar el sacerdote con UpdateChurchPriestCommand', () => {
-      const { UpdateChurchPriestCommand } = require('@/community/application/command/update-church.command');
-      const cmd = new UpdateChurchPriestCommand(CHURCH_ID, 'Carlos', 'Ramírez', 'Torres');
+      const {
+        UpdateChurchPriestCommand,
+      } = require('@/community/application/command/update-church.command');
+      const cmd = new UpdateChurchPriestCommand(
+        CHURCH_ID,
+        'Carlos',
+        'Ramírez',
+        'Torres',
+      );
 
       church.update(cmd);
 
@@ -117,8 +141,15 @@ describe('Church', () => {
     });
 
     it('debería actualizar el sacerdote auxiliar con UpdateChurchAuxiliarPriestCommand', () => {
-      const { UpdateChurchAuxiliarPriestCommand } = require('@/community/application/command/update-church.command');
-      const cmd = new UpdateChurchAuxiliarPriestCommand(CHURCH_ID, 'Miguel', 'Soto', null);
+      const {
+        UpdateChurchAuxiliarPriestCommand,
+      } = require('@/community/application/command/update-church.command');
+      const cmd = new UpdateChurchAuxiliarPriestCommand(
+        CHURCH_ID,
+        'Miguel',
+        'Soto',
+        null,
+      );
 
       church.update(cmd);
 
@@ -126,7 +157,9 @@ describe('Church', () => {
     });
 
     it('debería actualizar la identidad eclesial con UpdateChurchEcclesialIdentityCommand', () => {
-      const { UpdateChurchEcclesialIdentityCommand } = require('@/community/application/command/update-church.command');
+      const {
+        UpdateChurchEcclesialIdentityCommand,
+      } = require('@/community/application/command/update-church.command');
       const cmd = new UpdateChurchEcclesialIdentityCommand(
         CHURCH_ID,
         'Parroquia Santa María',
@@ -143,7 +176,9 @@ describe('Church', () => {
     });
 
     it('debería actualizar el teléfono con UpdateChurchPhoneNumberCommand', () => {
-      const { UpdateChurchPhoneNumberCommand } = require('@/community/application/command/update-church.command');
+      const {
+        UpdateChurchPhoneNumberCommand,
+      } = require('@/community/application/command/update-church.command');
       const cmd = new UpdateChurchPhoneNumberCommand(CHURCH_ID, '5598765432');
 
       church.update(cmd);

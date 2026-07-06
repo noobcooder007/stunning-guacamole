@@ -22,20 +22,29 @@ describe('PrintReceiptsQueryDto', () => {
     });
 
     it('debería rechazar mes 0', async () => {
-      const dto = plainToInstance(PrintReceiptsQueryDto, { ...validBase(), month: '0' });
+      const dto = plainToInstance(PrintReceiptsQueryDto, {
+        ...validBase(),
+        month: '0',
+      });
       const errors = await validate(dto);
       expect(errors.some((e) => e.property === 'month')).toBe(true);
     });
 
     it('debería rechazar mes 13', async () => {
-      const dto = plainToInstance(PrintReceiptsQueryDto, { ...validBase(), month: '13' });
+      const dto = plainToInstance(PrintReceiptsQueryDto, {
+        ...validBase(),
+        month: '13',
+      });
       const errors = await validate(dto);
       expect(errors.some((e) => e.property === 'month')).toBe(true);
     });
 
     it('debería aceptar meses válidos (1-12)', async () => {
       for (const month of ['1', '6', '12']) {
-        const dto = plainToInstance(PrintReceiptsQueryDto, { ...validBase(), month });
+        const dto = plainToInstance(PrintReceiptsQueryDto, {
+          ...validBase(),
+          month,
+        });
         const errors = await validate(dto);
         expect(errors.length).toBe(0);
       }
@@ -50,13 +59,19 @@ describe('PrintReceiptsQueryDto', () => {
     });
 
     it('debería rechazar año menor a 2000', async () => {
-      const dto = plainToInstance(PrintReceiptsQueryDto, { ...validBase(), year: '1999' });
+      const dto = plainToInstance(PrintReceiptsQueryDto, {
+        ...validBase(),
+        year: '1999',
+      });
       const errors = await validate(dto);
       expect(errors.some((e) => e.property === 'year')).toBe(true);
     });
 
     it('debería aceptar año válido (>= 2000)', async () => {
-      const dto = plainToInstance(PrintReceiptsQueryDto, { ...validBase(), year: '2024' });
+      const dto = plainToInstance(PrintReceiptsQueryDto, {
+        ...validBase(),
+        year: '2024',
+      });
       const errors = await validate(dto);
       expect(errors.length).toBe(0);
     });
@@ -126,19 +141,28 @@ describe('PrintReceiptsQueryDto', () => {
 
   describe('type (opcional)', () => {
     it('debería aceptar RECURRING', async () => {
-      const dto = plainToInstance(PrintReceiptsQueryDto, { ...validBase(), type: 'RECURRING' });
+      const dto = plainToInstance(PrintReceiptsQueryDto, {
+        ...validBase(),
+        type: 'RECURRING',
+      });
       const errors = await validate(dto);
       expect(errors.length).toBe(0);
     });
 
     it('debería aceptar SPECIAL', async () => {
-      const dto = plainToInstance(PrintReceiptsQueryDto, { ...validBase(), type: 'SPECIAL' });
+      const dto = plainToInstance(PrintReceiptsQueryDto, {
+        ...validBase(),
+        type: 'SPECIAL',
+      });
       const errors = await validate(dto);
       expect(errors.length).toBe(0);
     });
 
     it('debería rechazar un tipo inválido', async () => {
-      const dto = plainToInstance(PrintReceiptsQueryDto, { ...validBase(), type: 'UNKNOWN' });
+      const dto = plainToInstance(PrintReceiptsQueryDto, {
+        ...validBase(),
+        type: 'UNKNOWN',
+      });
       const errors = await validate(dto);
       expect(errors.some((e) => e.property === 'type')).toBe(true);
     });

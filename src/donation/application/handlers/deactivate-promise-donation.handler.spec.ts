@@ -33,14 +33,19 @@ describe('DeactivatePromiseDonationHandler', () => {
   let handler: DeactivatePromiseDonationHandler;
   let promiseDonationRepository: { findById: jest.Mock; save: jest.Mock };
 
-  const command = new DeactivatePromiseDonationCommand(PROMISE_ID, 'Solicitud propia');
+  const command = new DeactivatePromiseDonationCommand(
+    PROMISE_ID,
+    'Solicitud propia',
+  );
 
   beforeEach(() => {
     promiseDonationRepository = {
       findById: jest.fn(),
       save: jest.fn().mockResolvedValue(undefined),
     };
-    handler = new DeactivatePromiseDonationHandler(promiseDonationRepository as any);
+    handler = new DeactivatePromiseDonationHandler(
+      promiseDonationRepository as any,
+    );
   });
 
   it('debería fallar con NOT_FOUND cuando la promesa no existe', async () => {

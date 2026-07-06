@@ -21,7 +21,9 @@ export class GetAssignationsListHandler extends BaseQueryHandler<
   protected async handle(
     query: GetAssignationsListQuery,
   ): Promise<Result<ActiveAssignationsResponse[]>> {
-    const items = await this.assignationsService.getActivesList(query.collectorId);
+    const items = await this.assignationsService.getActivesList(
+      query.collectorId,
+    );
     return Result.ok(items);
   }
 }

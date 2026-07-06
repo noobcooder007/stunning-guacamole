@@ -6,14 +6,18 @@ const FOLIO = 'ENE2025-001-R-0001';
 const CHAIN = 'ABCDEF1234567890';
 const BENEFICIENT_ID = '01907c2a-0000-7000-8000-000000000002';
 
-function makeReceipt(overrides: {
-  chainValidator?: string | null;
-  beneficientId?: string | null;
-  amount?: number;
-} = {}) {
-  const beneficientId = 'beneficientId' in overrides ? overrides.beneficientId : BENEFICIENT_ID;
+function makeReceipt(
+  overrides: {
+    chainValidator?: string | null;
+    beneficientId?: string | null;
+    amount?: number;
+  } = {},
+) {
+  const beneficientId =
+    'beneficientId' in overrides ? overrides.beneficientId : BENEFICIENT_ID;
   return {
-    chainValidator: 'chainValidator' in overrides ? overrides.chainValidator : CHAIN,
+    chainValidator:
+      'chainValidator' in overrides ? overrides.chainValidator : CHAIN,
     _id: { unpack: () => ID },
     folio: { unpack: () => FOLIO },
     amount: {
@@ -21,12 +25,16 @@ function makeReceipt(overrides: {
       amount: overrides.amount ?? 500,
       currency: 'MXN',
     },
-    beneficient: beneficientId != null ? { unpack: () => beneficientId } : undefined,
+    beneficient:
+      beneficientId != null ? { unpack: () => beneficientId } : undefined,
     status: 'PENDING',
   };
 }
 
-function makeHandler(receiptOrNull: unknown, hashReturnValue = CHAIN.toLowerCase() + 'EXTRA') {
+function makeHandler(
+  receiptOrNull: unknown,
+  hashReturnValue = CHAIN.toLowerCase() + 'EXTRA',
+) {
   const receiptRepository = {
     findByFolio: jest.fn().mockResolvedValue(receiptOrNull),
   };
@@ -34,7 +42,10 @@ function makeHandler(receiptOrNull: unknown, hashReturnValue = CHAIN.toLowerCase
     hash: jest.fn().mockResolvedValue(hashReturnValue),
   };
   return {
-    handler: new ValidateReceiptHandler(receiptRepository as any, hasher as any),
+    handler: new ValidateReceiptHandler(
+      receiptRepository as any,
+      hasher as any,
+    ),
     receiptRepository,
     hasher,
   };
@@ -88,9 +99,13 @@ describe('ValidateReceiptHandler', () => {
 
     await handler.execute(query);
 
-    const calledArgs: string[] = hasher.hash.mock.calls.map(([d]: [string]) => d);
+    const calledArgs: string[] = hasher.hash.mock.calls.map(
+      ([d]: [string]) => d,
+    );
     const hasNullVariant = calledArgs.some((d) => d.endsWith('|null'));
-    const hasUndefinedVariant = calledArgs.some((d) => d.endsWith('|undefined'));
+    const hasUndefinedVariant = calledArgs.some((d) =>
+      d.endsWith('|undefined'),
+    );
     expect(hasNullVariant).toBe(true);
     expect(hasUndefinedVariant).toBe(true);
   });

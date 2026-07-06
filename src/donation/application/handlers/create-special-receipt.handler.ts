@@ -3,7 +3,11 @@ import { CommandHandler } from '@nestjs/cqrs';
 import Stream from 'stream';
 import { UnitOfWork } from '@/database/unit-of-work';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
-import { ErrorType, Result, IErrorResult } from '@/shared/domain/dto/result.dto';
+import {
+  ErrorType,
+  Result,
+  IErrorResult,
+} from '@/shared/domain/dto/result.dto';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
 import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
 import { CreateSpecialReceiptCommand } from '@/donation/application/command/create-special-receipt.command';
@@ -97,7 +101,8 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
     if (!openPeriod) {
       return Result.fail({
         type: ErrorType.VALIDATION,
-        message: 'No hay un periodo abierto. Abre un periodo antes de crear un recibo especial.',
+        message:
+          'No hay un periodo abierto. Abre un periodo antes de crear un recibo especial.',
         entity: 'CollectionPeriod',
       });
     }
@@ -115,7 +120,8 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
     if (alreadyExists) {
       return Result.fail({
         type: ErrorType.CONFLICT,
-        message: 'A special receipt already exists for this beneficient and collector in the current period',
+        message:
+          'A special receipt already exists for this beneficient and collector in the current period',
         entity: 'Receipt',
       });
     }

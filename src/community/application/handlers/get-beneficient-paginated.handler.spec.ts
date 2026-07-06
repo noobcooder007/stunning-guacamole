@@ -7,13 +7,25 @@ describe('GetBeneficientPaginatedHandler', () => {
 
   beforeEach(() => {
     beneficientQueryService = { getPaginated: jest.fn() };
-    handler = new GetBeneficientPaginatedHandler({} as any, beneficientQueryService as any);
+    handler = new GetBeneficientPaginatedHandler(
+      {} as any,
+      beneficientQueryService as any,
+    );
   });
 
   it('debería delegar al servicio y devolver Result.ok', async () => {
     const expected = { data: [], total: 0, page: 1, limit: 10 };
     beneficientQueryService.getPaginated.mockResolvedValue(expected);
-    const query = new GetBeneficientQueryParams('Juan', undefined, undefined, undefined, undefined, undefined, 1, 10);
+    const query = new GetBeneficientQueryParams(
+      'Juan',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      1,
+      10,
+    );
 
     const result = await handler.execute(query);
 

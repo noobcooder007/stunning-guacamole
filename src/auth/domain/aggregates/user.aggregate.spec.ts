@@ -33,8 +33,22 @@ describe('User', () => {
     });
 
     it('debería generar un UserId único', () => {
-      const a = User.create({ username: 'a', password: 'h', roleId: RoleId.of(ROLE_ID), isActive: false, createdAt: new Date(), lastLogin: null });
-      const b = User.create({ username: 'b', password: 'h', roleId: RoleId.of(ROLE_ID), isActive: false, createdAt: new Date(), lastLogin: null });
+      const a = User.create({
+        username: 'a',
+        password: 'h',
+        roleId: RoleId.of(ROLE_ID),
+        isActive: false,
+        createdAt: new Date(),
+        lastLogin: null,
+      });
+      const b = User.create({
+        username: 'b',
+        password: 'h',
+        roleId: RoleId.of(ROLE_ID),
+        isActive: false,
+        createdAt: new Date(),
+        lastLogin: null,
+      });
       expect(a._id.unpack()).not.toBe(b._id.unpack());
     });
   });
@@ -42,17 +56,23 @@ describe('User', () => {
   describe('validatePassword()', () => {
     it('debería retornar true cuando la contraseña es correcta y el usuario está activo', async () => {
       const hasher = { compare: jest.fn().mockResolvedValue(true) };
-      expect(await makeUser(true).validatePassword(hasher as any, 'password')).toBe(true);
+      expect(
+        await makeUser(true).validatePassword(hasher as any, 'password'),
+      ).toBe(true);
     });
 
     it('debería retornar false cuando la contraseña es incorrecta', async () => {
       const hasher = { compare: jest.fn().mockResolvedValue(false) };
-      expect(await makeUser(true).validatePassword(hasher as any, 'wrong')).toBe(false);
+      expect(
+        await makeUser(true).validatePassword(hasher as any, 'wrong'),
+      ).toBe(false);
     });
 
     it('debería retornar false cuando el usuario está inactivo aunque la contraseña sea correcta', async () => {
       const hasher = { compare: jest.fn().mockResolvedValue(true) };
-      expect(await makeUser(false).validatePassword(hasher as any, 'password')).toBe(false);
+      expect(
+        await makeUser(false).validatePassword(hasher as any, 'password'),
+      ).toBe(false);
     });
   });
 

@@ -28,7 +28,9 @@ describe('MarkAsPaidReceiptsCommandHandler', () => {
     };
     periodRepository = { findOpen: jest.fn() };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     handler = new MarkAsPaidReceiptsCommandHandler(
       receiptRepository as any,
@@ -42,7 +44,9 @@ describe('MarkAsPaidReceiptsCommandHandler', () => {
     periodRepository.findOpen.mockResolvedValue(null);
 
     const result = await handler.execute(
-      new MarkAsPaidReceiptsCommand([{ receiptFolio: 'F-001', paymentMethod: 'CASH' }]),
+      new MarkAsPaidReceiptsCommand([
+        { receiptFolio: 'F-001', paymentMethod: 'CASH' },
+      ]),
     );
 
     expect(result.isSuccess).toBe(true);
@@ -56,13 +60,19 @@ describe('MarkAsPaidReceiptsCommandHandler', () => {
     periodRepository.findOpen.mockResolvedValue(makeOpenPeriod(6, 2026));
 
     const result = await handler.execute(
-      new MarkAsPaidReceiptsCommand([{ receiptFolio: 'F-001', paymentMethod: 'CASH' }]),
+      new MarkAsPaidReceiptsCommand([
+        { receiptFolio: 'F-001', paymentMethod: 'CASH' },
+      ]),
     );
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.currentPeriod).toContain('F-001');
     expect(result.value.previousPeriods).toHaveLength(0);
-    expect(receipt.markAsPaid).toHaveBeenCalledWith('CASH', 'period-1', undefined);
+    expect(receipt.markAsPaid).toHaveBeenCalledWith(
+      'CASH',
+      'period-1',
+      undefined,
+    );
   });
 
   it('debería clasificar recibos de períodos anteriores en previousPeriods', async () => {
@@ -71,7 +81,9 @@ describe('MarkAsPaidReceiptsCommandHandler', () => {
     periodRepository.findOpen.mockResolvedValue(makeOpenPeriod(6, 2026));
 
     const result = await handler.execute(
-      new MarkAsPaidReceiptsCommand([{ receiptFolio: 'F-002', paymentMethod: 'TRANSFER' }]),
+      new MarkAsPaidReceiptsCommand([
+        { receiptFolio: 'F-002', paymentMethod: 'TRANSFER' },
+      ]),
     );
 
     expect(result.value.currentPeriod).toHaveLength(0);

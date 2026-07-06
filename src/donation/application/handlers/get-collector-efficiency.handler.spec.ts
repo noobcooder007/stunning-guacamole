@@ -13,7 +13,12 @@ describe('GetCollectorEfficiencyHandler', () => {
   });
 
   it('debería delegar al servicio y devolver Result.ok', async () => {
-    const expected = { collectorId: COLLECTOR_ID, byPeriod: [], byYear: [], historical: {} };
+    const expected = {
+      collectorId: COLLECTOR_ID,
+      byPeriod: [],
+      byYear: [],
+      historical: {},
+    };
     efficiencyService.getEfficiency.mockResolvedValue(expected);
     const query = new GetCollectorEfficiencyQuery(COLLECTOR_ID);
 

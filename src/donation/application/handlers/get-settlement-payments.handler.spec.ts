@@ -68,7 +68,9 @@ describe('GetSettlementPaymentsHandler', () => {
 
     await handler.execute(query);
 
-    expect(paymentRepository.findBySettlementId).toHaveBeenCalledWith(SETTLEMENT_ID);
+    expect(paymentRepository.findBySettlementId).toHaveBeenCalledWith(
+      SETTLEMENT_ID,
+    );
   });
 
   it('debería mapear notes null correctamente', async () => {

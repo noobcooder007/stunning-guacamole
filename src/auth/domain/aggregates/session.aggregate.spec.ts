@@ -17,7 +17,10 @@ function makeSession(revoked = false): Session {
     userId: UserId.of(USER_ID),
     hashRefreshToken: RefreshTokenHash.of('hash-token'),
     expiresAt: ExpiresAtDate.of(makeFutureDate()),
-    sessionMetadata: SessionMetadata.of({ ip: '127.0.0.1', userAgent: 'TestAgent/1.0' }),
+    sessionMetadata: SessionMetadata.of({
+      ip: '127.0.0.1',
+      userAgent: 'TestAgent/1.0',
+    }),
     createdAt: new Date(),
     updatedAt: new Date(),
     revoked,
@@ -32,7 +35,10 @@ describe('Session', () => {
         userId: UserId.of(USER_ID),
         hashRefreshToken: RefreshTokenHash.of('hash-token'),
         expiresAt: ExpiresAtDate.of(makeFutureDate()),
-        sessionMetadata: SessionMetadata.of({ ip: '10.0.0.1', userAgent: 'Agent' }),
+        sessionMetadata: SessionMetadata.of({
+          ip: '10.0.0.1',
+          userAgent: 'Agent',
+        }),
         createdAt: new Date(),
         updatedAt: new Date(),
         revoked: false,
@@ -85,7 +91,11 @@ describe('Session', () => {
       const session = makeSession(false);
       const hasher = { hash: jest.fn(), safeCompare: jest.fn() };
 
-      const result = await session.validateToken('any', 'any-agent', hasher as any);
+      const result = await session.validateToken(
+        'any',
+        'any-agent',
+        hasher as any,
+      );
 
       expect(result).toBe(true);
       expect(hasher.safeCompare).not.toHaveBeenCalled();
@@ -97,7 +107,10 @@ describe('Session', () => {
         userId: UserId.of(USER_ID),
         hashRefreshToken: RefreshTokenHash.of('stored-hash'),
         expiresAt: ExpiresAtDate.of(makeFutureDate()),
-        sessionMetadata: SessionMetadata.of({ ip: '127.0.0.1', userAgent: 'OriginalAgent' }),
+        sessionMetadata: SessionMetadata.of({
+          ip: '127.0.0.1',
+          userAgent: 'OriginalAgent',
+        }),
         createdAt: new Date(),
         updatedAt: new Date(),
         revoked: true,
@@ -107,7 +120,11 @@ describe('Session', () => {
         safeCompare: jest.fn().mockResolvedValue(true),
       };
       // expiresAt.isAlive() returns true because date is in the future → short-circuits to true
-      const result = await session.validateToken('plain-token', 'OtherAgent', hasher as any);
+      const result = await session.validateToken(
+        'plain-token',
+        'OtherAgent',
+        hasher as any,
+      );
       expect(result).toBe(true);
     });
   });

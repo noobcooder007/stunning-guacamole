@@ -19,8 +19,16 @@ function makeCommand(): CreateChurchCommand {
       state: 'CDMX',
       zipCode: '06600',
     },
-    priest: { firstname: 'Pedro', firstLastname: 'García', secondLastname: null },
-    auxiliarPriest: { firstname: 'Juan', firstLastname: 'López', secondLastname: null },
+    priest: {
+      firstname: 'Pedro',
+      firstLastname: 'García',
+      secondLastname: null,
+    },
+    auxiliarPriest: {
+      firstname: 'Juan',
+      firstLastname: 'López',
+      secondLastname: null,
+    },
     phoneNumber: '5512345678',
   } as CreateChurchCommand;
 }
@@ -40,7 +48,9 @@ describe('CreateChurchHandler', () => {
   it('debería lanzar ConflictException cuando la iglesia ya existe', async () => {
     churchRepository.exists.mockResolvedValue(true);
 
-    await expect(handler.execute(makeCommand())).rejects.toThrow(ConflictException);
+    await expect(handler.execute(makeCommand())).rejects.toThrow(
+      ConflictException,
+    );
     expect(churchRepository.save).not.toHaveBeenCalled();
   });
 

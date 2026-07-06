@@ -14,24 +14,21 @@ const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
 const PERIOD_ID = '01907c2a-0000-7000-8000-000000000010';
 
 function makeSettlement(): CollectorSettlement {
-  return CollectorSettlement.recreate(
-    CollectorSettlementId.of(SETTLEMENT_ID),
-    {
-      collectionPeriodId: PERIOD_ID,
-      collectorId: CollectorId.of(COLLECTOR_ID),
-      month: 6,
-      year: 2026,
-      totalCollected: 1000,
-      commissionPercent: 10,
-      commissionAmount: 100,
-      nomina: 50,
-      transportAllowance: 20,
-      netCommission: 70,
-      paymentStatus: CollectorSettlementPaymentStatus.PENDING,
-      totalPaid: 0,
-      createdAt: new Date('2026-06-01'),
-    },
-  );
+  return CollectorSettlement.recreate(CollectorSettlementId.of(SETTLEMENT_ID), {
+    collectionPeriodId: PERIOD_ID,
+    collectorId: CollectorId.of(COLLECTOR_ID),
+    month: 6,
+    year: 2026,
+    totalCollected: 1000,
+    commissionPercent: 10,
+    commissionAmount: 100,
+    nomina: 50,
+    transportAllowance: 20,
+    netCommission: 70,
+    paymentStatus: CollectorSettlementPaymentStatus.PENDING,
+    totalPaid: 0,
+    createdAt: new Date('2026-06-01'),
+  });
 }
 
 const validRaw: ICollectorSettlementPersistence = {
@@ -79,7 +76,9 @@ describe('CollectorSettlementMapper', () => {
       expect(settlement.year).toBe(2026);
       expect(settlement.totalCollected).toBe(1000);
       expect(settlement.netCommission).toBe(70);
-      expect(settlement.paymentStatus).toBe(CollectorSettlementPaymentStatus.PENDING);
+      expect(settlement.paymentStatus).toBe(
+        CollectorSettlementPaymentStatus.PENDING,
+      );
     });
 
     it('debería convertir strings numéricos a Number (valores de DB)', () => {

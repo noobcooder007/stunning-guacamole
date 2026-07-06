@@ -5,15 +5,18 @@ import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 const BID = '01907c2a-0000-7000-8000-000000000010';
 const CREATED_BY = '01907c2a-0000-7000-8000-000000000020';
 
-function makePromise(overrides: Partial<{
-  nextDonation: Date;
-  lastDonation: Date;
-  startDate: Date;
-  recurrence: number;
-  isActive: boolean;
-}> = {}): PromiseDonation {
+function makePromise(
+  overrides: Partial<{
+    nextDonation: Date;
+    lastDonation: Date;
+    startDate: Date;
+    recurrence: number;
+    isActive: boolean;
+  }> = {},
+): PromiseDonation {
   const now = new Date();
-  const startDate = overrides.startDate ?? new Date(now.getFullYear(), now.getMonth(), 1);
+  const startDate =
+    overrides.startDate ?? new Date(now.getFullYear(), now.getMonth(), 1);
   return PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
     beneficientId: BeneficientId.of(BID),
     promiseAmount: 100,
@@ -72,7 +75,10 @@ describe('PromiseDonation', () => {
 
     it('no debería modificar nextDonation cuando ya está en el mes actual o futuro', () => {
       const futureDate = new Date('2099-06-15');
-      const promise = makePromise({ nextDonation: futureDate, startDate: futureDate });
+      const promise = makePromise({
+        nextDonation: futureDate,
+        startDate: futureDate,
+      });
       const beforeCall = promise.nextDonation.getTime();
 
       promise.advanceNextDonationIfStale();
@@ -82,22 +88,25 @@ describe('PromiseDonation', () => {
 
     it('debería retornar sin cambios si nextDonation es null', () => {
       const now = new Date();
-      const promise = PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
-        beneficientId: BeneficientId.of(BID),
-        promiseAmount: 100,
-        currency: 'MXN',
-        method: 'CASH',
-        startDate: null,
-        recurring: true,
-        recurrence: 1,
-        isActive: false,
-        createdBy: UserId.of(CREATED_BY),
-        createdAt: now,
-        updatedAt: now,
-        lastDonation: null,
-        nextDonation: null,
-        reasonDeactivate: 'Baja',
-      });
+      const promise = PromiseDonation.recreate(
+        '01907c2a-0000-7000-8000-000000000001',
+        {
+          beneficientId: BeneficientId.of(BID),
+          promiseAmount: 100,
+          currency: 'MXN',
+          method: 'CASH',
+          startDate: null,
+          recurring: true,
+          recurrence: 1,
+          isActive: false,
+          createdBy: UserId.of(CREATED_BY),
+          createdAt: now,
+          updatedAt: now,
+          lastDonation: null,
+          nextDonation: null,
+          reasonDeactivate: 'Baja',
+        },
+      );
 
       expect(() => promise.advanceNextDonationIfStale()).not.toThrow();
       expect(promise.nextDonation).toBeNull();
@@ -129,8 +138,12 @@ describe('PromiseDonation', () => {
       const now = new Date();
       const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-      expect(promise.nextDonation.getTime()).toBeGreaterThanOrEqual(currentMonthStart.getTime());
-      expect(promise.nextDonation.getTime()).toBeLessThan(nextMonthStart.getTime());
+      expect(promise.nextDonation.getTime()).toBeGreaterThanOrEqual(
+        currentMonthStart.getTime(),
+      );
+      expect(promise.nextDonation.getTime()).toBeLessThan(
+        nextMonthStart.getTime(),
+      );
     });
   });
 
@@ -184,22 +197,29 @@ describe('PromiseDonation', () => {
 
   describe('reactivate()', () => {
     it('debería marcar como activa y limpiar reasonDeactivate', () => {
-      const promise = PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
-        beneficientId: BeneficientId.of(BID),
-        promiseAmount: 100,
-        currency: 'MXN',
-        method: 'CASH',
-        startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-        recurring: true,
-        recurrence: 1,
-        isActive: false,
-        createdBy: UserId.of(CREATED_BY),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        lastDonation: null,
-        nextDonation: null,
-        reasonDeactivate: 'Baja temporal',
-      });
+      const promise = PromiseDonation.recreate(
+        '01907c2a-0000-7000-8000-000000000001',
+        {
+          beneficientId: BeneficientId.of(BID),
+          promiseAmount: 100,
+          currency: 'MXN',
+          method: 'CASH',
+          startDate: new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            1,
+          ),
+          recurring: true,
+          recurrence: 1,
+          isActive: false,
+          createdBy: UserId.of(CREATED_BY),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          lastDonation: null,
+          nextDonation: null,
+          reasonDeactivate: 'Baja temporal',
+        },
+      );
 
       promise.reactivate();
 
@@ -210,24 +230,35 @@ describe('PromiseDonation', () => {
 
     it('debería fijar nextDonation al mes actual si el día ancla aún no ha pasado', () => {
       const now = new Date();
-      const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-      const startDate = new Date(now.getFullYear(), now.getMonth(), lastDayOfMonth);
-      const promise = PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
-        beneficientId: BeneficientId.of(BID),
-        promiseAmount: 100,
-        currency: 'MXN',
-        method: 'CASH',
-        startDate,
-        recurring: true,
-        recurrence: 1,
-        isActive: false,
-        createdBy: UserId.of(CREATED_BY),
-        createdAt: now,
-        updatedAt: now,
-        lastDonation: null,
-        nextDonation: null,
-        reasonDeactivate: 'Baja',
-      });
+      const lastDayOfMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+      ).getDate();
+      const startDate = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        lastDayOfMonth,
+      );
+      const promise = PromiseDonation.recreate(
+        '01907c2a-0000-7000-8000-000000000001',
+        {
+          beneficientId: BeneficientId.of(BID),
+          promiseAmount: 100,
+          currency: 'MXN',
+          method: 'CASH',
+          startDate,
+          recurring: true,
+          recurrence: 1,
+          isActive: false,
+          createdBy: UserId.of(CREATED_BY),
+          createdAt: now,
+          updatedAt: now,
+          lastDonation: null,
+          nextDonation: null,
+          reasonDeactivate: 'Baja',
+        },
+      );
 
       promise.reactivate();
 
@@ -238,22 +269,25 @@ describe('PromiseDonation', () => {
     it('debería fijar nextDonation al mes siguiente si el día ancla ya pasó (día 1)', () => {
       const now = new Date();
       const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      const promise = PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
-        beneficientId: BeneficientId.of(BID),
-        promiseAmount: 100,
-        currency: 'MXN',
-        method: 'CASH',
-        startDate,
-        recurring: true,
-        recurrence: 1,
-        isActive: false,
-        createdBy: UserId.of(CREATED_BY),
-        createdAt: now,
-        updatedAt: now,
-        lastDonation: null,
-        nextDonation: null,
-        reasonDeactivate: 'Baja',
-      });
+      const promise = PromiseDonation.recreate(
+        '01907c2a-0000-7000-8000-000000000001',
+        {
+          beneficientId: BeneficientId.of(BID),
+          promiseAmount: 100,
+          currency: 'MXN',
+          method: 'CASH',
+          startDate,
+          recurring: true,
+          recurrence: 1,
+          isActive: false,
+          createdBy: UserId.of(CREATED_BY),
+          createdAt: now,
+          updatedAt: now,
+          lastDonation: null,
+          nextDonation: null,
+          reasonDeactivate: 'Baja',
+        },
+      );
 
       promise.reactivate();
 
@@ -269,7 +303,9 @@ describe('PromiseDonation', () => {
 
       promise.updateLastDonation();
 
-      expect(promise.lastDonation.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(promise.lastDonation.getTime()).toBeGreaterThanOrEqual(
+        before.getTime(),
+      );
     });
   });
 

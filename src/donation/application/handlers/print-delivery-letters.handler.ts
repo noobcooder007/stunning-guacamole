@@ -28,8 +28,18 @@ const RECURRENCE_LABELS: Record<number, string> = {
 };
 
 const MONTH_LABELS = [
-  'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
-  'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
+  'ENE',
+  'FEB',
+  'MAR',
+  'ABR',
+  'MAY',
+  'JUN',
+  'JUL',
+  'AGO',
+  'SEP',
+  'OCT',
+  'NOV',
+  'DIC',
 ];
 
 @CommandHandler(PrintDeliveryLettersCommand)
@@ -54,7 +64,10 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
     return `${b.firstname} ${b.firstLastname} ${b.secondLastname ?? ''}`.trim();
   }
 
-  private toReceiptRow(r: ReceiptSchema, fallbackPeriodLabel: string): CollectorLetterReceiptRow {
+  private toReceiptRow(
+    r: ReceiptSchema,
+    fallbackPeriodLabel: string,
+  ): CollectorLetterReceiptRow {
     const beneficient = r.beneficient as BeneficientSchema;
     const promise = r.promiseDonation as PromiseDonationSchema;
     const receiptPeriodLabel =
@@ -63,7 +76,9 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
         : fallbackPeriodLabel;
     return {
       folio: r.folio,
-      beneficientName: beneficient ? this.getBeneficientFullname(beneficient) : 'Anónimo',
+      beneficientName: beneficient
+        ? this.getBeneficientFullname(beneficient)
+        : 'Anónimo',
       beneficientNumber: (beneficient as any)?.beneficientNumber ?? 0,
       amount: Number(r.amount),
       currency: r.currency,
@@ -82,7 +97,9 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
     const promise = r.promiseDonation as PromiseDonationSchema;
     return {
       folio: r.folio,
-      beneficientName: beneficient ? this.getBeneficientFullname(beneficient) : 'Anónimo',
+      beneficientName: beneficient
+        ? this.getBeneficientFullname(beneficient)
+        : 'Anónimo',
       beneficientNumber: (beneficient as any)?.beneficientNumber ?? 0,
       amount: Number(r.amount),
       currency: r.currency,
@@ -91,7 +108,9 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
     };
   }
 
-  private groupByCollector(receipts: ReceiptSchema[]): Map<string, ReceiptSchema[]> {
+  private groupByCollector(
+    receipts: ReceiptSchema[],
+  ): Map<string, ReceiptSchema[]> {
     const map = new Map<string, ReceiptSchema[]>();
     for (const r of receipts) {
       if (!r.collectorId) continue;
@@ -136,7 +155,10 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
         byCollector.set(name, (byCollector.get(name) ?? 0) + 1);
       }
       const detail = Array.from(byCollector.entries())
-        .map(([name, count]) => `${name}: ${count} recibo${count !== 1 ? 's' : ''} sin imprimir`)
+        .map(
+          ([name, count]) =>
+            `${name}: ${count} recibo${count !== 1 ? 's' : ''} sin imprimir`,
+        )
         .join('; ');
       return Result.fail({
         type: ErrorType.VALIDATION,
@@ -161,11 +183,15 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
       const current = currentByCollector.get(collectorId) ?? [];
       const overdue = overdueByCollector.get(collectorId) ?? [];
 
-      const collector = (current[0] ?? overdue[0])?.collector as CollectorSchema;
+      const collector = (current[0] ?? overdue[0])
+        ?.collector as CollectorSchema;
       if (!collector) continue;
 
       const totalAmount = current.reduce((sum, r) => sum + Number(r.amount), 0);
-      const overdueTotal = overdue.reduce((sum, r) => sum + Number(r.amount), 0);
+      const overdueTotal = overdue.reduce(
+        (sum, r) => sum + Number(r.amount),
+        0,
+      );
       const currency = (current[0] ?? overdue[0]).currency;
 
       letters.push({

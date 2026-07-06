@@ -23,7 +23,9 @@ describe('GetUnassignedBeneficientsQueryDto', () => {
   });
 
   it('debería rechazar firstname que no sea string', async () => {
-    const dto = plainToInstance(GetUnassignedBeneficientsQueryDto, { firstname: 123 });
+    const dto = plainToInstance(GetUnassignedBeneficientsQueryDto, {
+      firstname: 123,
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'firstname')).toBeDefined();
   });
@@ -35,7 +37,9 @@ describe('GetUnassignedBeneficientsQueryDto', () => {
   });
 
   it('debería rechazar limit mayor a 100', async () => {
-    const dto = plainToInstance(GetUnassignedBeneficientsQueryDto, { limit: 101 });
+    const dto = plainToInstance(GetUnassignedBeneficientsQueryDto, {
+      limit: 101,
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'limit')).toBeDefined();
   });

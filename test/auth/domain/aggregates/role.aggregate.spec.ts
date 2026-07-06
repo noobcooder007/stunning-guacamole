@@ -57,9 +57,9 @@ describe('Role', () => {
     });
 
     it('lanza si name es null', () => {
-      expect(() =>
-        Role.create({ ...baseProps, name: null as any }),
-      ).toThrow(InvalidAttributeException);
+      expect(() => Role.create({ ...baseProps, name: null as any })).toThrow(
+        InvalidAttributeException,
+      );
     });
 
     it('lanza si description es null', () => {
@@ -81,9 +81,9 @@ describe('Role', () => {
     });
 
     it('lanza con UUID inválido', () => {
-      expect(() =>
-        Role.recreate('not-uuid', baseProps),
-      ).toThrow(InvalidAttributeException);
+      expect(() => Role.recreate('not-uuid', baseProps)).toThrow(
+        InvalidAttributeException,
+      );
     });
   });
 

@@ -35,8 +35,13 @@ export class AssignationQueryService extends BaseQueryService {
     );
   }
 
-  async getActivesList(collectorId: string): Promise<ActiveAssignationsResponse[]> {
-    const assignations = await this.getQueryBuilder(AssignationSchema, 'assignation')
+  async getActivesList(
+    collectorId: string,
+  ): Promise<ActiveAssignationsResponse[]> {
+    const assignations = await this.getQueryBuilder(
+      AssignationSchema,
+      'assignation',
+    )
       .where('assignation.isActive = :isActive', { isActive: true })
       .andWhere('assignation.collectorId = :collectorId', { collectorId })
       .leftJoinAndSelect('assignation.beneficient', 'beneficient')

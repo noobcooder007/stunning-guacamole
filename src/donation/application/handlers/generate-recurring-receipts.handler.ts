@@ -17,7 +17,10 @@ import { ICollectionPeriodRepository } from '@/donation/domain/repositories/coll
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 
 @CommandHandler(GenerateRecurringReceiptsCommand)
-export class GenerateRecurringReceiptsHandler implements ICommandHandler<GenerateRecurringReceiptsCommand, Result<void>> {
+export class GenerateRecurringReceiptsHandler implements ICommandHandler<
+  GenerateRecurringReceiptsCommand,
+  Result<void>
+> {
   constructor(
     private readonly promiseDonationService: PromiseDonationQueryService,
     @Inject(REPOSITORY_TOKENS.PROMISE_DONATION)
@@ -32,11 +35,20 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<Generat
     private readonly uow: UnitOfWork,
   ) {}
 
-  async execute(command: GenerateRecurringReceiptsCommand): Promise<Result<void>> {
+  async execute(
+    command: GenerateRecurringReceiptsCommand,
+  ): Promise<Result<void>> {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
-    const lastDayOfCurrentMonth = new Date(currentYear, currentMonth, 0, 23, 59, 59);
+    const lastDayOfCurrentMonth = new Date(
+      currentYear,
+      currentMonth,
+      0,
+      23,
+      59,
+      59,
+    );
 
     const openPeriod = await this.periodRepository.findOpen();
 
@@ -79,7 +91,10 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<Generat
 
         let promiseUpdated = false;
 
-        while (promise.nextDonation && promise.nextDonation <= lastDayOfCurrentMonth) {
+        while (
+          promise.nextDonation &&
+          promise.nextDonation <= lastDayOfCurrentMonth
+        ) {
           const targetDate = new Date(promise.nextDonation);
           const targetMonth = targetDate.getMonth() + 1;
           const targetYear = targetDate.getFullYear();

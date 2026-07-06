@@ -7,7 +7,10 @@ import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 const BID = '01907c2a-0000-7000-8000-000000000010';
 const CREATED_BY = '01907c2a-0000-7000-8000-000000000020';
 
-function makePromise(isActive: boolean, nextDonation: Date | null = null): PromiseDonation {
+function makePromise(
+  isActive: boolean,
+  nextDonation: Date | null = null,
+): PromiseDonation {
   const past = new Date('2020-01-15');
   return PromiseDonation.recreate('01907c2a-0000-7000-8000-000000000001', {
     beneficientId: BeneficientId.of(BID),
@@ -54,7 +57,9 @@ describe('AdvanceStalePromiseOnAssignationActivatedHandler', () => {
   });
 
   it('no debería hacer nada cuando la promesa existe pero está inactiva', async () => {
-    promiseDonationRepository.findByBeneficientId.mockResolvedValue(makePromise(false));
+    promiseDonationRepository.findByBeneficientId.mockResolvedValue(
+      makePromise(false),
+    );
     const event = new AssignationActivatedEvent(BID);
 
     await handler.handle(event);
@@ -72,7 +77,9 @@ describe('AdvanceStalePromiseOnAssignationActivatedHandler', () => {
     expect(promiseDonationRepository.save).toHaveBeenCalledWith(promise);
     const now = new Date();
     const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    expect(promise.nextDonation.getTime()).toBeGreaterThanOrEqual(currentMonthStart.getTime());
+    expect(promise.nextDonation.getTime()).toBeGreaterThanOrEqual(
+      currentMonthStart.getTime(),
+    );
   });
 
   it('debería buscar la promesa con el beneficientId del evento', async () => {
@@ -81,6 +88,8 @@ describe('AdvanceStalePromiseOnAssignationActivatedHandler', () => {
 
     await handler.handle(event);
 
-    expect(promiseDonationRepository.findByBeneficientId).toHaveBeenCalledWith(BID);
+    expect(promiseDonationRepository.findByBeneficientId).toHaveBeenCalledWith(
+      BID,
+    );
   });
 });

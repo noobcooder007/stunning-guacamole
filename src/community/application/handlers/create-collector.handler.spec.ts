@@ -5,7 +5,9 @@ import { ConflictException } from '@/shared/domain/exceptions/conflict-exception
 
 const USER_ID = '01907c2a-0000-7000-8000-000000000002';
 
-function makeCommand(overrides: Partial<CreateCollectorCommand> = {}): CreateCollectorCommand {
+function makeCommand(
+  overrides: Partial<CreateCollectorCommand> = {},
+): CreateCollectorCommand {
   const cmd = new CreateCollectorCommand(
     'testuser',
     'password123',
@@ -38,7 +40,9 @@ describe('CreateCollectorHandler', () => {
 
   beforeEach(() => {
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     collectorRepository = {
       exists: jest.fn().mockResolvedValue(false),
@@ -74,14 +78,18 @@ describe('CreateCollectorHandler', () => {
       }),
     );
 
-    await expect(handler.execute(makeCommand())).rejects.toThrow(ConflictException);
+    await expect(handler.execute(makeCommand())).rejects.toThrow(
+      ConflictException,
+    );
   });
 
   it('debería lanzar ConflictException cuando el colector ya existe', async () => {
     createUserService.execute.mockResolvedValue(Result.ok(USER_ID));
     collectorRepository.exists.mockResolvedValue(true);
 
-    await expect(handler.execute(makeCommand())).rejects.toThrow(ConflictException);
+    await expect(handler.execute(makeCommand())).rejects.toThrow(
+      ConflictException,
+    );
   });
 
   it('debería hashear NSS, dirección y teléfono antes de verificar duplicados', async () => {

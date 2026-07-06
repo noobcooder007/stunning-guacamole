@@ -7,13 +7,22 @@ describe('GetReceiptsPaginatedHandler', () => {
 
   beforeEach(() => {
     receiptsQueryService = { searchReceipts: jest.fn() };
-    handler = new GetReceiptsPaginatedHandler({} as any, receiptsQueryService as any);
+    handler = new GetReceiptsPaginatedHandler(
+      {} as any,
+      receiptsQueryService as any,
+    );
   });
 
   it('debería delegar al servicio y devolver Result.ok', async () => {
     const expected = { data: [], total: 0, page: 1, limit: 10 };
     receiptsQueryService.searchReceipts.mockResolvedValue(expected);
-    const query = new GetReceiptsQueryParams('PENDING', 'RECURRING', undefined, 1, 10);
+    const query = new GetReceiptsQueryParams(
+      'PENDING',
+      'RECURRING',
+      undefined,
+      1,
+      10,
+    );
 
     const result = await handler.execute(query);
 

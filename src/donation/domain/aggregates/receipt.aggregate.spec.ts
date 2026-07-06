@@ -2,12 +2,7 @@ import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { BeneficientId } from '@/community/domain/aggregate/beneficient.aggregate';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 import { PromiseDonationId } from '@/donation/domain/aggregates/promise-donation.aggregate';
-import {
-  Money,
-  Receipt,
-  ReceiptFolio,
-  ReceiptId,
-} from './receipt.aggregate';
+import { Money, Receipt, ReceiptFolio, ReceiptId } from './receipt.aggregate';
 
 const USER_ID = '01907c2a-0000-7000-8000-000000000001';
 const BENEFICIENT_ID = '01907c2a-0000-7000-8000-000000000002';
@@ -15,7 +10,9 @@ const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000003';
 const PROMISE_ID = '01907c2a-0000-7000-8000-000000000004';
 const PERIOD_ID = '01907c2a-0000-7000-8000-000000000005';
 
-function makePendingReceipt(overrides: { status?: 'PENDING' | 'PAID' | 'CANCELLED' } = {}) {
+function makePendingReceipt(
+  overrides: { status?: 'PENDING' | 'PAID' | 'CANCELLED' } = {},
+) {
   return Receipt.recreate(ReceiptId.of(USER_ID), {
     folio: ReceiptFolio.of('ENE2025-001-R-0001'),
     status: overrides.status ?? 'PENDING',
@@ -65,24 +62,57 @@ describe('Money', () => {
 // ---------------------------------------------------------------------------
 describe('ReceiptFolio', () => {
   it('debería generar folio RECURRING con prefijo R', () => {
-    const folio = ReceiptFolio.create(new Date(2025, 0, 15), '001', 1, 'RECURRING');
+    const folio = ReceiptFolio.create(
+      new Date(2025, 0, 15),
+      '001',
+      1,
+      'RECURRING',
+    );
     expect(folio.unpack()).toBe('ENE2025-001-R-0001');
   });
 
   it('debería generar folio SPECIAL con prefijo S', () => {
-    const folio = ReceiptFolio.create(new Date(2025, 5, 1), '042', 99, 'SPECIAL');
+    const folio = ReceiptFolio.create(
+      new Date(2025, 5, 1),
+      '042',
+      99,
+      'SPECIAL',
+    );
     expect(folio.unpack()).toBe('JUN2025-042-S-0099');
   });
 
   it('debería rellenar el sequence con ceros hasta 4 dígitos', () => {
-    const folio = ReceiptFolio.create(new Date(2025, 2, 1), '001', 5, 'RECURRING');
+    const folio = ReceiptFolio.create(
+      new Date(2025, 2, 1),
+      '001',
+      5,
+      'RECURRING',
+    );
     expect(folio.unpack()).toContain('-0005');
   });
 
   it('debería mapear correctamente todos los meses', () => {
-    const months = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+    const months = [
+      'ENE',
+      'FEB',
+      'MAR',
+      'ABR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AGO',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DIC',
+    ];
     months.forEach((abbr, idx) => {
-      const folio = ReceiptFolio.create(new Date(2025, idx, 1), '001', 1, 'RECURRING');
+      const folio = ReceiptFolio.create(
+        new Date(2025, idx, 1),
+        '001',
+        1,
+        'RECURRING',
+      );
       expect(folio.unpack()).toContain(abbr);
     });
   });
@@ -300,7 +330,9 @@ describe('Receipt.generateValidationChain()', () => {
       collector: CollectorId.of(COLLECTOR_ID),
     });
 
-    const hasher = { hash: jest.fn().mockResolvedValue('abcdef1234567890EXTRA') };
+    const hasher = {
+      hash: jest.fn().mockResolvedValue('abcdef1234567890EXTRA'),
+    };
     await receipt.generateValidationChain(hasher as any);
 
     const expectedData = `${id}|ENE2025-001-R-0001|500|${BENEFICIENT_ID}`;
@@ -324,7 +356,9 @@ describe('Receipt.generateValidationChain()', () => {
       collector: CollectorId.of(COLLECTOR_ID),
     });
 
-    const hasher = { hash: jest.fn().mockResolvedValue('abcdef1234567890EXTRA') };
+    const hasher = {
+      hash: jest.fn().mockResolvedValue('abcdef1234567890EXTRA'),
+    };
     await receipt.generateValidationChain(hasher as any);
 
     const [calledWith] = hasher.hash.mock.calls[0];

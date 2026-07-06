@@ -18,7 +18,10 @@ function makeDomainSession(): Session {
     userId: UserId.of(USER_ID),
     hashRefreshToken: RefreshTokenHash.of('hash-token'),
     expiresAt: ExpiresAtDate.of(makeFutureDate()),
-    sessionMetadata: SessionMetadata.of({ ip: '127.0.0.1', userAgent: 'TestAgent/1.0' }),
+    sessionMetadata: SessionMetadata.of({
+      ip: '127.0.0.1',
+      userAgent: 'TestAgent/1.0',
+    }),
     createdAt: new Date('2026-06-01'),
     updatedAt: new Date('2026-06-01'),
     revoked: false,

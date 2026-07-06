@@ -28,7 +28,12 @@ function makeReceipt(collectorId: string, amount: number, status = 'PAID') {
   };
 }
 
-function makeCollector(collectorId: string, commissionPercent = 10, nomina = 0, transportAllowance = 0) {
+function makeCollector(
+  collectorId: string,
+  commissionPercent = 10,
+  nomina = 0,
+  transportAllowance = 0,
+) {
   return {
     _id: { unpack: () => collectorId },
     paymentData: { commissionPercent, nomina, transportAllowance },
@@ -60,7 +65,9 @@ describe('ClosePeriodHandler', () => {
       findById: jest.fn(),
     };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     handler = new ClosePeriodHandler(
       periodRepository as any,
@@ -124,7 +131,9 @@ describe('ClosePeriodHandler', () => {
     expect(settlement.collectorId).toBe(COLLECTOR_ID);
     expect(settlement.totalCollected).toBe(1000);
     expect(settlement.commissionAmount).toBe(100);
-    expect(settlement.paymentStatus).toBe(CollectorSettlementPaymentStatus.PENDING);
+    expect(settlement.paymentStatus).toBe(
+      CollectorSettlementPaymentStatus.PENDING,
+    );
   });
 
   it('debería calcular netCommission como commissionAmount - nomina + transportAllowance', async () => {
@@ -158,7 +167,9 @@ describe('ClosePeriodHandler', () => {
     const result = await handler.execute(command);
 
     expect(result.value.settlements).toHaveLength(2);
-    const s1 = result.value.settlements.find((s) => s.collectorId === COLLECTOR_ID);
+    const s1 = result.value.settlements.find(
+      (s) => s.collectorId === COLLECTOR_ID,
+    );
     expect(s1.totalCollected).toBe(1000);
   });
 
@@ -183,7 +194,9 @@ describe('ClosePeriodHandler', () => {
       makeReceipt(COLLECTOR_ID, 1000, 'PAID'),
     ]);
     // findById devuelve un colector con un ID diferente al que está en el mapa
-    collectorRepository.findById.mockResolvedValue(makeCollector(OTHER_COLLECTOR_ID, 10, 0, 0));
+    collectorRepository.findById.mockResolvedValue(
+      makeCollector(OTHER_COLLECTOR_ID, 10, 0, 0),
+    );
 
     const result = await handler.execute(command);
 

@@ -24,10 +24,12 @@ describe('GetActivesAssignationsHandler', () => {
 
     expect(result.isSuccess).toBe(true);
     expect(result.value).toEqual(expected);
-    expect(assignationsService.getActivesWithBeneficients).toHaveBeenCalledWith({
-      page: 1,
-      limit: 10,
-      collectorId: COLLECTOR_ID,
-    });
+    expect(assignationsService.getActivesWithBeneficients).toHaveBeenCalledWith(
+      {
+        page: 1,
+        limit: 10,
+        collectorId: COLLECTOR_ID,
+      },
+    );
   });
 });

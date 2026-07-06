@@ -36,7 +36,9 @@ describe('AssignBeneficientsToCollectorHandler', () => {
   beforeEach(() => {
     assignationService = { createOrReactivate: jest.fn() };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     eventBus = { publish: jest.fn() };
 

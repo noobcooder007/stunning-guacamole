@@ -20,7 +20,9 @@ export interface ICollectorPaymentPersistence {
 }
 
 export class CollectorPaymentMapper {
-  static toPersistence(payment: CollectorPayment): ICollectorPaymentPersistence {
+  static toPersistence(
+    payment: CollectorPayment,
+  ): ICollectorPaymentPersistence {
     return {
       id: payment._id.unpack(),
       settlementId: payment.settlementId,

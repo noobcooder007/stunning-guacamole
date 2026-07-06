@@ -59,9 +59,10 @@ export class ClosePeriodHandler extends BaseCommandHandler<
       });
     }
 
-    const receiptsInPeriod = await this.receiptRepository.findByCollectionPeriodId(
-      period._id.unpack(),
-    );
+    const receiptsInPeriod =
+      await this.receiptRepository.findByCollectionPeriodId(
+        period._id.unpack(),
+      );
     // Settlement only counts receipts effectively collected (PAID)
     const paidReceipts = receiptsInPeriod.filter((r) => r.status === 'PAID');
 
@@ -90,7 +91,8 @@ export class ClosePeriodHandler extends BaseCommandHandler<
         const nomina = collector.paymentData.nomina;
         const transportAllowance = collector.paymentData.transportAllowance;
         const netCommission =
-          Math.round((commissionAmount - nomina + transportAllowance) * 100) / 100;
+          Math.round((commissionAmount - nomina + transportAllowance) * 100) /
+          100;
         return CollectorSettlement.create({
           collectionPeriodId: period._id.unpack(),
           collectorId: CollectorId.of(cid),
@@ -108,8 +110,14 @@ export class ClosePeriodHandler extends BaseCommandHandler<
         });
       });
 
-    const totalCollected = settlements.reduce((sum, s) => sum + s.totalCollected, 0);
-    const totalCommissions = settlements.reduce((sum, s) => sum + s.commissionAmount, 0);
+    const totalCollected = settlements.reduce(
+      (sum, s) => sum + s.totalCollected,
+      0,
+    );
+    const totalCommissions = settlements.reduce(
+      (sum, s) => sum + s.commissionAmount,
+      0,
+    );
 
     const closedBy = UserId.of(command.userId);
     period.close(closedBy, totalCollected, totalCommissions);

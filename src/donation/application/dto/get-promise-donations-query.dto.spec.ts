@@ -20,28 +20,36 @@ describe('GetPromiseDonationsQueryDto', () => {
   });
 
   it('debería transformar "true" a boolean true para recurring', async () => {
-    const dto = plainToInstance(GetPromiseDonationsQueryDto, { recurring: 'true' });
+    const dto = plainToInstance(GetPromiseDonationsQueryDto, {
+      recurring: 'true',
+    });
     const errors = await validate(dto);
     expect(errors.length).toBe(0);
     expect(dto.recurring).toBe(true);
   });
 
   it('debería transformar "false" a boolean false para recurring', async () => {
-    const dto = plainToInstance(GetPromiseDonationsQueryDto, { recurring: 'false' });
+    const dto = plainToInstance(GetPromiseDonationsQueryDto, {
+      recurring: 'false',
+    });
     const errors = await validate(dto);
     expect(errors.length).toBe(0);
     expect(dto.recurring).toBe(false);
   });
 
   it('debería transformar "true" a boolean true para isActive', async () => {
-    const dto = plainToInstance(GetPromiseDonationsQueryDto, { isActive: 'true' });
+    const dto = plainToInstance(GetPromiseDonationsQueryDto, {
+      isActive: 'true',
+    });
     const errors = await validate(dto);
     expect(errors.length).toBe(0);
     expect(dto.isActive).toBe(true);
   });
 
   it('debería transformar "false" a boolean false para isActive', async () => {
-    const dto = plainToInstance(GetPromiseDonationsQueryDto, { isActive: 'false' });
+    const dto = plainToInstance(GetPromiseDonationsQueryDto, {
+      isActive: 'false',
+    });
     const errors = await validate(dto);
     expect(errors.length).toBe(0);
     expect(dto.isActive).toBe(false);
@@ -50,6 +58,6 @@ describe('GetPromiseDonationsQueryDto', () => {
   it('debería rechazar currency que no sea string', async () => {
     const dto = plainToInstance(GetPromiseDonationsQueryDto, { currency: 123 });
     const errors = await validate(dto);
-    expect(errors.some(e => e.property === 'currency')).toBe(true);
+    expect(errors.some((e) => e.property === 'currency')).toBe(true);
   });
 });

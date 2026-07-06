@@ -3,7 +3,10 @@ import { ReactivateCollectorCommand } from '@/community/application/command/reac
 import { ErrorType } from '@/shared/domain/dto/result.dto';
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
@@ -31,7 +34,13 @@ function makeCollector(): Collector {
     addressHash: 'hash',
     phoneNumber: PhoneNumber.of('5512345678'),
     phoneNumberHash: 'hash',
-    paymentData: PaymentData.of({ commissionPercent: 10, bank: 'BBVA', reference: 'REF', nomina: 1000, transportAllowance: 200 }),
+    paymentData: PaymentData.of({
+      commissionPercent: 10,
+      bank: 'BBVA',
+      reference: 'REF',
+      nomina: 1000,
+      transportAllowance: 200,
+    }),
     assignations: new Set(),
     createdAt: new Date(),
     isActive: false,
@@ -42,10 +51,15 @@ function makeCollector(): Collector {
 
 describe('ReactivateCollectorHandler', () => {
   it('debería fallar con NOT_FOUND si el colector no existe o ya está activo', async () => {
-    const repo = { findInactiveById: jest.fn().mockResolvedValue(null), save: jest.fn() };
+    const repo = {
+      findInactiveById: jest.fn().mockResolvedValue(null),
+      save: jest.fn(),
+    };
     const handler = new ReactivateCollectorHandler(repo as any);
 
-    const result = await handler.execute(new ReactivateCollectorCommand(COLLECTOR_ID));
+    const result = await handler.execute(
+      new ReactivateCollectorCommand(COLLECTOR_ID),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.NOT_FOUND);
@@ -59,7 +73,9 @@ describe('ReactivateCollectorHandler', () => {
     };
     const handler = new ReactivateCollectorHandler(repo as any);
 
-    const result = await handler.execute(new ReactivateCollectorCommand(COLLECTOR_ID));
+    const result = await handler.execute(
+      new ReactivateCollectorCommand(COLLECTOR_ID),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(collector.isActive).toBe(true);

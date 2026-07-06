@@ -28,7 +28,9 @@ describe('DeactivateAssignationsDto', () => {
 
   it('debería rechazar assignationId que no sea UUID', async () => {
     const dto = plainToInstance(DeactivateAssignationsDto, {
-      deactivateAssignations: [{ assignationId: 'no-uuid', reason: 'Traslado' }],
+      deactivateAssignations: [
+        { assignationId: 'no-uuid', reason: 'Traslado' },
+      ],
     });
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);

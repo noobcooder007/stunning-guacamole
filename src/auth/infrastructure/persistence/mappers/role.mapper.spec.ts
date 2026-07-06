@@ -30,7 +30,13 @@ const validRaw: IRolePersistence = {
   name: 'collector',
   description: 'Rol de colector',
   permissions: [
-    { id: PERM_ID, name: 'view:collectors', description: 'Ver colectores', createdAt: new Date('2026-01-01'), isActive: true },
+    {
+      id: PERM_ID,
+      name: 'view:collectors',
+      description: 'Ver colectores',
+      createdAt: new Date('2026-01-01'),
+      isActive: true,
+    },
   ],
   createdAt: new Date('2026-01-01'),
   isActive: true,

@@ -21,7 +21,9 @@ export class GetRoleByIdHandler extends BaseQueryHandler<
     super(datasource);
   }
 
-  protected async handle(query: GetRoleByIdQuery): Promise<Result<RoleResponse>> {
+  protected async handle(
+    query: GetRoleByIdQuery,
+  ): Promise<Result<RoleResponse>> {
     const role = await this.roleRepository.findById(query.id);
     if (!role) {
       return Result.fail({

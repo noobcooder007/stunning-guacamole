@@ -38,7 +38,8 @@ export class MarkAsPaidReceiptsCommandHandler extends BaseCommandHandler<
       this.periodRepository.findOpen(),
     ]);
 
-    if (!receipts || receipts.length === 0) return Result.ok({ currentPeriod: [], previousPeriods: [] });
+    if (!receipts || receipts.length === 0)
+      return Result.ok({ currentPeriod: [], previousPeriods: [] });
 
     const periodId = openPeriod?._id.unpack();
     const currentPeriodFolios: string[] = [];

@@ -48,7 +48,8 @@ export class UpdateCollectorHandler extends BaseCommandHandler<
         command.phoneNumber !== undefined
           ? this.hasher.hash(command.phoneNumber, true)
           : Promise.resolve(undefined),
-        command.telephoneNumber !== undefined && command.telephoneNumber !== null
+        command.telephoneNumber !== undefined &&
+        command.telephoneNumber !== null
           ? this.hasher.hash(command.telephoneNumber, true)
           : Promise.resolve(undefined),
       ]);

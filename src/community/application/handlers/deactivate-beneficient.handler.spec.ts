@@ -2,7 +2,10 @@ import { DeactivateBeneficientHanlder } from './deactivate-beneficient.handler';
 import { DeactivateBeneficientCommand } from '@/community/application/command/deactivate-beneficient.command';
 import { Beneficient } from '@/community/domain/aggregate/beneficient.aggregate';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { ErrorType } from '@/shared/domain/dto/result.dto';
 
@@ -45,7 +48,9 @@ describe('DeactivateBeneficientHandler', () => {
       findById: jest.fn(),
       save: jest.fn().mockResolvedValue(undefined),
     };
-    publisher = { mergeObjectContext: jest.fn().mockReturnValue({ commit: jest.fn() }) };
+    publisher = {
+      mergeObjectContext: jest.fn().mockReturnValue({ commit: jest.fn() }),
+    };
     handler = new DeactivateBeneficientHanlder(
       beneficientRepository as any,
       publisher as any,

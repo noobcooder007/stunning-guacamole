@@ -10,7 +10,10 @@ const ASSIGNATION_ID = '01907c2a-0000-7000-8000-000000000001';
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000002';
 const BENEFICIENT_ID = '01907c2a-0000-7000-8000-000000000003';
 
-function makeDomainAssignation(isActive = true, reason: string | null = null): Assignation {
+function makeDomainAssignation(
+  isActive = true,
+  reason: string | null = null,
+): Assignation {
   return Assignation.recreate(ASSIGNATION_ID, {
     collectorId: CollectorId.of(COLLECTOR_ID),
     beneficientId: BeneficientId.of(BENEFICIENT_ID),
@@ -44,7 +47,9 @@ describe('AssignationMapper', () => {
     });
 
     it('debería mapear la asignación inactiva con su razón', () => {
-      const raw = AssignationMapper.toPersistence(makeDomainAssignation(false, 'Traslado'));
+      const raw = AssignationMapper.toPersistence(
+        makeDomainAssignation(false, 'Traslado'),
+      );
 
       expect(raw.isActive).toBe(false);
       expect(raw.reasonDeactivated).toBe('Traslado');

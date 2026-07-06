@@ -10,4 +10,3 @@ export class GetBeneficientQueryParams {
     readonly limit?: number,
   ) {}
 }
-

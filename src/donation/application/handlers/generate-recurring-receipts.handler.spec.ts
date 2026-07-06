@@ -17,38 +17,43 @@ function makePeriod(month: number, year: number) {
   };
 }
 
-function makeHandlerDeps(overrides: {
-  findOpen?: any;
-  searchWithActiveAssignments?: jest.Mock;
-  receiptExists?: boolean;
-} = {}) {
+function makeHandlerDeps(
+  overrides: {
+    findOpen?: any;
+    searchWithActiveAssignments?: jest.Mock;
+    receiptExists?: boolean;
+  } = {},
+) {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
 
   const promiseDonationService = {
     searchWithActiveAssignments:
-      overrides.searchWithActiveAssignments ??
-      jest.fn().mockResolvedValue([]),
+      overrides.searchWithActiveAssignments ?? jest.fn().mockResolvedValue([]),
   };
-  const promiseDonationRepository = { save: jest.fn().mockResolvedValue(undefined) };
+  const promiseDonationRepository = {
+    save: jest.fn().mockResolvedValue(undefined),
+  };
   const receiptRepository = {
     exists: jest.fn().mockResolvedValue(overrides.receiptExists ?? false),
     save: jest.fn().mockResolvedValue(undefined),
   };
   const periodRepository = {
-    findOpen:
-      overrides.findOpen ??
-      jest.fn().mockResolvedValue(null),
+    findOpen: overrides.findOpen ?? jest.fn().mockResolvedValue(null),
   };
   const folioProvider = {
-    generateNext: jest.fn().mockResolvedValue(
-      ReceiptFolio.create(new Date(), '001', 1, 'RECURRING'),
-    ),
+    generateNext: jest
+      .fn()
+      .mockResolvedValue(
+        ReceiptFolio.create(new Date(), '001', 1, 'RECURRING'),
+      ),
   };
   const hasher = { hash: jest.fn().mockResolvedValue('hashed-chain-value') };
   const uow = {
-    runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+    runInTransaction: jest
+      .fn()
+      .mockImplementation((fn: () => Promise<any>) => fn()),
   };
 
   const handler = new GenerateRecurringReceiptsHandler(
@@ -76,13 +81,16 @@ describe('GenerateRecurringReceiptsHandler', () => {
   it('debería fallar con CONFLICT si el periodo abierto no es del mes actual', async () => {
     const now = new Date();
     const wrongMonth = now.getMonth() === 0 ? 12 : now.getMonth();
-    const wrongYear = wrongMonth === 12 ? now.getFullYear() - 1 : now.getFullYear();
+    const wrongYear =
+      wrongMonth === 12 ? now.getFullYear() - 1 : now.getFullYear();
 
     const { handler } = makeHandlerDeps({
       findOpen: jest.fn().mockResolvedValue(makePeriod(wrongMonth, wrongYear)),
     });
 
-    const result = await handler.execute(new GenerateRecurringReceiptsCommand(USER_ID));
+    const result = await handler.execute(
+      new GenerateRecurringReceiptsCommand(USER_ID),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.CONFLICT);
@@ -91,7 +99,9 @@ describe('GenerateRecurringReceiptsHandler', () => {
   it('debería tener éxito cuando no hay periodo abierto y no hay promesas', async () => {
     const { handler } = makeHandlerDeps();
 
-    const result = await handler.execute(new GenerateRecurringReceiptsCommand(USER_ID));
+    const result = await handler.execute(
+      new GenerateRecurringReceiptsCommand(USER_ID),
+    );
 
     expect(result.isSuccess).toBe(true);
   });
@@ -102,10 +112,14 @@ describe('GenerateRecurringReceiptsHandler', () => {
     const currentYear = now.getFullYear();
 
     const { handler } = makeHandlerDeps({
-      findOpen: jest.fn().mockResolvedValue(makePeriod(currentMonth, currentYear)),
+      findOpen: jest
+        .fn()
+        .mockResolvedValue(makePeriod(currentMonth, currentYear)),
     });
 
-    const result = await handler.execute(new GenerateRecurringReceiptsCommand(USER_ID));
+    const result = await handler.execute(
+      new GenerateRecurringReceiptsCommand(USER_ID),
+    );
 
     expect(result.isSuccess).toBe(true);
   });
@@ -136,12 +150,15 @@ describe('GenerateRecurringReceiptsHandler', () => {
       chainValidator: 'existing-chain',
     };
 
-    const { handler, receiptRepository, promiseDonationRepository } = makeHandlerDeps({
-      searchWithActiveAssignments: jest.fn().mockResolvedValue([promiseRow]),
-      receiptExists: false,
-    });
+    const { handler, receiptRepository, promiseDonationRepository } =
+      makeHandlerDeps({
+        searchWithActiveAssignments: jest.fn().mockResolvedValue([promiseRow]),
+        receiptExists: false,
+      });
 
-    const result = await handler.execute(new GenerateRecurringReceiptsCommand(USER_ID));
+    const result = await handler.execute(
+      new GenerateRecurringReceiptsCommand(USER_ID),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(receiptRepository.save).toHaveBeenCalledTimes(1);
@@ -178,7 +195,9 @@ describe('GenerateRecurringReceiptsHandler', () => {
       receiptExists: true,
     });
 
-    const result = await handler.execute(new GenerateRecurringReceiptsCommand(USER_ID));
+    const result = await handler.execute(
+      new GenerateRecurringReceiptsCommand(USER_ID),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(receiptRepository.save).not.toHaveBeenCalled();

@@ -15,4 +15,3 @@ export class GetBeneficientsQueryDto extends PaginationDto {
   @IsOptional()
   zipCode: string;
 }
-

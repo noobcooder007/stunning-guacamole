@@ -45,8 +45,10 @@ export class CollectionPeriodMapper {
       closedBy: raw.closedBy ? UserId.of(raw.closedBy) : undefined,
       createdAt: raw.createdAt,
       createdBy: UserId.of(raw.createdBy),
-      totalCollected: raw.totalCollected != null ? Number(raw.totalCollected) : undefined,
-      totalCommissions: raw.totalCommissions != null ? Number(raw.totalCommissions) : undefined,
+      totalCollected:
+        raw.totalCollected != null ? Number(raw.totalCollected) : undefined,
+      totalCommissions:
+        raw.totalCommissions != null ? Number(raw.totalCommissions) : undefined,
       totalNet: raw.totalNet != null ? Number(raw.totalNet) : undefined,
     });
   }

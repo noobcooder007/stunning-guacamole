@@ -7,7 +7,10 @@ describe('GetBeneficientsRegistryHandler', () => {
 
   beforeEach(() => {
     registryService = { getRegistry: jest.fn() };
-    handler = new GetBeneficientsRegistryHandler({} as any, registryService as any);
+    handler = new GetBeneficientsRegistryHandler(
+      {} as any,
+      registryService as any,
+    );
   });
 
   it('debería delegar al servicio y devolver Result.ok', async () => {

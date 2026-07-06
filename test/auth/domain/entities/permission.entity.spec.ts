@@ -1,4 +1,7 @@
-import { Permission, PermissionId } from '@/auth/domain/entities/permission.entity';
+import {
+  Permission,
+  PermissionId,
+} from '@/auth/domain/entities/permission.entity';
 import { InvalidAttributeException } from '@/shared/domain/exceptions/invalid-attribute-exception.exception';
 
 const VALID_UUID = '00000000-0000-0000-0000-000000000001';
@@ -98,9 +101,9 @@ describe('Permission', () => {
     });
 
     it('lanza con UUID inválido', () => {
-      expect(() =>
-        Permission.recreate('not-a-uuid', baseProps),
-      ).toThrow(InvalidAttributeException);
+      expect(() => Permission.recreate('not-a-uuid', baseProps)).toThrow(
+        InvalidAttributeException,
+      );
     });
   });
 

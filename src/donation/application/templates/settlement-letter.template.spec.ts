@@ -3,7 +3,9 @@ import {
   SettlementLetterData,
 } from './settlement-letter.template';
 
-function makeLetter(overrides: Partial<SettlementLetterData> = {}): SettlementLetterData {
+function makeLetter(
+  overrides: Partial<SettlementLetterData> = {},
+): SettlementLetterData {
   return {
     collectorName: 'Juan Pérez García',
     collectorNumber: 3,

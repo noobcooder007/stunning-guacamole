@@ -31,12 +31,24 @@ describe('ValueObject.toJSON()', () => {
 
   it('debería retornar false cuando se compara con undefined (usando equals base)', () => {
     // PaymentData usa el equals() del ValueObject base que maneja null/undefined
-    const vo = PaymentData.of({ commissionPercent: 10, bank: 'BBVA', reference: 'R', nomina: 0, transportAllowance: 0 });
+    const vo = PaymentData.of({
+      commissionPercent: 10,
+      bank: 'BBVA',
+      reference: 'R',
+      nomina: 0,
+      transportAllowance: 0,
+    });
     expect(vo.equals(undefined)).toBe(false);
   });
 
   it('debería retornar false cuando se compara con un VO con props undefined', () => {
-    const vo = PaymentData.of({ commissionPercent: 10, bank: 'BBVA', reference: 'R', nomina: 0, transportAllowance: 0 });
+    const vo = PaymentData.of({
+      commissionPercent: 10,
+      bank: 'BBVA',
+      reference: 'R',
+      nomina: 0,
+      transportAllowance: 0,
+    });
     const voSinProps = Object.create(ValueObject.prototype);
     expect(vo.equals(voSinProps)).toBe(false);
   });

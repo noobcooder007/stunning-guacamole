@@ -2,12 +2,14 @@ import { Address, Numeration } from './address.vo';
 import { ZipCode } from './zip-code.vo';
 import { InvalidAttributeException } from '@/shared/domain/exceptions/invalid-attribute-exception.exception';
 
-function makeAddress(overrides: Partial<{
-  neighborhood: string;
-  locality: string;
-  noExt: string;
-  noInt: string | null;
-}> = {}) {
+function makeAddress(
+  overrides: Partial<{
+    neighborhood: string;
+    locality: string;
+    noExt: string;
+    noInt: string | null;
+  }> = {},
+) {
   return Address.of({
     street: 'Calle Principal',
     numeration: Numeration.of({
@@ -29,11 +31,15 @@ describe('Numeration', () => {
     });
 
     it('debería lanzar si noExt es null', () => {
-      expect(() => Numeration.of({ noExt: null, noInt: null })).toThrow(InvalidAttributeException);
+      expect(() => Numeration.of({ noExt: null, noInt: null })).toThrow(
+        InvalidAttributeException,
+      );
     });
 
     it('debería lanzar si noExt y noInt son iguales', () => {
-      expect(() => Numeration.of({ noExt: 'A', noInt: 'A' })).toThrow(InvalidAttributeException);
+      expect(() => Numeration.of({ noExt: 'A', noInt: 'A' })).toThrow(
+        InvalidAttributeException,
+      );
     });
   });
 

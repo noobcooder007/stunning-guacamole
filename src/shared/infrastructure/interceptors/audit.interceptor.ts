@@ -18,8 +18,7 @@ export class AuditInterceptor implements NestInterceptor {
     const routePath: string = req.route?.path ?? req.path;
     const operation = `${method} ${routePath}`;
     const userId: string | undefined = req.user?.id;
-    const traceId: string | undefined =
-      transactionStorage.getStore()?.traceId;
+    const traceId: string | undefined = transactionStorage.getStore()?.traceId;
     const ip: string =
       req.headers['x-forwarded-for'] ?? req.socket?.remoteAddress ?? req.ip;
     const userAgent: string = req.headers['user-agent'];

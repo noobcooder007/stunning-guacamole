@@ -1,9 +1,4 @@
-import {
-  IsNumber,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-} from 'class-validator';
+import { IsNumber, IsOptional, IsPhoneNumber, IsString } from 'class-validator';
 
 export class UpdateCollectorPersonalDto {
   @IsString()

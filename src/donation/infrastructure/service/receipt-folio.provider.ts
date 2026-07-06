@@ -29,7 +29,11 @@ export class ReceiptFolioProvider {
     SPECIAL: 'S',
   };
 
-  async generateNext(collectorId: string, type: string, date?: Date): Promise<ReceiptFolio> {
+  async generateNext(
+    collectorId: string,
+    type: string,
+    date?: Date,
+  ): Promise<ReceiptFolio> {
     const target = date ?? new Date();
     const year = target.getFullYear();
     const monthIndex = target.getMonth();

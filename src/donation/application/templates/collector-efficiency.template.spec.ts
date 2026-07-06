@@ -3,7 +3,9 @@ import {
   CollectorEfficiencyPdfData,
 } from './collector-efficiency.template';
 
-function makeEfficiencyData(overrides: Partial<CollectorEfficiencyPdfData> = {}): CollectorEfficiencyPdfData {
+function makeEfficiencyData(
+  overrides: Partial<CollectorEfficiencyPdfData> = {},
+): CollectorEfficiencyPdfData {
   return {
     collectorName: 'Juan Pérez García',
     collectorNumber: 3,

@@ -24,7 +24,9 @@ function makePromise(isActive: boolean): PromiseDonation {
     createdAt: now,
     updatedAt: now,
     lastDonation: null,
-    nextDonation: isActive ? new Date(now.getFullYear(), now.getMonth(), 1) : null,
+    nextDonation: isActive
+      ? new Date(now.getFullYear(), now.getMonth(), 1)
+      : null,
     reasonDeactivate: isActive ? null : 'Baja temporal',
   });
 }
@@ -41,7 +43,9 @@ describe('ReactivatePromiseDonationHandler', () => {
   it('debería fallar con NOT_FOUND si la promesa no existe', async () => {
     const { handler } = makeHandler();
 
-    const result = await handler.execute(new ReactivatePromiseDonationCommand(PROMISE_ID));
+    const result = await handler.execute(
+      new ReactivatePromiseDonationCommand(PROMISE_ID),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.NOT_FOUND);
@@ -52,7 +56,9 @@ describe('ReactivatePromiseDonationHandler', () => {
       findById: jest.fn().mockResolvedValue(makePromise(true)),
     });
 
-    const result = await handler.execute(new ReactivatePromiseDonationCommand(PROMISE_ID));
+    const result = await handler.execute(
+      new ReactivatePromiseDonationCommand(PROMISE_ID),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.CONFLICT);
@@ -64,7 +70,9 @@ describe('ReactivatePromiseDonationHandler', () => {
       findById: jest.fn().mockResolvedValue(promise),
     });
 
-    const result = await handler.execute(new ReactivatePromiseDonationCommand(PROMISE_ID));
+    const result = await handler.execute(
+      new ReactivatePromiseDonationCommand(PROMISE_ID),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(promise.isActive).toBe(true);

@@ -51,7 +51,11 @@ describe('beneficientsRegistryTemplate', () => {
   });
 
   it('debería manejar lista de items vacía', () => {
-    const doc = beneficientsRegistryTemplate({ items: [], generatedAt: '2026-06-13', total: 0 });
+    const doc = beneficientsRegistryTemplate({
+      items: [],
+      generatedAt: '2026-06-13',
+      total: 0,
+    });
     expect(doc).toBeDefined();
   });
 
@@ -75,7 +79,13 @@ describe('beneficientsRegistryTemplate', () => {
 
   it('debería manejar campos opcionales ausentes (secondLastname, phoneNumber)', () => {
     const data: BeneficientsRegistryPdfData = {
-      items: [makeRegistryItem({ secondLastname: null, phoneNumber: null, collectorNumber: null })],
+      items: [
+        makeRegistryItem({
+          secondLastname: null,
+          phoneNumber: null,
+          collectorNumber: null,
+        }),
+      ],
       generatedAt: '2026-06-13',
       total: 1,
     };
@@ -111,7 +121,11 @@ describe('beneficientsReportTemplate', () => {
   });
 
   it('debería manejar lista de items vacía', () => {
-    const doc = beneficientsReportTemplate({ items: [], generatedAt: '2026-06-13', total: 0 });
+    const doc = beneficientsReportTemplate({
+      items: [],
+      generatedAt: '2026-06-13',
+      total: 0,
+    });
     expect(doc).toBeDefined();
   });
 

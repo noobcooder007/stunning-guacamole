@@ -1,6 +1,9 @@
 import { Beneficient, BeneficientId } from './beneficient.aggregate';
 import { ChurchId } from './church.aggregate';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import {
   UpdateBeneficientPersonalCommand,
@@ -58,7 +61,9 @@ describe('Beneficient', () => {
 
       b.deactivate('Motivo');
 
-      expect(b.deactivatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(b.deactivatedAt.getTime()).toBeGreaterThanOrEqual(
+        before.getTime(),
+      );
     });
   });
 
@@ -107,8 +112,15 @@ describe('Beneficient', () => {
     it('debería actualizar datos personales con UpdateBeneficientPersonalCommand', () => {
       const b = makeBeneficient();
       const cmd = new UpdateBeneficientPersonalCommand(
-        BID, 'Sra.', 'María', 'López', 'Soto',
-        new Date('1990-05-20'), 'FEMALE', 'MARRIED', null,
+        BID,
+        'Sra.',
+        'María',
+        'López',
+        'Soto',
+        new Date('1990-05-20'),
+        'FEMALE',
+        'MARRIED',
+        null,
       );
 
       b.update(cmd);
@@ -122,7 +134,15 @@ describe('Beneficient', () => {
     it('debería actualizar dirección con UpdateBeneficientAddressCommand', () => {
       const b = makeBeneficient();
       const cmd = new UpdateBeneficientAddressCommand(
-        BID, 'Av. Juárez', '100', null, 'Guerrero', null, 'CDMX', 'CDMX', '06300',
+        BID,
+        'Av. Juárez',
+        '100',
+        null,
+        'Guerrero',
+        null,
+        'CDMX',
+        'CDMX',
+        '06300',
       );
       cmd.addressHash = 'nuevo-hash';
 
@@ -134,7 +154,11 @@ describe('Beneficient', () => {
 
     it('debería actualizar email con UpdateBeneficientContactCommand', () => {
       const b = makeBeneficient();
-      const cmd = new UpdateBeneficientContactCommand(BID, 'juan@example.com', null);
+      const cmd = new UpdateBeneficientContactCommand(
+        BID,
+        'juan@example.com',
+        null,
+      );
       cmd.emailHash = 'email-hash';
 
       b.update(cmd);
@@ -145,7 +169,11 @@ describe('Beneficient', () => {
 
     it('debería actualizar teléfono con UpdateBeneficientContactCommand', () => {
       const b = makeBeneficient();
-      const cmd = new UpdateBeneficientContactCommand(BID, undefined, '5512345678');
+      const cmd = new UpdateBeneficientContactCommand(
+        BID,
+        undefined,
+        '5512345678',
+      );
       cmd.phoneNumberHash = 'phone-hash';
 
       b.update(cmd);
@@ -174,7 +202,12 @@ describe('Beneficient', () => {
 
     it('debería crear taxInformation cuando no existía', () => {
       const b = makeBeneficient();
-      const cmd = new UpdateBeneficientTaxCommand(BID, 'FÍSICA', 'Juan Pérez', 'PEGJ850315XX0');
+      const cmd = new UpdateBeneficientTaxCommand(
+        BID,
+        'FÍSICA',
+        'Juan Pérez',
+        'PEGJ850315XX0',
+      );
       cmd.rfcHash = 'rfc-hash';
 
       b.update(cmd);

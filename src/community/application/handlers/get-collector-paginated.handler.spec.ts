@@ -7,13 +7,25 @@ describe('GetCollectorPaginatedHandler', () => {
 
   beforeEach(() => {
     collectorQueryService = { searchCollectors: jest.fn() };
-    handler = new GetCollectorPaginatedHandler({} as any, collectorQueryService as any);
+    handler = new GetCollectorPaginatedHandler(
+      {} as any,
+      collectorQueryService as any,
+    );
   });
 
   it('debería delegar al servicio y devolver Result.ok', async () => {
     const expected = { data: [], total: 0, page: 1, limit: 10 };
     collectorQueryService.searchCollectors.mockResolvedValue(expected);
-    const query = new GetCollectorQueryParams(undefined, undefined, undefined, undefined, undefined, undefined, 1, 10);
+    const query = new GetCollectorQueryParams(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      1,
+      10,
+    );
 
     const result = await handler.execute(query);
 

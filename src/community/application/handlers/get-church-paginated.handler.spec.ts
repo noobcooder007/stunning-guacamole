@@ -7,13 +7,24 @@ describe('GetChurchPaginatedHandler', () => {
 
   beforeEach(() => {
     churchQueryService = { searchChurches: jest.fn() };
-    handler = new GetChurchPaginatedHandler({} as any, churchQueryService as any);
+    handler = new GetChurchPaginatedHandler(
+      {} as any,
+      churchQueryService as any,
+    );
   });
 
   it('debería delegar al servicio y devolver Result.ok', async () => {
     const expected = { data: [], total: 0, page: 1, limit: 10 };
     churchQueryService.searchChurches.mockResolvedValue(expected);
-    const query = new GetChurchQueryParams(undefined, undefined, undefined, undefined, undefined, 1, 10);
+    const query = new GetChurchQueryParams(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      1,
+      10,
+    );
 
     const result = await handler.execute(query);
 

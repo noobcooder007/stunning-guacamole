@@ -64,7 +64,9 @@ describe('GetCurrentPeriodHandler', () => {
     await handler.execute(query);
 
     expect(receiptRepo.count).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ periodMonth: 6, periodYear: 2026 }) }),
+      expect.objectContaining({
+        where: expect.objectContaining({ periodMonth: 6, periodYear: 2026 }),
+      }),
     );
   });
 });

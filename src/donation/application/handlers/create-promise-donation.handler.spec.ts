@@ -28,7 +28,9 @@ describe('CreatePromiseDonationHandler', () => {
       exists: jest.fn().mockResolvedValue(false),
       save: jest.fn().mockResolvedValue(undefined),
     };
-    handler = new CreatePromiseDonationHandler(promiseDonationRepository as any);
+    handler = new CreatePromiseDonationHandler(
+      promiseDonationRepository as any,
+    );
   });
 
   it('debería crear y guardar la promesa en el caso exitoso', async () => {

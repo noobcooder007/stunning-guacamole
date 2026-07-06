@@ -5,7 +5,10 @@ import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
-import { Address, Numeration } from '@/community/domain/value-objects/address.vo';
+import {
+  Address,
+  Numeration,
+} from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
@@ -125,15 +128,17 @@ describe('CollectorMapper', () => {
       const AID = '01907c2a-0000-7000-8000-000000000010';
       const raw: ICollectorPersistence = {
         ...validRaw,
-        assignations: [{
-          id: AID,
-          collectorId: COLLECTOR_ID,
-          beneficientId: '01907c2a-0000-7000-8000-000000000030',
-          reasonDeactivated: null,
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }],
+        assignations: [
+          {
+            id: AID,
+            collectorId: COLLECTOR_ID,
+            beneficientId: '01907c2a-0000-7000-8000-000000000030',
+            reasonDeactivated: null,
+            isActive: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
       };
       const collector = CollectorMapper.toDomain(raw);
 
@@ -141,7 +146,10 @@ describe('CollectorMapper', () => {
     });
 
     it('debería usar Set vacío cuando no hay assignations', () => {
-      const collector = CollectorMapper.toDomain({ ...validRaw, assignations: [] });
+      const collector = CollectorMapper.toDomain({
+        ...validRaw,
+        assignations: [],
+      });
 
       expect(collector.assignations.size).toBe(0);
     });
@@ -162,7 +170,9 @@ describe('CollectorMapper', () => {
 
   describe('fromDomainToResponse()', () => {
     it('debería mapear el agregado a la respuesta REST', () => {
-      const response = CollectorMapper.fromDomainToResponse(makeDomainCollector());
+      const response = CollectorMapper.fromDomainToResponse(
+        makeDomainCollector(),
+      );
 
       expect(response.id).toBe(COLLECTOR_ID);
       expect(response.firstname).toBe('Juan');
@@ -174,13 +184,17 @@ describe('CollectorMapper', () => {
     });
 
     it('debería mapear telephoneNumber como null cuando no existe', () => {
-      const response = CollectorMapper.fromDomainToResponse(makeDomainCollector(false));
+      const response = CollectorMapper.fromDomainToResponse(
+        makeDomainCollector(false),
+      );
 
       expect(response.telephoneNumber).toBeNull();
     });
 
     it('debería mapear telephoneNumber cuando existe', () => {
-      const response = CollectorMapper.fromDomainToResponse(makeDomainCollector(true));
+      const response = CollectorMapper.fromDomainToResponse(
+        makeDomainCollector(true),
+      );
 
       expect(response.telephoneNumber).toBe('5598765432');
     });

@@ -23,40 +23,64 @@ describe('CreatePromiseDonationDto', () => {
   });
 
   it('debería rechazar beneficientId que no sea UUID', async () => {
-    const dto = plainToInstance(CreatePromiseDonationDto, { ...validPayload, beneficientId: 'no-uuid' });
+    const dto = plainToInstance(CreatePromiseDonationDto, {
+      ...validPayload,
+      beneficientId: 'no-uuid',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'beneficientId')).toBeDefined();
   });
 
   it('debería rechazar promiseAmount menor a 0.01', async () => {
-    const dto = plainToInstance(CreatePromiseDonationDto, { ...validPayload, promiseAmount: 0 });
+    const dto = plainToInstance(CreatePromiseDonationDto, {
+      ...validPayload,
+      promiseAmount: 0,
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'promiseAmount')).toBeDefined();
   });
 
   it('debería rechazar currency inválida', async () => {
-    const dto = plainToInstance(CreatePromiseDonationDto, { ...validPayload, currency: 'EUR' });
+    const dto = plainToInstance(CreatePromiseDonationDto, {
+      ...validPayload,
+      currency: 'EUR',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'currency')).toBeDefined();
   });
 
   it('debería rechazar recurrence inválida', async () => {
-    const dto = plainToInstance(CreatePromiseDonationDto, { ...validPayload, recurrence: 'DAILY' });
+    const dto = plainToInstance(CreatePromiseDonationDto, {
+      ...validPayload,
+      recurrence: 'DAILY',
+    });
     const errors = await validate(dto);
     expect(errors.find((e) => e.property === 'recurrence')).toBeDefined();
   });
 
   it('debería aceptar todas las recurrencias válidas', async () => {
-    const recurrences = ['MONTHLY', 'BIMONTHLY', 'QUARTERLY', 'SEMIANNUAL', 'ANNUAL'];
+    const recurrences = [
+      'MONTHLY',
+      'BIMONTHLY',
+      'QUARTERLY',
+      'SEMIANNUAL',
+      'ANNUAL',
+    ];
     for (const recurrence of recurrences) {
-      const dto = plainToInstance(CreatePromiseDonationDto, { ...validPayload, recurrence });
+      const dto = plainToInstance(CreatePromiseDonationDto, {
+        ...validPayload,
+        recurrence,
+      });
       const errors = await validate(dto);
       expect(errors.find((e) => e.property === 'recurrence')).toBeUndefined();
     }
   });
 
   it('debería aceptar USD como currency válida', async () => {
-    const dto = plainToInstance(CreatePromiseDonationDto, { ...validPayload, currency: 'USD' });
+    const dto = plainToInstance(CreatePromiseDonationDto, {
+      ...validPayload,
+      currency: 'USD',
+    });
     const errors = await validate(dto);
     expect(errors.length).toBe(0);
   });

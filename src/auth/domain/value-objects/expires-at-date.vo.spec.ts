@@ -8,7 +8,9 @@ describe('ExpiresAtDate', () => {
     });
 
     it('debería lanzar con fecha pasada', () => {
-      expect(() => ExpiresAtDate.of(new Date('2000-01-01'))).toThrow(InvalidAttributeException);
+      expect(() => ExpiresAtDate.of(new Date('2000-01-01'))).toThrow(
+        InvalidAttributeException,
+      );
     });
   });
 

@@ -32,7 +32,9 @@ function makePromise(isActive = true): PromiseDonation {
     createdAt: now,
     updatedAt: now,
     lastDonation: null,
-    nextDonation: isActive ? new Date(now.getFullYear(), now.getMonth(), 1) : null,
+    nextDonation: isActive
+      ? new Date(now.getFullYear(), now.getMonth(), 1)
+      : null,
     reasonDeactivate: isActive ? null : 'Baja',
   });
 }
@@ -46,18 +48,26 @@ function makeRepo(promise: PromiseDonation | null = null) {
 
 describe('UpdatePromiseDonationAmountHandler', () => {
   it('debería fallar con NOT_FOUND si no existe la promesa', async () => {
-    const handler = new UpdatePromiseDonationAmountHandler(makeRepo(null) as any);
+    const handler = new UpdatePromiseDonationAmountHandler(
+      makeRepo(null) as any,
+    );
 
-    const result = await handler.execute(new UpdatePromiseDonationAmountCommand(PROMISE_ID, 200, 'USD'));
+    const result = await handler.execute(
+      new UpdatePromiseDonationAmountCommand(PROMISE_ID, 200, 'USD'),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.NOT_FOUND);
   });
 
   it('debería fallar con CONFLICT si la promesa está inactiva', async () => {
-    const handler = new UpdatePromiseDonationAmountHandler(makeRepo(makePromise(false)) as any);
+    const handler = new UpdatePromiseDonationAmountHandler(
+      makeRepo(makePromise(false)) as any,
+    );
 
-    const result = await handler.execute(new UpdatePromiseDonationAmountCommand(PROMISE_ID, 200, 'USD'));
+    const result = await handler.execute(
+      new UpdatePromiseDonationAmountCommand(PROMISE_ID, 200, 'USD'),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.CONFLICT);
@@ -68,7 +78,9 @@ describe('UpdatePromiseDonationAmountHandler', () => {
     const repo = makeRepo(promise);
     const handler = new UpdatePromiseDonationAmountHandler(repo as any);
 
-    const result = await handler.execute(new UpdatePromiseDonationAmountCommand(PROMISE_ID, 300, 'USD'));
+    const result = await handler.execute(
+      new UpdatePromiseDonationAmountCommand(PROMISE_ID, 300, 'USD'),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(promise.promiseAmount).toBe(300);
@@ -79,18 +91,26 @@ describe('UpdatePromiseDonationAmountHandler', () => {
 
 describe('UpdatePromiseDonationRecurrenceHandler', () => {
   it('debería fallar con NOT_FOUND si no existe la promesa', async () => {
-    const handler = new UpdatePromiseDonationRecurrenceHandler(makeRepo(null) as any);
+    const handler = new UpdatePromiseDonationRecurrenceHandler(
+      makeRepo(null) as any,
+    );
 
-    const result = await handler.execute(new UpdatePromiseDonationRecurrenceCommand(PROMISE_ID, 3));
+    const result = await handler.execute(
+      new UpdatePromiseDonationRecurrenceCommand(PROMISE_ID, 3),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.NOT_FOUND);
   });
 
   it('debería fallar con CONFLICT si la promesa está inactiva', async () => {
-    const handler = new UpdatePromiseDonationRecurrenceHandler(makeRepo(makePromise(false)) as any);
+    const handler = new UpdatePromiseDonationRecurrenceHandler(
+      makeRepo(makePromise(false)) as any,
+    );
 
-    const result = await handler.execute(new UpdatePromiseDonationRecurrenceCommand(PROMISE_ID, 3));
+    const result = await handler.execute(
+      new UpdatePromiseDonationRecurrenceCommand(PROMISE_ID, 3),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.CONFLICT);
@@ -101,7 +121,9 @@ describe('UpdatePromiseDonationRecurrenceHandler', () => {
     const repo = makeRepo(promise);
     const handler = new UpdatePromiseDonationRecurrenceHandler(repo as any);
 
-    const result = await handler.execute(new UpdatePromiseDonationRecurrenceCommand(PROMISE_ID, 6));
+    const result = await handler.execute(
+      new UpdatePromiseDonationRecurrenceCommand(PROMISE_ID, 6),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(promise.recurrence).toBe(6);
@@ -116,18 +138,26 @@ describe('UpdatePromiseDonationInstructionsHandler', () => {
   };
 
   it('debería fallar con NOT_FOUND si no existe la promesa', async () => {
-    const handler = new UpdatePromiseDonationInstructionsHandler(makeRepo(null) as any);
+    const handler = new UpdatePromiseDonationInstructionsHandler(
+      makeRepo(null) as any,
+    );
 
-    const result = await handler.execute(new UpdatePromiseDonationInstructionsCommand(PROMISE_ID, instructions));
+    const result = await handler.execute(
+      new UpdatePromiseDonationInstructionsCommand(PROMISE_ID, instructions),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.NOT_FOUND);
   });
 
   it('debería fallar con CONFLICT si la promesa está inactiva', async () => {
-    const handler = new UpdatePromiseDonationInstructionsHandler(makeRepo(makePromise(false)) as any);
+    const handler = new UpdatePromiseDonationInstructionsHandler(
+      makeRepo(makePromise(false)) as any,
+    );
 
-    const result = await handler.execute(new UpdatePromiseDonationInstructionsCommand(PROMISE_ID, instructions));
+    const result = await handler.execute(
+      new UpdatePromiseDonationInstructionsCommand(PROMISE_ID, instructions),
+    );
 
     expect(result.isSuccess).toBe(false);
     expect(result.error.type).toBe(ErrorType.CONFLICT);
@@ -138,7 +168,9 @@ describe('UpdatePromiseDonationInstructionsHandler', () => {
     const repo = makeRepo(promise);
     const handler = new UpdatePromiseDonationInstructionsHandler(repo as any);
 
-    const result = await handler.execute(new UpdatePromiseDonationInstructionsCommand(PROMISE_ID, instructions));
+    const result = await handler.execute(
+      new UpdatePromiseDonationInstructionsCommand(PROMISE_ID, instructions),
+    );
 
     expect(result.isSuccess).toBe(true);
     expect(promise.instructions).toEqual(instructions);

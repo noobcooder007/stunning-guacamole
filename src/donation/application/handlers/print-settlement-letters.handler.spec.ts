@@ -69,7 +69,9 @@ describe('PrintSettlementLettersHandler', () => {
     periodRepository = { findById: jest.fn() };
     settlementRepository = { findByPeriodId: jest.fn() };
     receiptRepository = { findPaidByCollectionPeriodId: jest.fn() };
-    pdfService = { print: jest.fn().mockResolvedValue(Readable.from(['%PDF'])) };
+    pdfService = {
+      print: jest.fn().mockResolvedValue(Readable.from(['%PDF'])),
+    };
 
     handler = new PrintSettlementLettersHandler(
       periodRepository as any,
@@ -133,7 +135,10 @@ describe('PrintSettlementLettersHandler', () => {
       createdAt: new Date(),
     });
     periodRepository.findById.mockResolvedValue(makePeriod());
-    settlementRepository.findByPeriodId.mockResolvedValue([makeSettlement(), settlement2]);
+    settlementRepository.findByPeriodId.mockResolvedValue([
+      makeSettlement(),
+      settlement2,
+    ]);
     receiptRepository.findPaidByCollectionPeriodId.mockResolvedValue([
       makeReceipt(COLLECTOR_ID),
       makeReceipt(COLLECTOR_ID),

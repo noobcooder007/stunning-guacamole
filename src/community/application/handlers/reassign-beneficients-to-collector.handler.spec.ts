@@ -2,9 +2,7 @@ import { Logger } from '@nestjs/common';
 import { ReassignBeneficientsToCollectorHandler } from './reassign-beneficients-to-collector.handler';
 import { ReassignBeneficientsCommand } from '@/community/application/command/reassign-beneficients.command';
 import { AssignationActivatedEvent } from '@/community/application/events/assignation-activated.event';
-import {
-  Assignation,
-} from '@/community/domain/aggregate/assignation.aggregate';
+import { Assignation } from '@/community/domain/aggregate/assignation.aggregate';
 import { BeneficientId } from '@/community/domain/aggregate/beneficient.aggregate';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
 import { Result, ErrorType } from '@/shared/domain/dto/result.dto';
@@ -33,7 +31,9 @@ function makeAssignation(
   });
 }
 
-function makeServiceResult(activatedIds: string[] = []): AssignationServiceResult {
+function makeServiceResult(
+  activatedIds: string[] = [],
+): AssignationServiceResult {
   const report: AssignationReportResponse = {
     addedCount: activatedIds.length,
     alreadyAssignedCount: 0,
@@ -46,7 +46,10 @@ function makeServiceResult(activatedIds: string[] = []): AssignationServiceResul
 
 describe('ReassignBeneficientsToCollectorHandler', () => {
   let handler: ReassignBeneficientsToCollectorHandler;
-  let assignationService: { createOrReactivate: jest.Mock; deactivate: jest.Mock };
+  let assignationService: {
+    createOrReactivate: jest.Mock;
+    deactivate: jest.Mock;
+  };
   let assignationRepository: { findByIds: jest.Mock };
   let collectorRepository: { isActive: jest.Mock };
   let uow: { runInTransaction: jest.Mock };
@@ -60,7 +63,9 @@ describe('ReassignBeneficientsToCollectorHandler', () => {
     assignationRepository = { findByIds: jest.fn() };
     collectorRepository = { isActive: jest.fn() };
     uow = {
-      runInTransaction: jest.fn().mockImplementation((fn: () => Promise<any>) => fn()),
+      runInTransaction: jest
+        .fn()
+        .mockImplementation((fn: () => Promise<any>) => fn()),
     };
     eventBus = { publish: jest.fn() };
 

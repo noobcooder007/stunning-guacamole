@@ -19,8 +19,18 @@ import {
 } from '@/donation/application/templates/settlement-letter.template';
 
 const MONTH_LABELS = [
-  'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
-  'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
+  'ENE',
+  'FEB',
+  'MAR',
+  'ABR',
+  'MAY',
+  'JUN',
+  'JUL',
+  'AGO',
+  'SEP',
+  'OCT',
+  'NOV',
+  'DIC',
 ];
 
 @CommandHandler(PrintSettlementLettersCommand)
@@ -92,12 +102,13 @@ export class PrintSettlementLettersHandler extends BaseCommandHandler<
       const firstReceipt = receiptsForCollector[0];
       const collector = firstReceipt?.collector as CollectorSchema;
 
-      const receiptRows: SettlementLetterReceiptRow[] = receiptsForCollector.map(
-        (r) => {
+      const receiptRows: SettlementLetterReceiptRow[] =
+        receiptsForCollector.map((r) => {
           const beneficient = r.beneficient as BeneficientSchema;
-          const receiptPeriodLabel = r.periodMonth && r.periodYear
-            ? `${MONTH_LABELS[r.periodMonth - 1]}${r.periodYear}`
-            : '';
+          const receiptPeriodLabel =
+            r.periodMonth && r.periodYear
+              ? `${MONTH_LABELS[r.periodMonth - 1]}${r.periodYear}`
+              : '';
           return {
             folio: r.folio,
             beneficientName: beneficient
@@ -108,8 +119,7 @@ export class PrintSettlementLettersHandler extends BaseCommandHandler<
             currency: r.currency,
             periodLabel: receiptPeriodLabel,
           };
-        },
-      );
+        });
 
       const collectorName = collector
         ? this.getCollectorFullname(collector)

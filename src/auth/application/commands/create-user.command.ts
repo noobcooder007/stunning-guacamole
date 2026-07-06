@@ -4,7 +4,12 @@ export class CreateUserCommand {
   readonly role: string;
   readonly gender?: string;
 
-  constructor(username: string, password: string, role: string, gender?: string) {
+  constructor(
+    username: string,
+    password: string,
+    role: string,
+    gender?: string,
+  ) {
     this.username = username;
     this.password = password;
     this.role = role;

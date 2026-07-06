@@ -1,7 +1,11 @@
 import { Priest } from './priest.vo';
 import { InvalidAttributeException } from '@/shared/domain/exceptions/invalid-attribute-exception.exception';
 
-const validProps = { firstname: 'Juan', firstLastname: 'Pérez', secondLastname: 'García' };
+const validProps = {
+  firstname: 'Juan',
+  firstLastname: 'Pérez',
+  secondLastname: 'García',
+};
 
 describe('Priest', () => {
   describe('of()', () => {
@@ -10,11 +14,15 @@ describe('Priest', () => {
     });
 
     it('debería lanzar si firstname es null', () => {
-      expect(() => Priest.of({ ...validProps, firstname: null })).toThrow(InvalidAttributeException);
+      expect(() => Priest.of({ ...validProps, firstname: null })).toThrow(
+        InvalidAttributeException,
+      );
     });
 
     it('debería lanzar si firstLastname es null', () => {
-      expect(() => Priest.of({ ...validProps, firstLastname: null })).toThrow(InvalidAttributeException);
+      expect(() => Priest.of({ ...validProps, firstLastname: null })).toThrow(
+        InvalidAttributeException,
+      );
     });
   });
 

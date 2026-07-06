@@ -27,7 +27,9 @@ describe('UpdatePermissionHandler', () => {
       isActive: true,
       createdAt: new Date(),
     });
-    const repo = makeRepo({ findById: jest.fn().mockResolvedValue(permission) });
+    const repo = makeRepo({
+      findById: jest.fn().mockResolvedValue(permission),
+    });
     const handler = new UpdatePermissionHandler(repo);
 
     const result = await handler.execute(

@@ -7,5 +7,7 @@ export abstract class ICollectorSettlementRepository {
   abstract save(settlement: CollectorSettlement): Promise<void>;
   abstract findByPeriodId(periodId: string): Promise<CollectorSettlement[]>;
   abstract findById(id: string): Promise<CollectorSettlement | null>;
-  abstract findPendingByPeriodId(periodId: string): Promise<CollectorSettlement[]>;
+  abstract findPendingByPeriodId(
+    periodId: string,
+  ): Promise<CollectorSettlement[]>;
 }
