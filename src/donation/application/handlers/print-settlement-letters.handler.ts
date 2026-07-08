@@ -52,13 +52,13 @@ export class PrintSettlementLettersHandler extends BaseCommandHandler<
   }
 
   private getCollectorFullname(collector: CollectorSchema): string {
-    const second = collector.secondLastname ?? '';
-    return `${collector.firstname} ${collector.firstLastname} ${second}`.trim();
+    const second = collector.profile.secondLastname ?? '';
+    return `${collector.profile.firstname} ${collector.profile.firstLastname} ${second}`.trim();
   }
 
   private getBeneficientFullname(beneficient: BeneficientSchema): string {
-    const second = beneficient.secondLastname ?? '';
-    return `${beneficient.firstname} ${beneficient.firstLastname} ${second}`.trim();
+    const second = beneficient.profile.secondLastname ?? '';
+    return `${beneficient.profile.firstname} ${beneficient.profile.firstLastname} ${second}`.trim();
   }
 
   protected async process(

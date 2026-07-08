@@ -47,15 +47,15 @@ export class AssignationMapper {
     response.id = assignation.id;
     response.collector = {
       id: assignation.collector.id,
-      firstname: assignation.collector.firstname,
-      firstLastname: assignation.collector.firstLastname,
-      secondLastname: assignation.collector.secondLastname,
+      firstname: assignation.collector.profile.firstname,
+      firstLastname: assignation.collector.profile.firstLastname,
+      secondLastname: assignation.collector.profile.secondLastname,
     };
     response.beneficient = {
       id: assignation.beneficientId,
-      firstname: assignation.beneficient.firstname,
-      firstLastname: assignation.beneficient.firstLastname,
-      secondLastname: assignation.beneficient.secondLastname,
+      firstname: assignation.beneficient.profile.firstname,
+      firstLastname: assignation.beneficient.profile.firstLastname,
+      secondLastname: assignation.beneficient.profile.secondLastname,
     };
     response.updatedAt = assignation.updatedAt;
     return response;

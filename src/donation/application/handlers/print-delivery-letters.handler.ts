@@ -57,11 +57,11 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
   }
 
   private getCollectorFullname(c: CollectorSchema): string {
-    return `${c.firstname} ${c.firstLastname} ${c.secondLastname ?? ''}`.trim();
+    return `${c.profile.firstname} ${c.profile.firstLastname} ${c.profile.secondLastname ?? ''}`.trim();
   }
 
   private getBeneficientFullname(b: BeneficientSchema): string {
-    return `${b.firstname} ${b.firstLastname} ${b.secondLastname ?? ''}`.trim();
+    return `${b.profile.firstname} ${b.profile.firstLastname} ${b.profile.secondLastname ?? ''}`.trim();
   }
 
   private toReceiptRow(
@@ -150,7 +150,7 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
       for (const r of unprinted) {
         const collector = r.collector as CollectorSchema;
         const name = collector
-          ? `${collector.firstname} ${collector.firstLastname} (No. ${collector.collectorNumber})`
+          ? `${collector.profile.firstname} ${collector.profile.firstLastname} (No. ${collector.collectorNumber})`
           : r.collectorId;
         byCollector.set(name, (byCollector.get(name) ?? 0) + 1);
       }

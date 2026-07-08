@@ -126,7 +126,7 @@ export class ChurchController {
   }
 
   @Get()
-  @Auth(PermissionNames.LIST_CHURCH)
+  @Auth(PermissionNames.VIEW_CHURCH)
   async findAll(@Query() query: GetChurchesQueryDto) {
     return await this.queryBus.execute(
       new GetChurchQueryParams(

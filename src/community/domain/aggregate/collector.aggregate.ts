@@ -2,20 +2,21 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import { v7 as uuidv7 } from 'uuid';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
-import { Address } from '@/community/domain/value-objects/address.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
 import { AssignationId } from '@/community/domain/aggregate/assignation.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
+import {
+  Profile,
+  ProfileId,
+} from '@/community/domain/aggregate/profile.aggregate';
 import { CollectorDeactivatedEvent } from '@/community/application/events/collector-deactivated.event';
 import {
-  UpdateCollectorAddressCommand,
   UpdateCollectorCommand,
   UpdateCollectorContactCommand,
   UpdateCollectorNotesCommand,
   UpdateCollectorPaymentCommand,
-  UpdateCollectorPersonalCommand,
 } from '@/community/application/command/update-collector.command';
 
 export class CollectorId extends ValueObject<string> {
@@ -40,15 +41,10 @@ export class CollectorId extends ValueObject<string> {
 
 export interface CollectorProps {
   userId: UserId;
-  firstname: string;
-  firstLastname: string;
-  secondLastname?: string | null;
+  profileId: ProfileId;
+  profile: Profile;
   nss: NSS;
   nssHash: string;
-  address: Address;
-  addressHash: string;
-  phoneNumber: PhoneNumber;
-  phoneNumberHash: string;
   telephoneNumber?: PhoneNumber;
   telephoneNumberHash?: string;
   paymentData: PaymentData;
@@ -67,28 +63,18 @@ export class Collector extends AggregateRoot {
   ) {
     super();
     GeneralGuard.againstNullOrUndefined(
-      props.firstname,
-      'Firstname is required',
+      props.profileId,
+      'ProfileId is required',
       Collector.name,
     );
     GeneralGuard.againstNullOrUndefined(
-      props.firstLastname,
-      'FirstLastname is required',
+      props.profile,
+      'Profile is required',
       Collector.name,
     );
     GeneralGuard.againstNullOrUndefined(
       props.nss,
       'NSS is required',
-      Collector.name,
-    );
-    GeneralGuard.againstNullOrUndefined(
-      props.address,
-      'Address is required',
-      Collector.name,
-    );
-    GeneralGuard.againstNullOrUndefined(
-      props.phoneNumber,
-      'Phone number is required',
       Collector.name,
     );
     GeneralGuard.againstNullOrUndefined(
@@ -126,16 +112,12 @@ export class Collector extends AggregateRoot {
     return this.props.userId;
   }
 
-  public get firstname(): string {
-    return this.props.firstname;
+  public get profileId(): ProfileId {
+    return this.props.profileId;
   }
 
-  public get firstLastname(): string {
-    return this.props.firstLastname;
-  }
-
-  public get secondLastname(): string | null {
-    return this.props.secondLastname;
+  public get profile(): Profile {
+    return this.props.profile;
   }
 
   public get nss(): NSS {
@@ -144,22 +126,6 @@ export class Collector extends AggregateRoot {
 
   public get nssHash(): string {
     return this.props.nssHash;
-  }
-
-  public get address(): Address {
-    return this.props.address;
-  }
-
-  public get addressHash(): string {
-    return this.props.addressHash;
-  }
-
-  public get phoneNumber(): PhoneNumber {
-    return this.props.phoneNumber;
-  }
-
-  public get phoneNumberHash(): string {
-    return this.props.phoneNumberHash;
   }
 
   public get telephoneNumber(): PhoneNumber | null {
@@ -199,24 +165,7 @@ export class Collector extends AggregateRoot {
   }
 
   public update(command: UpdateCollectorCommand) {
-    if (command instanceof UpdateCollectorPersonalCommand) {
-      this.props = {
-        ...this.props,
-        firstname: command.firstname ?? this.props.firstname,
-        firstLastname: command.firstLastname ?? this.props.firstLastname,
-        secondLastname:
-          command.secondLastname !== undefined
-            ? command.secondLastname
-            : this.props.secondLastname,
-      };
-    } else if (command instanceof UpdateCollectorAddressCommand) {
-      this.props.address = this.address.updateWith(command);
-      this.props.addressHash = command.addressHash;
-    } else if (command instanceof UpdateCollectorContactCommand) {
-      if (command.phoneNumber !== undefined) {
-        this.props.phoneNumber = PhoneNumber.of(command.phoneNumber);
-        this.props.phoneNumberHash = command.phoneNumberHash;
-      }
+    if (command instanceof UpdateCollectorContactCommand) {
       if (command.telephoneNumber !== undefined) {
         this.props.telephoneNumber = command.telephoneNumber
           ? PhoneNumber.of(command.telephoneNumber)
@@ -279,14 +228,6 @@ export class Collector extends AggregateRoot {
 
   public async updateNSSHash(nssHash: string) {
     this.props.nssHash = nssHash;
-  }
-
-  public async updateAddressHash(addressHash: string) {
-    this.props.addressHash = addressHash;
-  }
-
-  public async updatePhoneNumberHash(phoneNumberHash: string) {
-    this.props.phoneNumberHash = phoneNumberHash;
   }
 
   public async updateTelephoneNumberHash(telephoneNumberHash: string) {

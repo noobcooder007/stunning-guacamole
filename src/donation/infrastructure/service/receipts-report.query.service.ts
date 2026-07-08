@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { BaseQueryService } from '@/shared/application/query/base-query.service';
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
+import { ProfileSchema } from '@/community/infrastructure/persistence/typeorm/schemas/profile.schema';
 import {
   CollectorReceiptsReportItemDto,
   ReceiptsReportByPeriodResponseDto,
@@ -21,21 +22,22 @@ export class ReceiptsReportQueryService extends BaseQueryService {
     const rows = await this.dataSource
       .createQueryBuilder()
       .select('c."collectorNumber"', 'collectorNumber')
-      .addSelect('c.firstname', 'firstname')
-      .addSelect('c."firstLastname"', 'firstLastname')
-      .addSelect('c."secondLastname"', 'secondLastname')
+      .addSelect('p.firstname', 'firstname')
+      .addSelect('p."firstLastname"', 'firstLastname')
+      .addSelect('p."secondLastname"', 'secondLastname')
       .addSelect(
         `SUM(CASE WHEN r.status != 'CANCELLED' THEN r.amount ELSE 0 END)`,
         'accumulatedAmount',
       )
       .from(ReceiptSchema, 'r')
       .innerJoin(CollectorSchema, 'c', 'c.id = r."collectorId"')
+      .innerJoin(ProfileSchema, 'p', 'p.id = c."profileId"')
       .where('r."periodMonth" = :month', { month })
       .andWhere('r."periodYear" = :year', { year })
       .groupBy('c."collectorNumber"')
-      .addGroupBy('c.firstname')
-      .addGroupBy('c."firstLastname"')
-      .addGroupBy('c."secondLastname"')
+      .addGroupBy('p.firstname')
+      .addGroupBy('p."firstLastname"')
+      .addGroupBy('p."secondLastname"')
       .orderBy('c."collectorNumber"', 'ASC')
       .getRawMany();
 

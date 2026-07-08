@@ -1,6 +1,7 @@
 import { DeactivateCollectorHanlder } from './deactivate-collector.handler';
 import { DeactivateCollectorCommand } from '@/community/application/command/deactivate-collector.command';
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
+import { Profile } from '@/community/domain/aggregate/profile.aggregate';
 import { ErrorType } from '@/shared/domain/dto/result.dto';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
@@ -14,14 +15,12 @@ import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
 const USER_ID = '01907c2a-0000-7000-8000-000000000002';
+const PROFILE_ID = '01907c2a-0000-7000-8000-000000000003';
 
-function makeCollector(): Collector {
-  return Collector.recreate(COLLECTOR_ID, {
-    userId: UserId.of(USER_ID),
+function makeProfile(): Profile {
+  return Profile.recreate(PROFILE_ID, {
     firstname: 'Juan',
     firstLastname: 'Pérez',
-    nss: NSS.of('12345678901'),
-    nssHash: 'h',
     address: Address.of({
       street: 'Calle 1',
       numeration: Numeration.of({ noExt: '10', noInt: null }),
@@ -33,6 +32,16 @@ function makeCollector(): Collector {
     addressHash: 'h',
     phoneNumber: PhoneNumber.of('5512345678'),
     phoneNumberHash: 'h',
+  });
+}
+
+function makeCollector(): Collector {
+  return Collector.recreate(COLLECTOR_ID, {
+    userId: UserId.of(USER_ID),
+    profileId: makeProfile()._id,
+    profile: makeProfile(),
+    nss: NSS.of('12345678901'),
+    nssHash: 'h',
     paymentData: PaymentData.of({
       commissionPercent: 10,
       bank: 'BBVA',

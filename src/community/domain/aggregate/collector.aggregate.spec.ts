@@ -1,4 +1,5 @@
 import { Collector } from './collector.aggregate';
+import { Profile } from '@/community/domain/aggregate/profile.aggregate';
 import { AssignationId } from '@/community/domain/aggregate/assignation.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import {
@@ -10,8 +11,6 @@ import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
 import {
-  UpdateCollectorPersonalCommand,
-  UpdateCollectorAddressCommand,
   UpdateCollectorContactCommand,
   UpdateCollectorPaymentCommand,
   UpdateCollectorNotesCommand,
@@ -19,34 +18,44 @@ import {
 
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
 const USER_ID = '01907c2a-0000-7000-8000-000000000002';
+const PROFILE_ID = '01907c2a-0000-7000-8000-000000000003';
 
-function makeAddress() {
-  return Address.of({
-    street: 'Calle Falsa',
-    numeration: Numeration.of({ noExt: '123', noInt: null }),
-    neighborhood: 'Centro',
-    city: 'CDMX',
-    state: 'CDMX',
-    zipCode: ZipCode.of('06600'),
+function makeProfile() {
+  return Profile.recreate(PROFILE_ID, {
+    firstname: 'Juan',
+    firstLastname: 'García',
+    secondLastname: null,
+    address: Address.of({
+      street: 'Calle Falsa',
+      numeration: Numeration.of({ noExt: '123', noInt: null }),
+      neighborhood: 'Centro',
+      city: 'CDMX',
+      state: 'CDMX',
+      zipCode: ZipCode.of('06600'),
+    }),
+    addressHash: 'hash-addr',
+    phoneNumber: PhoneNumber.of('5512345678'),
+    phoneNumberHash: 'hash-phone',
+    createdAt: new Date('2026-01-01'),
   });
 }
 
 function makeCollector(
-  overrides: { isActive?: boolean; assignations?: Set<AssignationId> } = {},
+  overrides: {
+    isActive?: boolean;
+    assignations?: Set<AssignationId>;
+    telephoneNumber?: PhoneNumber | null;
+    telephoneNumberHash?: string | null;
+  } = {},
 ) {
   return Collector.recreate(COLLECTOR_ID, {
     userId: UserId.of(USER_ID),
-    firstname: 'Juan',
-    firstLastname: 'García',
-    secondLastname: null,
+    profileId: makeProfile()._id,
+    profile: makeProfile(),
     nss: NSS.of('12345678901'),
     nssHash: 'hash-nss',
-    address: makeAddress(),
-    addressHash: 'hash-addr',
-    phoneNumber: PhoneNumber.of('5512345678'),
-    phoneNumberHash: 'hash-phone',
-    telephoneNumber: null,
-    telephoneNumberHash: null,
+    telephoneNumber: overrides.telephoneNumber ?? null,
+    telephoneNumberHash: overrides.telephoneNumberHash ?? null,
     paymentData: PaymentData.of({
       commissionPercent: 10,
       bank: 'BBVA',
@@ -65,73 +74,6 @@ function makeCollector(
 
 describe('Collector', () => {
   describe('update()', () => {
-    it('debería actualizar datos personales con UpdateCollectorPersonalCommand', () => {
-      const collector = makeCollector();
-      const cmd = new UpdateCollectorPersonalCommand(
-        COLLECTOR_ID,
-        'Pedro',
-        'Martínez',
-        'López',
-      );
-
-      collector.update(cmd);
-
-      expect(collector.firstname).toBe('Pedro');
-      expect(collector.firstLastname).toBe('Martínez');
-      expect(collector.secondLastname).toBe('López');
-    });
-
-    it('debería respetar campos undefined en UpdateCollectorPersonalCommand', () => {
-      const collector = makeCollector();
-      const cmd = new UpdateCollectorPersonalCommand(
-        COLLECTOR_ID,
-        undefined,
-        undefined,
-        undefined,
-      );
-
-      collector.update(cmd);
-
-      expect(collector.firstname).toBe('Juan');
-      expect(collector.firstLastname).toBe('García');
-    });
-
-    it('debería actualizar dirección con UpdateCollectorAddressCommand', () => {
-      const collector = makeCollector();
-      const cmd = new UpdateCollectorAddressCommand(
-        COLLECTOR_ID,
-        'Av. Insurgentes',
-        '200',
-        undefined,
-        'Roma Norte',
-        undefined,
-        'CDMX',
-        'CDMX',
-        '06700',
-      );
-      cmd.addressHash = 'nuevo-hash';
-
-      collector.update(cmd);
-
-      expect(collector.address.street).toBe('Av. Insurgentes');
-      expect(collector.addressHash).toBe('nuevo-hash');
-    });
-
-    it('debería actualizar teléfono con UpdateCollectorContactCommand', () => {
-      const collector = makeCollector();
-      const cmd = new UpdateCollectorContactCommand(
-        COLLECTOR_ID,
-        '5598765432',
-        undefined,
-      );
-      cmd.phoneNumberHash = 'hash-nuevo';
-
-      collector.update(cmd);
-
-      expect(collector.phoneNumber.unpack()).toBe('5598765432');
-      expect(collector.phoneNumberHash).toBe('hash-nuevo');
-    });
-
     it('debería actualizar teléfono fijo con UpdateCollectorContactCommand', () => {
       const collector = makeCollector();
       const cmd = new UpdateCollectorContactCommand(
@@ -148,32 +90,9 @@ describe('Collector', () => {
     });
 
     it('debería poner teléfono fijo a null cuando se pasa null', () => {
-      const collectorWithTel = Collector.recreate(COLLECTOR_ID, {
-        userId: UserId.of(USER_ID),
-        firstname: 'Juan',
-        firstLastname: 'García',
-        secondLastname: null,
-        nss: NSS.of('12345678901'),
-        nssHash: 'hash-nss',
-        address: makeAddress(),
-        addressHash: 'hash-addr',
-        phoneNumber: PhoneNumber.of('5512345678'),
-        phoneNumberHash: 'hash-phone',
+      const collectorWithTel = makeCollector({
         telephoneNumber: PhoneNumber.of('5551234567'),
         telephoneNumberHash: 'hash-tel',
-        paymentData: PaymentData.of({
-          commissionPercent: 10,
-          bank: 'BBVA',
-          reference: 'REF001',
-          nomina: 1000,
-          transportAllowance: 200,
-        }),
-        assignations: new Set(),
-        notes: null,
-        createdAt: new Date(),
-        isActive: true,
-        profilePath: 'profile.png',
-        collectorNumber: 1,
       });
       const cmd = new UpdateCollectorContactCommand(
         COLLECTOR_ID,
@@ -185,6 +104,18 @@ describe('Collector', () => {
       collectorWithTel.update(cmd);
 
       expect(collectorWithTel.telephoneNumber).toBeNull();
+    });
+
+    it('no debería modificar el teléfono fijo cuando no viene en el comando', () => {
+      const collector = makeCollector({
+        telephoneNumber: PhoneNumber.of('5551234567'),
+        telephoneNumberHash: 'hash-tel',
+      });
+      const cmd = new UpdateCollectorContactCommand(COLLECTOR_ID, '5598765432');
+
+      collector.update(cmd);
+
+      expect(collector.telephoneNumber.unpack()).toBe('5551234567');
     });
 
     it('debería actualizar datos de pago con UpdateCollectorPaymentCommand', () => {

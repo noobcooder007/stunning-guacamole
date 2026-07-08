@@ -5,14 +5,10 @@ import { BaseRepository } from '@/database/base.repository';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { BeneficientMapper } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
+import { ProfileMapper } from '@/community/infrastructure/persistence/mappers/profile.mapper';
 
 export interface BeneficientFilters {
-  firstname?: string;
-  firstLastname?: string;
-  secondLastname?: string;
-  addressHash?: string;
   emailHash?: string;
-  phoneNumberHash?: string;
   rfcHash?: string;
 }
 
@@ -25,6 +21,13 @@ export class TypeORMBeneficientRepository
     super(datasource, BeneficientSchema);
   }
 
+  private toDomain(beneficientModel: BeneficientSchema): Beneficient {
+    return BeneficientMapper.toDomain(
+      beneficientModel,
+      ProfileMapper.toDomain(beneficientModel.profile),
+    );
+  }
+
   async save(beneficient: Beneficient): Promise<Beneficient> {
     await this.repository.save(BeneficientMapper.toPersistence(beneficient));
     return beneficient;
@@ -33,37 +36,30 @@ export class TypeORMBeneficientRepository
   async findById(id: string): Promise<Beneficient | null> {
     const beneficientModel = await this.repository.findOne({
       where: { id },
+      relations: ['profile'],
     });
-    return beneficientModel
-      ? BeneficientMapper.toDomain(beneficientModel)
-      : null;
+    return beneficientModel ? this.toDomain(beneficientModel) : null;
   }
 
   async findAll(offset: number, limit: number): Promise<Beneficient[] | []> {
     const beneficentModelList = await this.repository.find({
       where: { isActive: true },
+      relations: ['profile'],
       skip: offset,
       take: limit,
     });
     return beneficentModelList.map((beneficientModel) => {
-      return BeneficientMapper.toDomain(beneficientModel);
+      return this.toDomain(beneficientModel);
     });
   }
 
   async exists(filters: BeneficientFilters): Promise<boolean> {
     const where: FindOptionsWhere<BeneficientSchema>[] = [];
-    if (filters.firstname && filters.firstLastname) {
-      where.push({
-        firstname: filters.firstname,
-        firstLastname: filters.firstLastname,
-        secondLastname: filters.secondLastname ?? null,
-      });
-    }
-    if (filters.addressHash) where.push({ addressHash: filters.addressHash });
     if (filters.emailHash) where.push({ emailHash: filters.emailHash });
-    if (filters.phoneNumberHash)
-      where.push({ phoneNumberHash: filters.phoneNumberHash });
     if (filters.rfcHash) where.push({ rfcHash: filters.rfcHash });
+    // Un where vacío hace que TypeORM no aplique ningún WHERE y matchee
+    // cualquier fila de la tabla; sin criterios no hay nada que comparar.
+    if (where.length === 0) return false;
     const exists = await this.repository.exists({ where });
     return !!exists;
   }
@@ -71,9 +67,10 @@ export class TypeORMBeneficientRepository
   async inIds(ids: string[]): Promise<Beneficient[] | []> {
     const beneficientsModel = await this.repository.find({
       where: { id: In(ids), isActive: true },
+      relations: ['profile'],
     });
     return beneficientsModel.map((beneficientsModel) => {
-      return BeneficientMapper.toDomain(beneficientsModel);
+      return this.toDomain(beneficientsModel);
     });
   }
 }

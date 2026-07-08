@@ -1,10 +1,9 @@
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
 import {
-  Address,
-  Numeration,
-} from '@/community/domain/value-objects/address.vo';
+  Profile,
+  ProfileId,
+} from '@/community/domain/aggregate/profile.aggregate';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
-import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { PaymentData } from '@/community/domain/value-objects/payment-data.vo';
@@ -17,23 +16,10 @@ import { PaymentDataResponseDto } from '@/community/application/dto/payment-data
 
 export interface ICollectorPersistence {
   id: string;
-  firstname: string;
-  firstLastname: string;
-  secondLastname?: string;
+  profileId: string;
   nss: string;
   nssHash: string;
-  street: string;
-  noExt: string;
-  noInt?: string;
-  neighborhood?: string;
-  locality?: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  addressHash: string;
   userId: string;
-  phoneNumber: string;
-  phoneNumberHash: string;
   telephoneNumber?: string;
   telephoneNumberHash?: string;
   commissionPercent: number;
@@ -53,23 +39,10 @@ export class CollectorMapper {
   public static toPersistence(collector: Collector): ICollectorPersistence {
     return {
       id: collector._id.unpack(),
-      firstname: collector.firstname,
-      firstLastname: collector.firstLastname,
-      secondLastname: collector.secondLastname,
+      profileId: collector.profileId.unpack(),
       nss: collector.nss.value,
       nssHash: collector.nssHash,
       notes: collector.notes,
-      street: collector.address.street,
-      noExt: collector.address.numeration.noExt,
-      noInt: collector.address.numeration.noInt,
-      neighborhood: collector.address.neighborhood,
-      locality: collector.address.locality,
-      city: collector.address.city,
-      state: collector.address.state,
-      zipCode: collector.address.zipCode.value,
-      addressHash: collector.addressHash,
-      phoneNumber: collector.phoneNumber.unpack(),
-      phoneNumberHash: collector.phoneNumberHash,
       telephoneNumber: collector.telephoneNumber?.unpack(),
       telephoneNumberHash: collector.telephoneNumberHash,
       commissionPercent: collector.paymentData.commissionPercent,
@@ -85,31 +58,18 @@ export class CollectorMapper {
     };
   }
 
-  public static toDomain(raw: ICollectorPersistence): Collector {
+  public static toDomain(
+    raw: ICollectorPersistence,
+    profile: Profile,
+  ): Collector {
     return Collector.recreate(raw.id, {
       userId: UserId.of(raw.userId),
-      firstname: raw.firstname,
-      firstLastname: raw.firstLastname,
-      secondLastname: raw.secondLastname,
+      profileId: ProfileId.of(raw.profileId),
+      profile,
       nss: NSS.of(raw.nss),
       nssHash: raw.nssHash,
-      address: Address.of({
-        street: raw.street,
-        numeration: Numeration.of({
-          noExt: raw.noExt,
-          noInt: raw.noInt,
-        }),
-        neighborhood: raw.neighborhood,
-        locality: raw.locality,
-        city: raw.city,
-        state: raw.state,
-        zipCode: ZipCode.of(raw.zipCode),
-      }),
-      addressHash: raw.addressHash,
       createdAt: raw.createdAt,
       isActive: raw.isActive,
-      phoneNumber: PhoneNumber.of(raw.phoneNumber),
-      phoneNumberHash: raw.phoneNumberHash,
       paymentData: PaymentData.of({
         bank: raw.bank,
         commissionPercent: raw.commissionPercent,
@@ -124,6 +84,7 @@ export class CollectorMapper {
       telephoneNumber: raw.telephoneNumber
         ? PhoneNumber.of(raw.telephoneNumber)
         : null,
+      telephoneNumberHash: raw.telephoneNumberHash,
       profilePath: raw.profilePath,
       collectorNumber: raw.collectorNumber,
     });
@@ -135,21 +96,21 @@ export class CollectorMapper {
     const response = new CollectorResponse();
     response.id = collectorModel.id;
     response.userId = collectorModel.userId;
-    response.firstname = collectorModel.firstname;
-    response.firstLastname = collectorModel.firstLastname;
-    response.secondLastname = collectorModel.secondLastname;
+    response.firstname = collectorModel.profile.firstname;
+    response.firstLastname = collectorModel.profile.firstLastname;
+    response.secondLastname = collectorModel.profile.secondLastname;
     response.nss = collectorModel.nss;
     const addressResponse = new AddressResponseDto();
-    addressResponse.street = collectorModel.street;
-    addressResponse.noExt = collectorModel.noExt;
-    addressResponse.noInt = collectorModel.noInt;
-    addressResponse.neighborhood = collectorModel.neighborhood;
-    addressResponse.locality = collectorModel.locality;
-    addressResponse.city = collectorModel.city;
-    addressResponse.state = collectorModel.state;
-    addressResponse.zipCode = collectorModel.zipCode;
+    addressResponse.street = collectorModel.profile.street;
+    addressResponse.noExt = collectorModel.profile.noExt;
+    addressResponse.noInt = collectorModel.profile.noInt;
+    addressResponse.neighborhood = collectorModel.profile.neighborhood;
+    addressResponse.locality = collectorModel.profile.locality;
+    addressResponse.city = collectorModel.profile.city;
+    addressResponse.state = collectorModel.profile.state;
+    addressResponse.zipCode = collectorModel.profile.zipCode;
     response.address = addressResponse;
-    response.phoneNumber = collectorModel.phoneNumber;
+    response.phoneNumber = collectorModel.profile.phoneNumber;
     response.telephoneNumber = collectorModel.telephoneNumber
       ? collectorModel.telephoneNumber
       : null;
@@ -172,21 +133,21 @@ export class CollectorMapper {
     const response = new CollectorResponse();
     response.id = collector._id.unpack();
     response.userId = collector.userId.unpack();
-    response.firstname = collector.firstname;
-    response.firstLastname = collector.firstLastname;
-    response.secondLastname = collector.secondLastname;
+    response.firstname = collector.profile.firstname;
+    response.firstLastname = collector.profile.firstLastname;
+    response.secondLastname = collector.profile.secondLastname;
     response.nss = collector.nss.unpack();
     const addressResponse = new AddressResponseDto();
-    addressResponse.street = collector.address.street;
-    addressResponse.noExt = collector.address.numeration.noExt;
-    addressResponse.noInt = collector.address.numeration.noInt;
-    addressResponse.neighborhood = collector.address.neighborhood;
-    addressResponse.locality = collector.address.locality;
-    addressResponse.city = collector.address.city;
-    addressResponse.state = collector.address.state;
-    addressResponse.zipCode = collector.address.zipCode.unpack();
+    addressResponse.street = collector.profile.address.street;
+    addressResponse.noExt = collector.profile.address.numeration.noExt;
+    addressResponse.noInt = collector.profile.address.numeration.noInt;
+    addressResponse.neighborhood = collector.profile.address.neighborhood;
+    addressResponse.locality = collector.profile.address.locality;
+    addressResponse.city = collector.profile.address.city;
+    addressResponse.state = collector.profile.address.state;
+    addressResponse.zipCode = collector.profile.address.zipCode.unpack();
     response.address = addressResponse;
-    response.phoneNumber = collector.phoneNumber.unpack();
+    response.phoneNumber = collector.profile.phoneNumber?.unpack();
     response.telephoneNumber = collector.telephoneNumber
       ? collector.telephoneNumber.unpack()
       : null;

@@ -42,15 +42,19 @@ function makeReceipt(collectorId: string) {
     periodMonth: 6,
     periodYear: 2026,
     collector: {
-      firstname: 'Juan',
-      firstLastname: 'Pérez',
-      secondLastname: null,
+      profile: {
+        firstname: 'Juan',
+        firstLastname: 'Pérez',
+        secondLastname: null,
+      },
       collectorNumber: 1,
     },
     beneficient: {
-      firstname: 'María',
-      firstLastname: 'López',
-      secondLastname: null,
+      profile: {
+        firstname: 'María',
+        firstLastname: 'López',
+        secondLastname: null,
+      },
       beneficientNumber: 42,
     },
   };

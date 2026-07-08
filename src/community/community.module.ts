@@ -11,6 +11,7 @@ import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/sch
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
+import { ProfileSchema } from '@/community/infrastructure/persistence/typeorm/schemas/profile.schema';
 import { AssignamentService } from '@/community/domain/services/assignament.impl.service';
 import { ChurchQueryService } from '@/community/infrastructure/service/church.query.service';
 import { BeneficientQueryService } from '@/community/infrastructure/service/beneficient.query.service';
@@ -59,6 +60,7 @@ import { BeneficientsRegistryQueryService } from './infrastructure/service/benef
       CollectorSchema,
       BeneficientSchema,
       AssignationSchema,
+      ProfileSchema,
     ]),
     AuthModule,
     SharedModule,

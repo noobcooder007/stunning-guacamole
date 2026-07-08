@@ -44,9 +44,9 @@ export class PrintCollectorEfficiencyHandler extends BaseCommandHandler<
       });
     }
 
-    const second = collector.secondLastname ?? '';
+    const second = collector.profile.secondLastname ?? '';
     const collectorName =
-      `${collector.firstname} ${collector.firstLastname} ${second}`.trim();
+      `${collector.profile.firstname} ${collector.profile.firstLastname} ${second}`.trim();
 
     const now = new Date();
     const generatedAt = now.toLocaleDateString('es-MX', {

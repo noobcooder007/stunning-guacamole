@@ -18,6 +18,19 @@ export class BeneficientsReportQueryService extends BaseQueryService {
     return this._fetchAndMap();
   }
 
+  async getById(id: string): Promise<BeneficientsReportItemDto | null> {
+    const beneficient = await this.getQueryBuilder(BeneficientSchema, 'b')
+      .leftJoinAndSelect('b.profile', 'profile')
+      .leftJoinAndSelect('b.promiseDonation', 'pd')
+      .where('b.id = :id', { id })
+      .getOne();
+
+    if (!beneficient) return null;
+
+    const [item] = await this._mapBeneficients([beneficient]);
+    return item;
+  }
+
   async getReport(
     page: number,
     limit: number,
@@ -29,6 +42,7 @@ export class BeneficientsReportQueryService extends BaseQueryService {
       BeneficientSchema,
       'b',
     )
+      .leftJoinAndSelect('b.profile', 'profile')
       .leftJoinAndSelect('b.promiseDonation', 'pd')
       .orderBy('b.beneficientNumber', 'ASC')
       .skip((safePage - 1) * safeLimit)
@@ -45,6 +59,7 @@ export class BeneficientsReportQueryService extends BaseQueryService {
 
   private async _fetchAndMap(): Promise<BeneficientsReportItemDto[]> {
     const beneficients = await this.getQueryBuilder(BeneficientSchema, 'b')
+      .leftJoinAndSelect('b.profile', 'profile')
       .leftJoinAndSelect('b.promiseDonation', 'pd')
       .orderBy('b.beneficientNumber', 'ASC')
       .getMany();
@@ -61,6 +76,7 @@ export class BeneficientsReportQueryService extends BaseQueryService {
     const [assignations, receiptCounts] = await Promise.all([
       this.getQueryBuilder(AssignationSchema, 'a')
         .leftJoinAndSelect('a.collector', 'c')
+        .leftJoinAndSelect('c.profile', 'cProfile')
         .where('a.beneficientId IN (:...ids)', { ids })
         .andWhere('a.isActive = :isActive', { isActive: true })
         .getMany(),
@@ -91,29 +107,30 @@ export class BeneficientsReportQueryService extends BaseQueryService {
       return {
         beneficientNumber: b.beneficientNumber,
         title: b.title,
-        firstname: b.firstname,
-        firstLastname: b.firstLastname,
-        secondLastname: b.secondLastname ?? null,
+        firstname: b.profile.firstname,
+        firstLastname: b.profile.firstLastname,
+        secondLastname: b.profile.secondLastname ?? null,
         birthday: b.birthday,
         genre: b.genre,
         maritalStatus: b.maritalStatus,
         email: b.email ?? null,
-        phoneNumber: b.phoneNumber ?? null,
-        street: b.street,
-        noExt: b.noExt,
-        noInt: b.noInt ?? null,
-        neighborhood: b.neighborhood ?? null,
-        locality: b.locality ?? null,
-        city: b.city,
-        state: b.state,
-        zipCode: b.zipCode,
+        phoneNumber: b.profile.phoneNumber ?? null,
+        street: b.profile.street,
+        noExt: b.profile.noExt,
+        noInt: b.profile.noInt ?? null,
+        neighborhood: b.profile.neighborhood ?? null,
+        locality: b.profile.locality ?? null,
+        city: b.profile.city,
+        state: b.profile.state,
+        zipCode: b.profile.zipCode,
         createdAt: b.createdAt,
         deactivatedAt: b.deactivatedAt ?? null,
         reasonDeactivated: b.reasonDeactivated ?? null,
         isActive: b.isActive,
         collectorNumber: assignation?.collector?.collectorNumber ?? null,
-        collectorFirstname: assignation?.collector?.firstname ?? null,
-        collectorFirstLastname: assignation?.collector?.firstLastname ?? null,
+        collectorFirstname: assignation?.collector?.profile?.firstname ?? null,
+        collectorFirstLastname:
+          assignation?.collector?.profile?.firstLastname ?? null,
         donationCount: countMap.get(b.id) ?? 0,
         donationTotal: totalMap.get(b.id) ?? 0,
         promiseAmount: b.promiseDonation

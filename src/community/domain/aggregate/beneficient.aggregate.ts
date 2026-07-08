@@ -1,13 +1,15 @@
 import { AggregateRoot } from '@nestjs/cqrs';
 import { v7 as uuidv7 } from 'uuid';
 import { GeneralGuard } from '@/shared/domain/guards/general.guard';
-import { Address } from '@/community/domain/value-objects/address.vo';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 import { TaxInformation } from '@/community/domain/value-objects/tax-information.vo';
+import {
+  Profile,
+  ProfileId,
+} from '@/community/domain/aggregate/profile.aggregate';
 import { BeneficientDeactivatedEvent } from '@/community/application/events/beneficient-deactivated.event';
 import {
-  UpdateBeneficientAddressCommand,
   UpdateBeneficientChurchCommand,
   UpdateBeneficientCommand,
   UpdateBeneficientContactCommand,
@@ -38,19 +40,14 @@ export class BeneficientId extends ValueObject<string> {
 
 export interface BeneficientProps {
   title: string;
-  firstname: string;
-  firstLastname: string;
-  secondLastname: string;
+  profileId: ProfileId;
+  profile: Profile;
   birthday: Date;
   weddingAniversary?: Date | null;
   genre: string;
   maritalStatus: string;
-  address: Address;
-  addressHash: string;
   church: ChurchId;
   keepPrivate: boolean;
-  phoneNumber?: string;
-  phoneNumberHash?: string;
   email?: string;
   emailHash?: string;
   taxInformation?: TaxInformation;
@@ -68,13 +65,13 @@ export class Beneficient extends AggregateRoot {
   ) {
     super();
     GeneralGuard.againstNullOrUndefined(
-      props.firstname,
-      'Firstname is required',
+      props.profileId,
+      'ProfileId is required',
       Beneficient.name,
     );
     GeneralGuard.againstNullOrUndefined(
-      props.firstLastname,
-      'FirstLastname is required',
+      props.profile,
+      'Profile is required',
       Beneficient.name,
     );
     GeneralGuard.againstNullOrUndefined(
@@ -90,11 +87,6 @@ export class Beneficient extends AggregateRoot {
     GeneralGuard.againstNullOrUndefined(
       props.maritalStatus,
       'MaritalStatus is required',
-      Beneficient.name,
-    );
-    GeneralGuard.againstNullOrUndefined(
-      props.address,
-      'Address is required',
       Beneficient.name,
     );
     GeneralGuard.againstNullOrUndefined(
@@ -129,16 +121,12 @@ export class Beneficient extends AggregateRoot {
     return this.props.title;
   }
 
-  public get firstname(): string {
-    return this.props.firstname;
+  public get profileId(): ProfileId {
+    return this.props.profileId;
   }
 
-  public get firstLastname(): string {
-    return this.props.firstLastname;
-  }
-
-  public get secondLastname(): string {
-    return this.props.secondLastname;
+  public get profile(): Profile {
+    return this.props.profile;
   }
 
   public get birthday(): Date {
@@ -157,14 +145,6 @@ export class Beneficient extends AggregateRoot {
     return this.props.maritalStatus;
   }
 
-  public get address(): Address {
-    return this.props.address;
-  }
-
-  public get addressHash(): string {
-    return this.props.addressHash;
-  }
-
   public get church(): ChurchId {
     return this.props.church;
   }
@@ -175,14 +155,6 @@ export class Beneficient extends AggregateRoot {
 
   public get emailHash(): string | null {
     return this.props.emailHash;
-  }
-
-  public get phoneNumber(): string | null {
-    return this.props.phoneNumber;
-  }
-
-  public get phoneNumberHash(): string | null {
-    return this.props.phoneNumberHash;
   }
 
   public get keepPrivate(): boolean {
@@ -218,12 +190,6 @@ export class Beneficient extends AggregateRoot {
       this.props = {
         ...this.props,
         title: command.title ?? this.props.title,
-        firstname: command.firstname ?? this.props.firstname,
-        firstLastname: command.firstLastname ?? this.props.firstLastname,
-        secondLastname:
-          command.secondLastname !== undefined
-            ? command.secondLastname
-            : this.props.secondLastname,
         birthday: command.birthday ?? this.props.birthday,
         genre: command.genre ?? this.props.genre,
         maritalStatus: command.maritalStatus ?? this.props.maritalStatus,
@@ -232,17 +198,10 @@ export class Beneficient extends AggregateRoot {
             ? command.weddingAnniversary
             : this.props.weddingAniversary,
       };
-    } else if (command instanceof UpdateBeneficientAddressCommand) {
-      this.props.address = this.address.updateWith(command);
-      this.props.addressHash = command.addressHash;
     } else if (command instanceof UpdateBeneficientContactCommand) {
       if (command.email !== undefined) {
         this.props.email = command.email;
         this.props.emailHash = command.emailHash;
-      }
-      if (command.phoneNumber !== undefined) {
-        this.props.phoneNumber = command.phoneNumber;
-        this.props.phoneNumberHash = command.phoneNumberHash;
       }
     } else if (command instanceof UpdateBeneficientChurchCommand) {
       this.props.church = ChurchId.of(command.churchId);

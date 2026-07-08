@@ -2,7 +2,7 @@ import { Inject } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import Stream from 'stream';
 import { BaseCommandHandler } from '@/shared/application/handler/base-command.handler';
-import { Result } from '@/shared/domain/dto/result.dto';
+import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { IPrinterService } from '@/shared/infrastructure/services/print.service';
 import { PrintBeneficientsReportCommand } from '@/community/application/command/print-beneficients-report.command';
 import { BeneficientsReportQueryService } from '@/community/infrastructure/service/beneficients-report.query.service';
@@ -22,9 +22,16 @@ export class PrintBeneficientsReportHandler extends BaseCommandHandler<
   }
 
   protected async process(
-    _command: PrintBeneficientsReportCommand,
+    command: PrintBeneficientsReportCommand,
   ): Promise<Result<Stream.Readable>> {
-    const items = await this.reportService.getAll();
+    const item = await this.reportService.getById(command.beneficientId);
+    if (!item) {
+      return Result.fail({
+        type: ErrorType.NOT_FOUND,
+        message: 'The beneficient was not found',
+        entity: PrintBeneficientsReportHandler.name,
+      });
+    }
 
     const generatedAt = new Date().toLocaleDateString('es-MX', {
       day: '2-digit',
@@ -32,6 +39,7 @@ export class PrintBeneficientsReportHandler extends BaseCommandHandler<
       year: 'numeric',
     });
 
+    const items = [item];
     const pdfStream = await this.pdfService.print(
       beneficientsReportTemplate({ items, generatedAt, total: items.length }),
     );

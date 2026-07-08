@@ -4,6 +4,7 @@ import { BaseQueryService } from '@/shared/application/query/base-query.service'
 import { Paginated } from '@/shared/domain/dto/paginated.result.dto';
 import { PaginationMetaDto } from '@/shared/domain/dto/pagination.meta.dto';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
+import { ProfileSchema } from '@/community/infrastructure/persistence/typeorm/schemas/profile.schema';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
 import { BeneficientMapper } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
 import { GetBeneficientQueryParams } from '@/community/application/query/get-beneficient-paginated.query';
@@ -23,8 +24,11 @@ export class BeneficientQueryService extends BaseQueryService {
     query: GetBeneficientQueryParams,
   ): Promise<Paginated<BeneficientResponse>> {
     const { page, limit, ...filters } = query;
-    const qb = this.getQueryBuilder(BeneficientSchema, 'beneficient');
-    this.applyFilters(qb, 'beneficient', filters);
+    const qb = this.getQueryBuilder(
+      BeneficientSchema,
+      'beneficient',
+    ).leftJoinAndSelect('beneficient.profile', 'profile');
+    this.applyFilters(qb, 'profile', filters, ProfileSchema);
     this.applyPagination(qb, page, limit);
     const [items, total] = await qb.getManyAndCount();
     const meta = new PaginationMetaDto(page, limit, total);
@@ -37,10 +41,9 @@ export class BeneficientQueryService extends BaseQueryService {
   async getActiveList(
     query: GetBeneficientsActiveListQuery,
   ): Promise<BeneficientListItemResponse[]> {
-    const qb = this.getQueryBuilder(BeneficientSchema, 'beneficient').where(
-      'beneficient.isActive = :isActive',
-      { isActive: true },
-    );
+    const qb = this.getQueryBuilder(BeneficientSchema, 'beneficient')
+      .leftJoinAndSelect('beneficient.profile', 'profile')
+      .where('beneficient.isActive = :isActive', { isActive: true });
     if (query.search) {
       query.search
         .trim()
@@ -48,7 +51,7 @@ export class BeneficientQueryService extends BaseQueryService {
         .forEach((token, i) => {
           const param = `term${i}`;
           qb.andWhere(
-            `(beneficient.firstname ILIKE :${param} OR beneficient.firstLastname ILIKE :${param} OR beneficient.secondLastname ILIKE :${param})`,
+            `(profile.firstname ILIKE :${param} OR profile.firstLastname ILIKE :${param} OR profile.secondLastname ILIKE :${param})`,
             { [param]: `%${token}%` },
           );
         });
@@ -56,9 +59,9 @@ export class BeneficientQueryService extends BaseQueryService {
     const items = await qb.getMany();
     return items.map((item) => ({
       id: item.id,
-      firstname: item.firstname,
-      firstLastname: item.firstLastname,
-      secondLastname: item.secondLastname,
+      firstname: item.profile.firstname,
+      firstLastname: item.profile.firstLastname,
+      secondLastname: item.profile.secondLastname,
       beneficientNumber: item.beneficientNumber,
     }));
   }
@@ -68,6 +71,7 @@ export class BeneficientQueryService extends BaseQueryService {
   ): Promise<Paginated<UnassignedBeneficientResponse>> {
     const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(BeneficientSchema, 'b')
+      .leftJoinAndSelect('b.profile', 'profile')
       .where('b.isActive = :bActive', { bActive: true })
       .andWhere((sq) => {
         const sub = sq
@@ -79,16 +83,16 @@ export class BeneficientQueryService extends BaseQueryService {
           .getQuery();
         return `NOT EXISTS (${sub})`;
       });
-    this.applyFilters(qb, 'b', filters);
+    this.applyFilters(qb, 'profile', filters, ProfileSchema);
     this.applyPagination(qb, page, limit);
     const [items, total] = await qb.getManyAndCount();
     const meta = new PaginationMetaDto(page, limit, total);
     return new Paginated(
       items.map((item) => ({
         id: item.id,
-        firstname: item.firstname,
-        firstLastname: item.firstLastname,
-        secondLastname: item.secondLastname,
+        firstname: item.profile.firstname,
+        firstLastname: item.profile.firstLastname,
+        secondLastname: item.profile.secondLastname,
         beneficientNumber: item.beneficientNumber,
       })),
       meta,

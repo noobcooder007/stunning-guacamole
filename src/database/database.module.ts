@@ -10,6 +10,7 @@ import { SessionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { ChurchSchema } from '@/community/infrastructure/persistence/typeorm/schemas/church.schema';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
+import { ProfileSchema } from '@/community/infrastructure/persistence/typeorm/schemas/profile.schema';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
 import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
@@ -42,6 +43,7 @@ import { AuditLogSchema } from '@/shared/infrastructure/persistence/audit-log.sc
       ChurchSchema,
       BeneficientSchema,
       CollectorSchema,
+      ProfileSchema,
       AssignationSchema,
       PromiseDonationSchema,
       ReceiptSchema,

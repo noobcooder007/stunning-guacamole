@@ -43,21 +43,21 @@ export class PrintReceiptsByCollectorHandler extends BaseCommandHandler<
   }
 
   private getBeneficientAddress(beneficient: BeneficientSchema): string {
-    const street = beneficient.street;
-    const noExt = beneficient.noExt;
-    const noInt = beneficient.noInt ?? '';
-    const neighborhood = beneficient.neighborhood ?? '';
-    const locality = beneficient.locality ?? '';
-    const city = beneficient.city;
-    const state = beneficient.state;
-    const zipCode = beneficient.zipCode;
+    const street = beneficient.profile.street;
+    const noExt = beneficient.profile.noExt;
+    const noInt = beneficient.profile.noInt ?? '';
+    const neighborhood = beneficient.profile.neighborhood ?? '';
+    const locality = beneficient.profile.locality ?? '';
+    const city = beneficient.profile.city;
+    const state = beneficient.profile.state;
+    const zipCode = beneficient.profile.zipCode;
     return `${street} ${noExt} ${noInt} ${neighborhood} ${locality} ${city} ${state} ${zipCode}`;
   }
 
   private getBeneficientsFullname(beneficient: BeneficientSchema): string {
-    const firstname = beneficient.firstname;
-    const firstLastname = beneficient.firstLastname;
-    const secondLastname = beneficient.secondLastname ?? '';
+    const firstname = beneficient.profile.firstname;
+    const firstLastname = beneficient.profile.firstLastname;
+    const secondLastname = beneficient.profile.secondLastname ?? '';
     return `${firstname} ${firstLastname} ${secondLastname}`;
   }
 
@@ -119,7 +119,7 @@ export class PrintReceiptsByCollectorHandler extends BaseCommandHandler<
         addressDonor: receipt.beneficient
           ? this.getBeneficientAddress(receipt.beneficient)
           : '',
-        telephoneDonor: receipt.beneficient?.phoneNumber ?? '',
+        telephoneDonor: receipt.beneficient?.profile.phoneNumber ?? '',
         chainValidator: receipt.chainValidator,
         photoCollector: photoBase64,
         collector: receipt.collector.collectorNumber,

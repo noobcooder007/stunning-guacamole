@@ -1,6 +1,11 @@
 import { PromiseDonation } from '@/donation/domain/aggregates/promise-donation.aggregate';
 import { BeneficientId } from '../../../../community/domain/aggregate/beneficient.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
+import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
+import {
+  PromiseDonationBeneficientResponse,
+  PromiseDonationWithBeneficientsResponse,
+} from '@/donation/application/dto/promise-donation-with-beneficients.response.dto';
 
 export interface ICollectorInstructionsPersistence {
   weeklySchedule: { day: string; hours: string; note?: string }[];
@@ -70,5 +75,35 @@ export class PromiseDonationMapper {
       nextDonation: promiseDonation.nextDonation,
       instructions: promiseDonation.instructions,
     });
+  }
+
+  static toResponseWithBeneficient(
+    promiseDonation: PromiseDonationSchema,
+  ): PromiseDonationWithBeneficientsResponse {
+    const response = new PromiseDonationWithBeneficientsResponse();
+    response.id = promiseDonation.id;
+    const beneficientResponse = new PromiseDonationBeneficientResponse();
+    beneficientResponse.id = promiseDonation.beneficient.id;
+    beneficientResponse.firstname =
+      promiseDonation.beneficient.profile.firstname;
+    beneficientResponse.firstLastname =
+      promiseDonation.beneficient.profile.firstLastname;
+    beneficientResponse.secondLastname =
+      promiseDonation.beneficient.profile.secondLastname;
+    response.beneficient = beneficientResponse;
+    response.promiseAmount = promiseDonation.promiseAmount;
+    response.currency = promiseDonation.currency;
+    response.method = promiseDonation.method;
+    response.startDate = promiseDonation.startDate;
+    response.recurring = promiseDonation.recurring;
+    response.recurrence = promiseDonation.recurrence;
+    response.lastDonation = promiseDonation.lastDonation;
+    response.nextDonation = promiseDonation.nextDonation;
+    response.isActive = promiseDonation.isActive;
+    response.reasonDeactivate = promiseDonation.reasonDeactivate;
+    response.createdAt = promiseDonation.createdAt;
+    response.updatedAt = promiseDonation.updatedAt;
+    response.instructions = promiseDonation.instructions;
+    return response;
   }
 }

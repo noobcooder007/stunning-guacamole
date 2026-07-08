@@ -40,9 +40,10 @@ export abstract class BaseQueryService {
     qb: SelectQueryBuilder<T>,
     alias: string,
     filters: Record<string, any>,
+    entity?: EntityTarget<any>,
   ): void {
     const entityMetadata = qb.connection.getMetadata(
-      qb.expressionMap.mainAlias!.target,
+      entity ?? qb.expressionMap.mainAlias!.target,
     );
     Object.keys(filters).forEach((key) => {
       const value = filters[key];

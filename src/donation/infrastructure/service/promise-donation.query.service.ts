@@ -9,6 +9,7 @@ import { GetPromiseDonationQueryParams } from '@/donation/application/query/get-
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
 import { GetPromiseDonationWithBeneficientsQueryParams } from '../../application/query/get-promise-donation-with-beneficients-paginated.query';
 import { PromiseDonationWithBeneficientsResponse } from '../../application/dto/promise-donation-with-beneficients.response.dto';
+import { PromiseDonationMapper } from '@/donation/infrastructure/persistence/mappers/promise-donation.mapper';
 
 @Injectable()
 export class PromiseDonationQueryService extends BaseQueryService {
@@ -35,12 +36,18 @@ export class PromiseDonationQueryService extends BaseQueryService {
     const { page, limit, ...filters } = query;
     const qb = this.getQueryBuilder(PromiseDonationSchema, 'promise');
     qb.leftJoinAndSelect('promise.beneficient', 'beneficient');
+    qb.leftJoinAndSelect('beneficient.profile', 'profile');
     this.applyFilters(qb, 'promise', filters);
     this.applyPagination(qb, page, limit);
     const [items, total] = await qb.getManyAndCount();
 
     const meta = new PaginationMetaDto(page, limit, total);
-    return new Paginated(items, meta);
+    return new Paginated(
+      items.map((item) =>
+        PromiseDonationMapper.toResponseWithBeneficient(item),
+      ),
+      meta,
+    );
   }
 
   async searchWithActiveAssignments(

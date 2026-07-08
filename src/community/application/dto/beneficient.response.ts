@@ -1,11 +1,15 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 import { AddressResponseDto } from '@/community/application/dto/address.response';
+import { BeneficientChurchResponse } from '@/community/application/dto/beneficient-church.response';
 import { MaskHelper } from '@/shared/infrastructure/utils/mask-helper.util';
 
 @Exclude()
 export class BeneficientResponse {
   @Expose()
   id: string;
+  @Expose()
+  @Type(() => BeneficientChurchResponse)
+  church: BeneficientChurchResponse;
   @Expose()
   title: string;
   @Expose()

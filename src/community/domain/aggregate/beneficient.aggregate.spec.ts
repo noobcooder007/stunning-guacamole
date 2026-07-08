@@ -1,13 +1,14 @@
-import { Beneficient, BeneficientId } from './beneficient.aggregate';
+import { Beneficient } from './beneficient.aggregate';
 import { ChurchId } from './church.aggregate';
+import { Profile } from '@/community/domain/aggregate/profile.aggregate';
 import {
   Address,
   Numeration,
 } from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
+import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import {
   UpdateBeneficientPersonalCommand,
-  UpdateBeneficientAddressCommand,
   UpdateBeneficientContactCommand,
   UpdateBeneficientChurchCommand,
   UpdateBeneficientTaxCommand,
@@ -16,16 +17,13 @@ import {
 
 const BID = '01907c2a-0000-7000-8000-000000000001';
 const CID = '01907c2a-0000-7000-8000-000000000002';
+const PROFILE_ID = '01907c2a-0000-7000-8000-000000000003';
 
-function makeBeneficient(isActive = true): Beneficient {
-  return Beneficient.recreate(BID, {
-    title: 'Sr.',
+function makeProfile() {
+  return Profile.recreate(PROFILE_ID, {
     firstname: 'Juan',
     firstLastname: 'Pérez',
     secondLastname: 'García',
-    birthday: new Date('1985-03-15'),
-    genre: 'MALE',
-    maritalStatus: 'SINGLE',
     address: Address.of({
       street: 'Calle 1',
       numeration: Numeration.of({ noExt: '10', noInt: null }),
@@ -35,6 +33,19 @@ function makeBeneficient(isActive = true): Beneficient {
       zipCode: ZipCode.of('06600'),
     }),
     addressHash: 'addr-hash',
+    phoneNumber: PhoneNumber.of('5512345678'),
+    phoneNumberHash: 'phone-hash',
+  });
+}
+
+function makeBeneficient(isActive = true): Beneficient {
+  return Beneficient.recreate(BID, {
+    title: 'Sr.',
+    profileId: makeProfile()._id,
+    profile: makeProfile(),
+    birthday: new Date('1985-03-15'),
+    genre: 'MALE',
+    maritalStatus: 'SINGLE',
     church: ChurchId.of(CID),
     keepPrivate: false,
     isActive,
@@ -72,12 +83,6 @@ describe('Beneficient', () => {
       expect(makeBeneficient()._id.unpack()).toBe(BID);
     });
 
-    it('debería retornar firstname y firstLastname', () => {
-      const b = makeBeneficient();
-      expect(b.firstname).toBe('Juan');
-      expect(b.firstLastname).toBe('Pérez');
-    });
-
     it('debería retornar beneficientNumber', () => {
       expect(makeBeneficient().beneficientNumber).toBe(99);
     });
@@ -106,17 +111,23 @@ describe('Beneficient', () => {
     it('debería retornar deactivatedAt null cuando activo', () => {
       expect(makeBeneficient(true).deactivatedAt).toBeNull();
     });
+
+    it('debería retornar el profile asociado', () => {
+      const b = makeBeneficient();
+      expect(b.profile.firstname).toBe('Juan');
+      expect(b.profileId.equals(b.profile._id)).toBe(true);
+    });
   });
 
   describe('update()', () => {
-    it('debería actualizar datos personales con UpdateBeneficientPersonalCommand', () => {
+    it('debería actualizar datos de rol con UpdateBeneficientPersonalCommand', () => {
       const b = makeBeneficient();
       const cmd = new UpdateBeneficientPersonalCommand(
         BID,
         'Sra.',
-        'María',
-        'López',
-        'Soto',
+        undefined,
+        undefined,
+        undefined,
         new Date('1990-05-20'),
         'FEMALE',
         'MARRIED',
@@ -126,30 +137,8 @@ describe('Beneficient', () => {
       b.update(cmd);
 
       expect(b.title).toBe('Sra.');
-      expect(b.firstname).toBe('María');
-      expect(b.firstLastname).toBe('López');
       expect(b.genre).toBe('FEMALE');
-    });
-
-    it('debería actualizar dirección con UpdateBeneficientAddressCommand', () => {
-      const b = makeBeneficient();
-      const cmd = new UpdateBeneficientAddressCommand(
-        BID,
-        'Av. Juárez',
-        '100',
-        null,
-        'Guerrero',
-        null,
-        'CDMX',
-        'CDMX',
-        '06300',
-      );
-      cmd.addressHash = 'nuevo-hash';
-
-      b.update(cmd);
-
-      expect(b.address.street).toBe('Av. Juárez');
-      expect(b.addressHash).toBe('nuevo-hash');
+      expect(b.maritalStatus).toBe('MARRIED');
     });
 
     it('debería actualizar email con UpdateBeneficientContactCommand', () => {
@@ -167,18 +156,17 @@ describe('Beneficient', () => {
       expect(b.emailHash).toBe('email-hash');
     });
 
-    it('debería actualizar teléfono con UpdateBeneficientContactCommand', () => {
+    it('no debería tocar email cuando no viene en el comando', () => {
       const b = makeBeneficient();
       const cmd = new UpdateBeneficientContactCommand(
         BID,
         undefined,
         '5512345678',
       );
-      cmd.phoneNumberHash = 'phone-hash';
 
       b.update(cmd);
 
-      expect(b.phoneNumber).toBe('5512345678');
+      expect(b.email).toBeUndefined();
     });
 
     it('debería actualizar iglesia con UpdateBeneficientChurchCommand', () => {

@@ -24,6 +24,7 @@ export class BeneficientsRegistryQueryService extends BaseQueryService {
       BeneficientSchema,
       'b',
     )
+      .leftJoinAndSelect('b.profile', 'profile')
       .orderBy('b.beneficientNumber', 'ASC')
       .skip((safePage - 1) * safeLimit)
       .take(safeLimit)
@@ -39,6 +40,7 @@ export class BeneficientsRegistryQueryService extends BaseQueryService {
 
   async getAll(): Promise<BeneficientsRegistryItemDto[]> {
     const beneficients = await this.getQueryBuilder(BeneficientSchema, 'b')
+      .leftJoinAndSelect('b.profile', 'profile')
       .orderBy('b.beneficientNumber', 'ASC')
       .getMany();
 
@@ -53,6 +55,7 @@ export class BeneficientsRegistryQueryService extends BaseQueryService {
 
     const assignations = await this.getQueryBuilder(AssignationSchema, 'a')
       .leftJoinAndSelect('a.collector', 'c')
+      .leftJoinAndSelect('c.profile', 'cProfile')
       .where('a.beneficientId IN (:...ids)', { ids })
       .andWhere('a.isActive = :isActive', { isActive: true })
       .getMany();
@@ -66,28 +69,29 @@ export class BeneficientsRegistryQueryService extends BaseQueryService {
       return {
         beneficientNumber: b.beneficientNumber,
         title: b.title,
-        firstname: b.firstname,
-        firstLastname: b.firstLastname,
-        secondLastname: b.secondLastname ?? null,
+        firstname: b.profile.firstname,
+        firstLastname: b.profile.firstLastname,
+        secondLastname: b.profile.secondLastname ?? null,
         birthday: b.birthday,
         genre: b.genre,
         maritalStatus: b.maritalStatus,
         email: b.email ?? null,
-        phoneNumber: b.phoneNumber ?? null,
-        street: b.street,
-        noExt: b.noExt,
-        noInt: b.noInt ?? null,
-        neighborhood: b.neighborhood ?? null,
-        locality: b.locality ?? null,
-        city: b.city,
-        state: b.state,
-        zipCode: b.zipCode,
+        phoneNumber: b.profile.phoneNumber ?? null,
+        street: b.profile.street,
+        noExt: b.profile.noExt,
+        noInt: b.profile.noInt ?? null,
+        neighborhood: b.profile.neighborhood ?? null,
+        locality: b.profile.locality ?? null,
+        city: b.profile.city,
+        state: b.profile.state,
+        zipCode: b.profile.zipCode,
         createdAt: b.createdAt,
         reasonDeactivated: b.reasonDeactivated ?? null,
         isActive: b.isActive,
         collectorNumber: assignation?.collector?.collectorNumber ?? null,
-        collectorFirstname: assignation?.collector?.firstname ?? null,
-        collectorFirstLastname: assignation?.collector?.firstLastname ?? null,
+        collectorFirstname: assignation?.collector?.profile?.firstname ?? null,
+        collectorFirstLastname:
+          assignation?.collector?.profile?.firstLastname ?? null,
       };
     });
   }

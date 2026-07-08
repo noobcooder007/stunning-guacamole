@@ -67,11 +67,11 @@ export class PrintReceiptsByRangeHandler extends BaseCommandHandler<
   }
 
   private getBeneficientAddress(b: BeneficientSchema): string {
-    return `${b.street} ${b.noExt} ${b.noInt ?? ''} ${b.neighborhood ?? ''} ${b.locality ?? ''} ${b.city} ${b.state} ${b.zipCode}`;
+    return `${b.profile.street} ${b.profile.noExt} ${b.profile.noInt ?? ''} ${b.profile.neighborhood ?? ''} ${b.profile.locality ?? ''} ${b.profile.city} ${b.profile.state} ${b.profile.zipCode}`;
   }
 
   private getBeneficientFullname(b: BeneficientSchema): string {
-    return `${b.firstname} ${b.firstLastname} ${b.secondLastname ?? ''}`.trim();
+    return `${b.profile.firstname} ${b.profile.firstLastname} ${b.profile.secondLastname ?? ''}`.trim();
   }
 
   protected async process(
@@ -113,7 +113,7 @@ export class PrintReceiptsByRangeHandler extends BaseCommandHandler<
         addressDonor: receipt.beneficient
           ? this.getBeneficientAddress(receipt.beneficient)
           : '',
-        telephoneDonor: receipt.beneficient?.phoneNumber ?? '',
+        telephoneDonor: receipt.beneficient?.profile.phoneNumber ?? '',
         chainValidator: receipt.chainValidator,
         photoCollector: photoBase64,
         collector: receipt.collector.collectorNumber,

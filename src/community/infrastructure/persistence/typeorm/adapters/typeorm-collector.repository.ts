@@ -5,14 +5,10 @@ import { ICollectorRepository } from '@/community/domain/repositories/collector.
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
 import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
+import { ProfileMapper } from '@/community/infrastructure/persistence/mappers/profile.mapper';
 
 export interface CollectorFilters {
   id?: string;
-  firstname?: string;
-  firstLastname?: string;
-  secondLastname?: string | null;
-  addressHash?: string;
-  phoneNumberHash?: string;
   telephoneNumberHash?: string;
   nssHash?: string;
 }
@@ -26,6 +22,13 @@ export class TypeORMCollectorRepository
     super(datasource, CollectorSchema);
   }
 
+  private toDomain(collectorModel: CollectorSchema): Collector {
+    return CollectorMapper.toDomain(
+      collectorModel,
+      ProfileMapper.toDomain(collectorModel.profile),
+    );
+  }
+
   async isActive(id: string): Promise<boolean> {
     return await this.repository.exists({ where: { id, isActive: true } });
   }
@@ -35,23 +38,6 @@ export class TypeORMCollectorRepository
       return await this.repository.exists({ where: { id: filters.id } });
     }
     const where: FindOptionsWhere<CollectorSchema>[] = [];
-    if (filters.firstname && filters.firstLastname) {
-      where.push({
-        firstname: filters.firstname,
-        firstLastname: filters.firstLastname,
-        secondLastname: filters.secondLastname ?? null,
-      });
-    }
-    if (filters.addressHash) {
-      where.push({
-        addressHash: filters.addressHash,
-      });
-    }
-    if (filters.phoneNumberHash) {
-      where.push({
-        phoneNumberHash: filters.phoneNumberHash,
-      });
-    }
     if (filters.telephoneNumberHash) {
       where.push({
         telephoneNumberHash: filters.telephoneNumberHash,
@@ -62,6 +48,9 @@ export class TypeORMCollectorRepository
         nssHash: filters.nssHash,
       });
     }
+    // Un where vacío hace que TypeORM no aplique ningún WHERE y matchee
+    // cualquier fila de la tabla; sin criterios no hay nada que comparar.
+    if (where.length === 0) return false;
     const exists = await this.repository.exists({ where });
     return !!exists;
   }
@@ -69,20 +58,23 @@ export class TypeORMCollectorRepository
   async findById(id: string): Promise<Collector | null> {
     const collectorModel = await this.repository.findOne({
       where: { id, isActive: true },
+      relations: ['profile'],
     });
-    return collectorModel ? CollectorMapper.toDomain(collectorModel) : null;
+    return collectorModel ? this.toDomain(collectorModel) : null;
   }
 
   async findInactiveById(id: string): Promise<Collector | null> {
     const collectorModel = await this.repository.findOne({
       where: { id, isActive: false },
+      relations: ['profile'],
     });
-    return collectorModel ? CollectorMapper.toDomain(collectorModel) : null;
+    return collectorModel ? this.toDomain(collectorModel) : null;
   }
 
   async findByIdWithAssignations(id: string): Promise<Collector | null> {
     const collectorModel = await this.repository
       .createQueryBuilder('collector')
+      .leftJoinAndSelect('collector.profile', 'profile')
       .leftJoinAndSelect(
         'collector.assignations',
         'assignations',
@@ -92,17 +84,18 @@ export class TypeORMCollectorRepository
       .where('collector.id = :id', { id })
       .andWhere('collector.isActive = :isActive', { isActive: true })
       .getOne();
-    return collectorModel ? CollectorMapper.toDomain(collectorModel) : null;
+    return collectorModel ? this.toDomain(collectorModel) : null;
   }
 
   async findAll(offset: number, limit: number): Promise<Collector[]> {
     const collectorsModelList = await this.repository.find({
       where: { isActive: true },
+      relations: ['profile'],
       skip: offset,
       take: limit,
     });
     return collectorsModelList.map((collectorModel) => {
-      return CollectorMapper.toDomain(collectorModel);
+      return this.toDomain(collectorModel);
     });
   }
 

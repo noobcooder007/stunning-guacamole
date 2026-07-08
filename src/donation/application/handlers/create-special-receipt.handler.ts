@@ -62,21 +62,21 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
   }
 
   private getBeneficientAddress(beneficient: Beneficient): string {
-    const street = beneficient.address.street;
-    const noExt = beneficient.address.numeration.noExt;
-    const noInt = beneficient.address.numeration.noInt ?? '';
-    const neighborhood = beneficient.address.neighborhood ?? '';
-    const locality = beneficient.address.locality ?? '';
-    const city = beneficient.address.city;
-    const state = beneficient.address.state;
-    const zipCode = beneficient.address.zipCode;
+    const street = beneficient.profile.address.street;
+    const noExt = beneficient.profile.address.numeration.noExt;
+    const noInt = beneficient.profile.address.numeration.noInt ?? '';
+    const neighborhood = beneficient.profile.address.neighborhood ?? '';
+    const locality = beneficient.profile.address.locality ?? '';
+    const city = beneficient.profile.address.city;
+    const state = beneficient.profile.address.state;
+    const zipCode = beneficient.profile.address.zipCode;
     return `${street} ${noExt} ${noInt} ${neighborhood} ${locality} ${city} ${state} ${zipCode}`;
   }
 
   private getBeneficientsFullname(beneficient: Beneficient): string {
-    const firstname = beneficient.firstname;
-    const firstLastname = beneficient.firstLastname;
-    const secondLastname = beneficient.secondLastname ?? '';
+    const firstname = beneficient.profile.firstname;
+    const firstLastname = beneficient.profile.firstLastname;
+    const secondLastname = beneficient.profile.secondLastname ?? '';
     return `${firstname} ${firstLastname} ${secondLastname}`;
   }
 
@@ -172,7 +172,7 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
       addressDonor: beneficient
         ? this.getBeneficientAddress(beneficient)
         : 'Domicilio desconocido',
-      telephoneDonor: beneficient.phoneNumber,
+      telephoneDonor: beneficient.profile.phoneNumber?.unpack() ?? '',
       recurrence: 'ESPECIAL',
       period: `${months[specialReceipt.periodMonth - 1]}${specialReceipt.periodYear}`,
       keepPrivate: beneficient.keepPrivate,

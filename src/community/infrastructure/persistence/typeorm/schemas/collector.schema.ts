@@ -11,14 +11,13 @@ import {
 } from 'typeorm';
 import { UserSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/user.schema';
 import { AssignationSchema } from '@/community/infrastructure/persistence/typeorm/schemas/assignation.schema';
+import { ProfileSchema } from '@/community/infrastructure/persistence/typeorm/schemas/profile.schema';
 import { ICollectorPersistence } from '@/community/infrastructure/persistence/mappers/collector.mapper';
 import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 
 @Entity('collectors')
-@Index(['state', 'city'])
 @Index(['createdAt'])
 @Unique(['collectorNumber'])
-@Unique(['firstname', 'firstLastname', 'secondLastname'])
 export class CollectorSchema implements ICollectorPersistence {
   @PrimaryColumn('uuid')
   id: string;
@@ -33,16 +32,15 @@ export class CollectorSchema implements ICollectorPersistence {
   @JoinColumn({ name: 'userId' })
   authenticationAccount: UserSchema;
 
-  @Column('text')
-  firstname: string;
+  @Column('uuid')
+  profileId: string;
 
-  @Column('text')
-  firstLastname: string;
-
-  @Column('text', {
-    nullable: true,
+  @OneToOne(() => ProfileSchema, {
+    nullable: false,
+    onDelete: 'RESTRICT',
   })
-  secondLastname: string;
+  @JoinColumn({ name: 'profileId' })
+  profile: ProfileSchema;
 
   @Column('text', {
     unique: true,
@@ -59,91 +57,6 @@ export class CollectorSchema implements ICollectorPersistence {
     unique: true,
   })
   nssHash: string;
-
-  @Column('text', {
-    transformer: {
-      to: (value: string) =>
-        EncryptionService.instance?.encrypt(value) ?? value,
-      from: (value: string) =>
-        EncryptionService.instance?.decrypt(value) ?? value,
-    },
-  })
-  street: string;
-
-  @Column('text', {
-    transformer: {
-      to: (value: string) =>
-        EncryptionService.instance?.encrypt(value) ?? value,
-      from: (value: string) =>
-        EncryptionService.instance?.decrypt(value) ?? value,
-    },
-  })
-  noExt: string;
-
-  @Column('text', {
-    nullable: true,
-    transformer: {
-      to: (value: string) =>
-        EncryptionService.instance?.encrypt(value) ?? value,
-      from: (value: string) =>
-        EncryptionService.instance?.decrypt(value) ?? value,
-    },
-  })
-  noInt: string;
-
-  @Column('text', {
-    nullable: true,
-    transformer: {
-      to: (value: string) =>
-        EncryptionService.instance?.encrypt(value) ?? value,
-      from: (value: string) =>
-        EncryptionService.instance?.decrypt(value) ?? value,
-    },
-  })
-  neighborhood: string;
-
-  @Column('text', {
-    nullable: true,
-    transformer: {
-      to: (value: string) =>
-        EncryptionService.instance?.encrypt(value) ?? value,
-      from: (value: string) =>
-        EncryptionService.instance?.decrypt(value) ?? value,
-    },
-  })
-  locality: string;
-
-  @Column('text')
-  city: string;
-
-  @Column('text')
-  state: string;
-
-  @Column('text')
-  zipCode: string;
-
-  @Column('text', {
-    select: false,
-    unique: true,
-  })
-  addressHash: string;
-
-  @Column('text', {
-    unique: true,
-    transformer: {
-      to: (value: string) =>
-        EncryptionService.instance?.encrypt(value) ?? value,
-      from: (value: string) =>
-        EncryptionService.instance?.decrypt(value) ?? value,
-    },
-  })
-  phoneNumber: string;
-
-  @Column('text', {
-    select: false,
-    unique: true,
-  })
-  phoneNumberHash: string;
 
   @Column('text', {
     unique: true,

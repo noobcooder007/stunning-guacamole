@@ -1,10 +1,11 @@
 import { Beneficient } from '@/community/domain/aggregate/beneficient.aggregate';
 import {
-  Address,
-  Numeration,
-} from '@/community/domain/value-objects/address.vo';
+  Profile,
+  ProfileId,
+} from '@/community/domain/aggregate/profile.aggregate';
+import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { BeneficientResponse } from '@/community/application/dto/beneficient.response';
-import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
+import { BeneficientChurchResponse } from '@/community/application/dto/beneficient-church.response';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 import { TaxInformation } from '@/community/domain/value-objects/tax-information.vo';
 import { AddressResponseDto } from '@/community/application/dto/address.response';
@@ -12,27 +13,14 @@ import { AddressResponseDto } from '@/community/application/dto/address.response
 export interface IBeneficientPersistence {
   id: string;
   title: string;
-  firstname: string;
-  firstLastname: string;
-  secondLastname: string;
+  profileId: string;
   birthday: Date;
   genre: string;
   maritalStatus: string;
   weddingAnniversary: Date;
-  street: string;
-  noExt: string;
-  noInt?: string;
-  neighborhood?: string;
-  locality?: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  addressHash: string;
   churchId: string;
   email?: string;
   emailHash?: string;
-  phoneNumber?: string;
-  phoneNumberHash?: string;
   person?: string;
   registeredName?: string;
   rfc?: string;
@@ -50,27 +38,14 @@ export class BeneficientMapper {
     return {
       id: beneficient._id.unpack(),
       title: beneficient.title,
-      firstname: beneficient.firstname,
-      firstLastname: beneficient.firstLastname,
-      secondLastname: beneficient.secondLastname,
+      profileId: beneficient.profileId.unpack(),
       birthday: beneficient.birthday,
       genre: beneficient.genre,
       maritalStatus: beneficient.maritalStatus,
       weddingAnniversary: beneficient.weddingAniversary,
-      street: beneficient.address.street,
-      noExt: beneficient.address.numeration.noExt,
-      noInt: beneficient.address.numeration.noInt,
-      neighborhood: beneficient.address.neighborhood,
-      locality: beneficient.address.locality,
-      city: beneficient.address.city,
-      state: beneficient.address.state,
-      zipCode: beneficient.address.zipCode.value,
-      addressHash: beneficient.addressHash,
       churchId: beneficient.church.unpack(),
       email: beneficient.email,
       emailHash: beneficient.emailHash,
-      phoneNumber: beneficient.phoneNumber,
-      phoneNumberHash: beneficient.phoneNumberHash,
       person: beneficient.taxInformation?.unpack().person ?? null,
       registeredName:
         beneficient.taxInformation?.unpack().registeredName ?? null,
@@ -85,29 +60,15 @@ export class BeneficientMapper {
     };
   }
 
-  static toDomain(raw: IBeneficientPersistence): Beneficient {
+  static toDomain(raw: IBeneficientPersistence, profile: Profile): Beneficient {
     return Beneficient.recreate(raw.id, {
       title: raw.title,
-      firstname: raw.firstname,
-      firstLastname: raw.firstLastname,
-      secondLastname: raw.secondLastname,
+      profileId: ProfileId.of(raw.profileId),
+      profile,
       birthday: raw.birthday,
       genre: raw.genre,
       maritalStatus: raw.maritalStatus,
       weddingAniversary: raw.weddingAnniversary,
-      address: Address.of({
-        street: raw.street,
-        numeration: Numeration.of({
-          noExt: raw.noExt,
-          noInt: raw.noInt,
-        }),
-        neighborhood: raw.neighborhood,
-        locality: raw.locality,
-        city: raw.city,
-        state: raw.state,
-        zipCode: ZipCode.of(raw.zipCode),
-      }),
-      addressHash: raw.addressHash,
       taxInformation: TaxInformation.of({
         person: raw.person,
         registeredName: raw.registeredName,
@@ -116,8 +77,6 @@ export class BeneficientMapper {
       }),
       email: raw.email,
       emailHash: raw.emailHash,
-      phoneNumber: raw.phoneNumber,
-      phoneNumberHash: raw.phoneNumberHash,
       createdAt: raw.createdAt,
       isActive: raw.isActive,
       reasonDeactivated: raw.reasonDeactivated,
@@ -129,30 +88,33 @@ export class BeneficientMapper {
   }
 
   static fromModelToResponse(
-    beneficientModel: IBeneficientPersistence,
+    beneficientModel: BeneficientSchema,
   ): BeneficientResponse {
     const beneficient = new BeneficientResponse();
     beneficient.id = beneficientModel.id;
+    const churchResponse = new BeneficientChurchResponse();
+    churchResponse.id = beneficientModel.churchId;
+    beneficient.church = churchResponse;
     beneficient.title = beneficientModel.title;
-    beneficient.firstname = beneficientModel.firstname;
-    beneficient.firstLastname = beneficientModel.firstLastname;
-    beneficient.secondLastname = beneficientModel.secondLastname;
+    beneficient.firstname = beneficientModel.profile.firstname;
+    beneficient.firstLastname = beneficientModel.profile.firstLastname;
+    beneficient.secondLastname = beneficientModel.profile.secondLastname;
     beneficient.birthday = beneficientModel.birthday;
     beneficient.weddingAniversary = beneficientModel.weddingAnniversary;
     beneficient.genre = beneficientModel.genre;
     beneficient.maritalStatus = beneficientModel.maritalStatus;
     const addressResponse = new AddressResponseDto();
-    addressResponse.street = beneficientModel.street;
-    addressResponse.noExt = beneficientModel.noExt;
-    addressResponse.noInt = beneficientModel.noInt;
-    addressResponse.neighborhood = beneficientModel.neighborhood;
-    addressResponse.locality = beneficientModel.locality;
-    addressResponse.city = beneficientModel.city;
-    addressResponse.state = beneficientModel.state;
-    addressResponse.zipCode = beneficientModel.zipCode;
+    addressResponse.street = beneficientModel.profile.street;
+    addressResponse.noExt = beneficientModel.profile.noExt;
+    addressResponse.noInt = beneficientModel.profile.noInt;
+    addressResponse.neighborhood = beneficientModel.profile.neighborhood;
+    addressResponse.locality = beneficientModel.profile.locality;
+    addressResponse.city = beneficientModel.profile.city;
+    addressResponse.state = beneficientModel.profile.state;
+    addressResponse.zipCode = beneficientModel.profile.zipCode;
     beneficient.address = addressResponse;
     beneficient.email = beneficientModel.email;
-    beneficient.phoneNumber = beneficientModel.phoneNumber;
+    beneficient.phoneNumber = beneficientModel.profile.phoneNumber;
     beneficient.person = beneficientModel.person;
     beneficient.registeredName = beneficientModel.registeredName;
     beneficient.rfc = beneficientModel.rfc;
@@ -165,25 +127,30 @@ export class BeneficientMapper {
   static fromDomainToResponse(beneficient: Beneficient): BeneficientResponse {
     const beneficientResponse = new BeneficientResponse();
     beneficientResponse.id = beneficient._id.unpack();
+    const churchResponse = new BeneficientChurchResponse();
+    churchResponse.id = beneficient.church.unpack();
+    beneficientResponse.church = churchResponse;
     beneficientResponse.title = beneficient.title;
-    beneficientResponse.firstname = beneficient.firstname;
-    beneficientResponse.firstLastname = beneficient.firstLastname;
-    beneficientResponse.secondLastname = beneficient.secondLastname;
+    beneficientResponse.firstname = beneficient.profile.firstname;
+    beneficientResponse.firstLastname = beneficient.profile.firstLastname;
+    beneficientResponse.secondLastname = beneficient.profile.secondLastname;
     beneficientResponse.birthday = beneficient.birthday;
     beneficientResponse.weddingAniversary = beneficient.weddingAniversary;
     beneficientResponse.genre = beneficient.genre;
     beneficientResponse.maritalStatus = beneficient.maritalStatus;
     const addressResponse = new AddressResponseDto();
-    addressResponse.street = beneficient.address.street;
-    addressResponse.noExt = beneficient.address.numeration.noExt;
-    addressResponse.noInt = beneficient.address.numeration.noInt;
-    addressResponse.neighborhood = beneficient.address.neighborhood;
-    addressResponse.locality = beneficient.address.locality;
-    addressResponse.city = beneficient.address.city;
-    addressResponse.state = beneficient.address.state;
-    addressResponse.zipCode = beneficient.address.zipCode.unpack();
+    addressResponse.street = beneficient.profile.address.street;
+    addressResponse.noExt = beneficient.profile.address.numeration.noExt;
+    addressResponse.noInt = beneficient.profile.address.numeration.noInt;
+    addressResponse.neighborhood = beneficient.profile.address.neighborhood;
+    addressResponse.locality = beneficient.profile.address.locality;
+    addressResponse.city = beneficient.profile.address.city;
+    addressResponse.state = beneficient.profile.address.state;
+    addressResponse.zipCode = beneficient.profile.address.zipCode.unpack();
     beneficientResponse.address = addressResponse;
     beneficientResponse.email = beneficient.email;
+    beneficientResponse.phoneNumber =
+      beneficient.profile.phoneNumber?.unpack();
     beneficientResponse.person = beneficient.taxInformation.unpack().person;
     beneficientResponse.registeredName =
       beneficient.taxInformation.unpack().registeredName;

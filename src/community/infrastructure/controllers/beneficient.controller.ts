@@ -96,22 +96,26 @@ export class BeneficientController {
   }
 
   @Throttle({ default: { limit: 10, ttl: minutes(1) } })
-  @Get('report/pdf')
+  @Get(':id/report/pdf')
   @Auth(PermissionNames.VIEW_BENEFICIENT)
-  async printReport(@Res() res: Response) {
+  async printReport(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Res() res: Response,
+  ) {
     const result = await this.commandBus.execute(
-      new PrintBeneficientsReportCommand(),
+      new PrintBeneficientsReportCommand(id),
     );
     if (!result.isSuccess) {
-      res
-        .status(422)
-        .json({ type: result.error.type, message: result.error.message });
+      res.status(result.error.type === 'NOT_FOUND' ? 404 : 422).json({
+        type: result.error.type,
+        message: result.error.message,
+      });
       return;
     }
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
-      'attachment; filename=reporte-bienhechores.pdf',
+      `attachment; filename=reporte-bienhechor-${id}.pdf`,
     );
     result.value.pipe(res);
   }

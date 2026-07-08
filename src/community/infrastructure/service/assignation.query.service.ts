@@ -22,7 +22,9 @@ export class AssignationQueryService extends BaseQueryService {
     const qb = this.getQueryBuilder(AssignationSchema, 'assignation')
       .where('assignation.isActive = :isActive', { isActive: true })
       .leftJoinAndSelect('assignation.beneficient', 'beneficient')
-      .leftJoinAndSelect('assignation.collector', 'collector');
+      .leftJoinAndSelect('beneficient.profile', 'beneficientProfile')
+      .leftJoinAndSelect('assignation.collector', 'collector')
+      .leftJoinAndSelect('collector.profile', 'collectorProfile');
     if (collectorId) {
       qb.andWhere('assignation.collectorId = :collectorId', { collectorId });
     }
@@ -45,7 +47,9 @@ export class AssignationQueryService extends BaseQueryService {
       .where('assignation.isActive = :isActive', { isActive: true })
       .andWhere('assignation.collectorId = :collectorId', { collectorId })
       .leftJoinAndSelect('assignation.beneficient', 'beneficient')
+      .leftJoinAndSelect('beneficient.profile', 'beneficientProfile')
       .leftJoinAndSelect('assignation.collector', 'collector')
+      .leftJoinAndSelect('collector.profile', 'collectorProfile')
       .getMany();
     return assignations.map((item) => AssignationMapper.toResponse(item));
   }
@@ -53,7 +57,9 @@ export class AssignationQueryService extends BaseQueryService {
   async getOrphans(): Promise<OrphansAssignationsResponse[]> {
     const qb = this.getQueryBuilder(AssignationSchema, 'a')
       .leftJoinAndSelect('a.collector', 'b')
+      .leftJoinAndSelect('b.profile', 'bProfile')
       .leftJoinAndSelect('a.beneficient', 'c')
+      .leftJoinAndSelect('c.profile', 'cProfile')
       .andWhere((subQuery) => {
         const sub = subQuery
           .subQuery()
@@ -72,15 +78,15 @@ export class AssignationQueryService extends BaseQueryService {
       id: assignation.id,
       beneficient: {
         id: assignation.beneficient.id,
-        firstname: assignation.beneficient.firstname,
-        firstLastname: assignation.beneficient.firstLastname,
-        secondLastname: assignation.beneficient.secondLastname,
+        firstname: assignation.beneficient.profile.firstname,
+        firstLastname: assignation.beneficient.profile.firstLastname,
+        secondLastname: assignation.beneficient.profile.secondLastname,
       },
       lastCollector: {
         id: assignation.collector.id,
-        firstname: assignation.collector.firstname,
-        firstLastname: assignation.collector.firstLastname,
-        secondLastname: assignation.collector.secondLastname,
+        firstname: assignation.collector.profile.firstname,
+        firstLastname: assignation.collector.profile.firstLastname,
+        secondLastname: assignation.collector.profile.secondLastname,
       },
       reasonDeactivated: assignation.reasonDeactivated,
     }));

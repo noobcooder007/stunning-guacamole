@@ -75,7 +75,9 @@ export class TypeORMReceiptRepository
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.promiseDonation', 'pd')
       .leftJoinAndSelect('r.beneficient', 'b')
+      .leftJoinAndSelect('b.profile', 'bProfile')
       .leftJoinAndSelect('r.collector', 'c')
+      .leftJoinAndSelect('c.profile', 'cProfile')
       .where('r.status = :status', { status: 'PENDING' });
 
     if (filters.collectorId) {
@@ -89,17 +91,17 @@ export class TypeORMReceiptRepository
       });
     }
     if (filters.firstname) {
-      qb.andWhere('c.firstname ILIKE :firstname', {
+      qb.andWhere('cProfile.firstname ILIKE :firstname', {
         firstname: `%${filters.firstname}%`,
       });
     }
     if (filters.firstLastname) {
-      qb.andWhere('c.firstLastname ILIKE :firstLastname', {
+      qb.andWhere('cProfile.firstLastname ILIKE :firstLastname', {
         firstLastname: `%${filters.firstLastname}%`,
       });
     }
     if (filters.secondLastname) {
-      qb.andWhere('c.secondLastname ILIKE :secondLastname', {
+      qb.andWhere('cProfile.secondLastname ILIKE :secondLastname', {
         secondLastname: `%${filters.secondLastname}%`,
       });
     }
@@ -116,8 +118,8 @@ export class TypeORMReceiptRepository
     qb.orderBy('c.collectorNumber', 'ASC')
       .addOrderBy('r.periodYear', 'ASC')
       .addOrderBy('r.periodMonth', 'ASC')
-      .addOrderBy('b.firstLastname', 'ASC')
-      .addOrderBy('b.firstname', 'ASC');
+      .addOrderBy('bProfile.firstLastname', 'ASC')
+      .addOrderBy('bProfile.firstname', 'ASC');
 
     return qb.getMany();
   }
@@ -129,7 +131,9 @@ export class TypeORMReceiptRepository
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.promiseDonation', 'pd')
       .leftJoinAndSelect('r.beneficient', 'b')
+      .leftJoinAndSelect('b.profile', 'bProfile')
       .leftJoinAndSelect('r.collector', 'c')
+      .leftJoinAndSelect('c.profile', 'cProfile')
       .where('r.status = :status', { status: 'PENDING' })
       .andWhere('r.type = :type', { type: 'RECURRING' })
       .andWhere('r.periodMonth = :month', { month: filters.month })
@@ -150,17 +154,17 @@ export class TypeORMReceiptRepository
       });
     }
     if (filters.firstname) {
-      qb.andWhere('c.firstname ILIKE :firstname', {
+      qb.andWhere('cProfile.firstname ILIKE :firstname', {
         firstname: `%${filters.firstname}%`,
       });
     }
     if (filters.firstLastname) {
-      qb.andWhere('c.firstLastname ILIKE :firstLastname', {
+      qb.andWhere('cProfile.firstLastname ILIKE :firstLastname', {
         firstLastname: `%${filters.firstLastname}%`,
       });
     }
     if (filters.secondLastname) {
-      qb.andWhere('c.secondLastname ILIKE :secondLastname', {
+      qb.andWhere('cProfile.secondLastname ILIKE :secondLastname', {
         secondLastname: `%${filters.secondLastname}%`,
       });
     }
@@ -179,7 +183,9 @@ export class TypeORMReceiptRepository
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.promiseDonation', 'pd')
       .leftJoinAndSelect('r.beneficient', 'b')
+      .leftJoinAndSelect('b.profile', 'bProfile')
       .leftJoinAndSelect('r.collector', 'c')
+      .leftJoinAndSelect('c.profile', 'cProfile')
       .where('r.status = :status', { status: 'PENDING' })
       .andWhere(
         '(r.periodYear < :beforeYear OR (r.periodYear = :beforeYear AND r.periodMonth < :beforeMonth))',
@@ -193,8 +199,8 @@ export class TypeORMReceiptRepository
     qb.orderBy('c.collectorNumber', 'ASC')
       .addOrderBy('r.periodYear', 'ASC')
       .addOrderBy('r.periodMonth', 'ASC')
-      .addOrderBy('b.firstLastname', 'ASC')
-      .addOrderBy('b.firstname', 'ASC');
+      .addOrderBy('bProfile.firstLastname', 'ASC')
+      .addOrderBy('bProfile.firstname', 'ASC');
 
     return qb.getMany();
   }
@@ -232,12 +238,14 @@ export class TypeORMReceiptRepository
     return this.repository
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.beneficient', 'b')
+      .leftJoinAndSelect('b.profile', 'bProfile')
       .leftJoinAndSelect('r.collector', 'c')
+      .leftJoinAndSelect('c.profile', 'cProfile')
       .leftJoinAndSelect('r.promiseDonation', 'pd')
       .where('r.collectionPeriodId = :periodId', { periodId })
       .andWhere('r.status = :status', { status: 'PAID' })
       .orderBy('c.collectorNumber', 'ASC')
-      .addOrderBy('b.firstLastname', 'ASC')
+      .addOrderBy('bProfile.firstLastname', 'ASC')
       .getMany();
   }
 
@@ -247,12 +255,14 @@ export class TypeORMReceiptRepository
     return this.repository
       .createQueryBuilder('r')
       .leftJoinAndSelect('r.beneficient', 'b')
+      .leftJoinAndSelect('b.profile', 'bProfile')
       .leftJoinAndSelect('r.collector', 'c')
+      .leftJoinAndSelect('c.profile', 'cProfile')
       .leftJoinAndSelect('r.promiseDonation', 'pd')
       .where('r.collectionPeriodId = :periodId', { periodId })
       .andWhere('r.status = :status', { status: 'PENDING' })
       .orderBy('c.collectorNumber', 'ASC')
-      .addOrderBy('b.firstLastname', 'ASC')
+      .addOrderBy('bProfile.firstLastname', 'ASC')
       .addOrderBy('r.periodYear', 'ASC')
       .addOrderBy('r.periodMonth', 'ASC')
       .getMany();

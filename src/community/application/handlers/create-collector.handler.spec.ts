@@ -35,6 +35,7 @@ describe('CreateCollectorHandler', () => {
   let handler: CreateCollectorHandler;
   let uow: { runInTransaction: jest.Mock };
   let collectorRepository: { exists: jest.Mock; save: jest.Mock };
+  let profileRepository: { exists: jest.Mock; save: jest.Mock };
   let createUserService: { execute: jest.Mock };
   let hasher: { hash: jest.Mock };
 
@@ -48,24 +49,30 @@ describe('CreateCollectorHandler', () => {
       exists: jest.fn().mockResolvedValue(false),
       save: jest.fn().mockResolvedValue(undefined),
     };
+    profileRepository = {
+      exists: jest.fn().mockResolvedValue(false),
+      save: jest.fn().mockResolvedValue(undefined),
+    };
     createUserService = { execute: jest.fn() };
     hasher = { hash: jest.fn().mockResolvedValue('hashed-value') };
 
     handler = new CreateCollectorHandler(
       uow as any,
       collectorRepository as any,
+      profileRepository as any,
       createUserService as any,
       hasher as any,
     );
   });
 
-  it('debería crear y persistir el colector en el caso exitoso', async () => {
+  it('debería crear y persistir el perfil y el colector en el caso exitoso', async () => {
     createUserService.execute.mockResolvedValue(Result.ok(USER_ID));
 
     const result = await handler.execute(makeCommand());
 
     expect(result.isSuccess).toBe(true);
     expect(result.value.id).toBeDefined();
+    expect(profileRepository.save).toHaveBeenCalledTimes(1);
     expect(collectorRepository.save).toHaveBeenCalledTimes(1);
   });
 
@@ -83,7 +90,17 @@ describe('CreateCollectorHandler', () => {
     );
   });
 
-  it('debería lanzar ConflictException cuando el colector ya existe', async () => {
+  it('debería lanzar ConflictException cuando ya existe un perfil con la misma identidad', async () => {
+    createUserService.execute.mockResolvedValue(Result.ok(USER_ID));
+    profileRepository.exists.mockResolvedValue(true);
+
+    await expect(handler.execute(makeCommand())).rejects.toThrow(
+      ConflictException,
+    );
+    expect(collectorRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('debería lanzar ConflictException cuando el colector ya existe (nss/teléfono)', async () => {
     createUserService.execute.mockResolvedValue(Result.ok(USER_ID));
     collectorRepository.exists.mockResolvedValue(true);
 
@@ -109,16 +126,22 @@ describe('CreateCollectorHandler', () => {
     expect(hasher.hash).toHaveBeenCalledTimes(4);
   });
 
-  it('debería usar los hashes para verificar duplicados en el repositorio', async () => {
+  it('debería usar los hashes de identidad para verificar duplicados de perfil', async () => {
     createUserService.execute.mockResolvedValue(Result.ok(USER_ID));
 
     await handler.execute(makeCommand());
 
+    expect(profileRepository.exists).toHaveBeenCalledWith(
+      expect.objectContaining({
+        firstname: 'Juan',
+        firstLastname: 'Pérez',
+        addressHash: 'hashed-value',
+        phoneNumberHash: 'hashed-value',
+      }),
+    );
     expect(collectorRepository.exists).toHaveBeenCalledWith(
       expect.objectContaining({
         nssHash: 'hashed-value',
-        addressHash: 'hashed-value',
-        phoneNumberHash: 'hashed-value',
       }),
     );
   });
@@ -131,7 +154,7 @@ describe('CreateCollectorHandler', () => {
     expect(uow.runInTransaction).toHaveBeenCalledTimes(1);
   });
 
-  it('no debería guardar el colector si la creación del usuario falla', async () => {
+  it('no debería guardar el perfil ni el colector si la creación del usuario falla', async () => {
     createUserService.execute.mockResolvedValue(
       Result.fail({
         type: ErrorType.CONFLICT,
@@ -141,6 +164,7 @@ describe('CreateCollectorHandler', () => {
     );
 
     await expect(handler.execute(makeCommand())).rejects.toThrow();
+    expect(profileRepository.save).not.toHaveBeenCalled();
     expect(collectorRepository.save).not.toHaveBeenCalled();
   });
 });

@@ -8,6 +8,7 @@ import {
   CollectorId,
 } from '@/community/domain/aggregate/collector.aggregate';
 import { BeneficientId } from '@/community/domain/aggregate/beneficient.aggregate';
+import { Profile } from '@/community/domain/aggregate/profile.aggregate';
 import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { NSS } from '@/community/domain/value-objects/nss.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
@@ -22,18 +23,16 @@ import { ErrorType } from '@/shared/domain/dto/result.dto';
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
 const USER_ID = '01907c2a-0000-7000-8000-000000000002';
 const OTHER_COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000003';
+const PROFILE_ID = '01907c2a-0000-7000-8000-000000000004';
 const BID1 = '01907c2a-0000-7000-8000-000000000010';
 const BID2 = '01907c2a-0000-7000-8000-000000000011';
 const AID1 = '01907c2a-0000-7000-8000-000000000020';
 const AID2 = '01907c2a-0000-7000-8000-000000000021';
 
-function makeCollector(existingAssignationIds: string[] = []): Collector {
-  return Collector.recreate(COLLECTOR_ID, {
-    userId: UserId.of(USER_ID),
+function makeProfile(): Profile {
+  return Profile.recreate(PROFILE_ID, {
     firstname: 'Juan',
     firstLastname: 'Pérez',
-    nss: NSS.of('12345678901'),
-    nssHash: 'nss-hash',
     address: Address.of({
       street: 'Calle 1',
       numeration: Numeration.of({ noExt: '10', noInt: null }),
@@ -45,6 +44,16 @@ function makeCollector(existingAssignationIds: string[] = []): Collector {
     addressHash: 'addr-hash',
     phoneNumber: PhoneNumber.of('5512345678'),
     phoneNumberHash: 'phone-hash',
+  });
+}
+
+function makeCollector(existingAssignationIds: string[] = []): Collector {
+  return Collector.recreate(COLLECTOR_ID, {
+    userId: UserId.of(USER_ID),
+    profileId: makeProfile()._id,
+    profile: makeProfile(),
+    nss: NSS.of('12345678901'),
+    nssHash: 'nss-hash',
     paymentData: PaymentData.of({
       commissionPercent: 10,
       bank: 'BBVA',

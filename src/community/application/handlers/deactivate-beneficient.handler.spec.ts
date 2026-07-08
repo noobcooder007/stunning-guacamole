@@ -1,26 +1,25 @@
 import { DeactivateBeneficientHanlder } from './deactivate-beneficient.handler';
 import { DeactivateBeneficientCommand } from '@/community/application/command/deactivate-beneficient.command';
 import { Beneficient } from '@/community/domain/aggregate/beneficient.aggregate';
+import { Profile } from '@/community/domain/aggregate/profile.aggregate';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 import {
   Address,
   Numeration,
 } from '@/community/domain/value-objects/address.vo';
 import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
+import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { ErrorType } from '@/shared/domain/dto/result.dto';
 
 const BID = '01907c2a-0000-7000-8000-000000000001';
 const CID = '01907c2a-0000-7000-8000-000000000002';
+const PROFILE_ID = '01907c2a-0000-7000-8000-000000000003';
 
-function makeBeneficient(): Beneficient {
-  return Beneficient.recreate(BID, {
-    title: 'Sr.',
+function makeProfile(): Profile {
+  return Profile.recreate(PROFILE_ID, {
     firstname: 'Juan',
     firstLastname: 'Pérez',
     secondLastname: null,
-    birthday: new Date('1985-01-01'),
-    genre: 'MALE',
-    maritalStatus: 'SINGLE',
     address: Address.of({
       street: 'Calle 1',
       numeration: Numeration.of({ noExt: '10', noInt: null }),
@@ -30,6 +29,19 @@ function makeBeneficient(): Beneficient {
       zipCode: ZipCode.of('06600'),
     }),
     addressHash: 'h',
+    phoneNumber: PhoneNumber.of('5512345678'),
+    phoneNumberHash: 'h',
+  });
+}
+
+function makeBeneficient(): Beneficient {
+  return Beneficient.recreate(BID, {
+    title: 'Sr.',
+    profileId: makeProfile()._id,
+    profile: makeProfile(),
+    birthday: new Date('1985-01-01'),
+    genre: 'MALE',
+    maritalStatus: 'SINGLE',
     church: ChurchId.of(CID),
     keepPrivate: false,
     isActive: true,

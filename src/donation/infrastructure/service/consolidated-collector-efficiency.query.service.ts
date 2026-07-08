@@ -4,6 +4,7 @@ import { BaseQueryService } from '@/shared/application/query/base-query.service'
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
 import { CollectionPeriodSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/collection-period.schema';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
+import { ProfileSchema } from '@/community/infrastructure/persistence/typeorm/schemas/profile.schema';
 import {
   CollectorEfficiencyRowDto,
   ConsolidatedCollectorEfficiencyResponseDto,
@@ -54,7 +55,8 @@ export class ConsolidatedCollectorEfficiencyQueryService extends BaseQueryServic
     const qb = this.dataSource
       .createQueryBuilder()
       .from(ReceiptSchema, 'r')
-      .innerJoin(CollectorSchema, 'c', 'c.id = r."collectorId"');
+      .innerJoin(CollectorSchema, 'c', 'c.id = r."collectorId"')
+      .innerJoin(ProfileSchema, 'p', 'p.id = c."profileId"');
     for (const [expr, alias] of RECEIPT_AGGREGATE_SELECTS) {
       qb.addSelect(expr, alias);
     }
@@ -69,9 +71,9 @@ export class ConsolidatedCollectorEfficiencyQueryService extends BaseQueryServic
       .addSelect('cp.status', 'periodStatus')
       .addSelect('c.id', 'collectorId')
       .addSelect('c."collectorNumber"', 'collectorNumber')
-      .addSelect('c.firstname', 'firstname')
-      .addSelect('c."firstLastname"', 'firstLastname')
-      .addSelect('c."secondLastname"', 'secondLastname')
+      .addSelect('p.firstname', 'firstname')
+      .addSelect('p."firstLastname"', 'firstLastname')
+      .addSelect('p."secondLastname"', 'secondLastname')
       .innerJoin(CollectionPeriodSchema, 'cp', 'cp.id = r."collectionPeriodId"')
       .groupBy('cp.id')
       .addGroupBy('cp.month')
@@ -79,9 +81,9 @@ export class ConsolidatedCollectorEfficiencyQueryService extends BaseQueryServic
       .addGroupBy('cp.status')
       .addGroupBy('c.id')
       .addGroupBy('c."collectorNumber"')
-      .addGroupBy('c.firstname')
-      .addGroupBy('c."firstLastname"')
-      .addGroupBy('c."secondLastname"')
+      .addGroupBy('p.firstname')
+      .addGroupBy('p."firstLastname"')
+      .addGroupBy('p."secondLastname"')
       .orderBy('cp.year', 'DESC')
       .addOrderBy('cp.month', 'DESC')
       .addOrderBy('c."collectorNumber"', 'ASC')
@@ -93,16 +95,16 @@ export class ConsolidatedCollectorEfficiencyQueryService extends BaseQueryServic
       .select('r."periodYear"', 'year')
       .addSelect('c.id', 'collectorId')
       .addSelect('c."collectorNumber"', 'collectorNumber')
-      .addSelect('c.firstname', 'firstname')
-      .addSelect('c."firstLastname"', 'firstLastname')
-      .addSelect('c."secondLastname"', 'secondLastname')
+      .addSelect('p.firstname', 'firstname')
+      .addSelect('p."firstLastname"', 'firstLastname')
+      .addSelect('p."secondLastname"', 'secondLastname')
       .where('r."periodYear" IS NOT NULL')
       .groupBy('r."periodYear"')
       .addGroupBy('c.id')
       .addGroupBy('c."collectorNumber"')
-      .addGroupBy('c.firstname')
-      .addGroupBy('c."firstLastname"')
-      .addGroupBy('c."secondLastname"')
+      .addGroupBy('p.firstname')
+      .addGroupBy('p."firstLastname"')
+      .addGroupBy('p."secondLastname"')
       .orderBy('r."periodYear"', 'DESC')
       .addOrderBy('c."collectorNumber"', 'ASC')
       .getRawMany();
@@ -112,14 +114,14 @@ export class ConsolidatedCollectorEfficiencyQueryService extends BaseQueryServic
     return this.baseQuery()
       .select('c.id', 'collectorId')
       .addSelect('c."collectorNumber"', 'collectorNumber')
-      .addSelect('c.firstname', 'firstname')
-      .addSelect('c."firstLastname"', 'firstLastname')
-      .addSelect('c."secondLastname"', 'secondLastname')
+      .addSelect('p.firstname', 'firstname')
+      .addSelect('p."firstLastname"', 'firstLastname')
+      .addSelect('p."secondLastname"', 'secondLastname')
       .groupBy('c.id')
       .addGroupBy('c."collectorNumber"')
-      .addGroupBy('c.firstname')
-      .addGroupBy('c."firstLastname"')
-      .addGroupBy('c."secondLastname"')
+      .addGroupBy('p.firstname')
+      .addGroupBy('p."firstLastname"')
+      .addGroupBy('p."secondLastname"')
       .orderBy('c."collectorNumber"', 'ASC')
       .getRawMany();
   }

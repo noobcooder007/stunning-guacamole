@@ -1,6 +1,7 @@
 import { TypeORMBeneficientRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-beneficient.repository';
 import { TypeORMChurchRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-church.repository';
 import { TypeORMCollectorRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-collector.repository';
+import { TypeORMProfileRepository } from '@/community/infrastructure/persistence/typeorm/adapters/typeorm-profile.repository';
 import { TypeORMPermissionRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-permission-repository';
 import { TypeORMSessionRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-session-repository';
 import { TypeORMRoleRepository } from '@/auth/infrastructure/persistence/typeorm/adapters/typeorm-role-repository';
@@ -21,6 +22,7 @@ export const REPOSITORY_TOKENS = {
   CHURCH: 'IChurchRepository',
   COLLECTOR: 'ICollectorRepository',
   BENEFICIENT: 'IBeneficientRepository',
+  PROFILE: 'IProfileRepository',
   ASSIGNATION: 'IAssignationRepository',
   PROMISE_DONATION: 'IPromiseDonationRepository',
   RECEIPT: 'IReceiptRepository',
@@ -58,6 +60,10 @@ export const DATABASE_REPOSITORIES = [
   {
     provide: REPOSITORY_TOKENS.BENEFICIENT,
     useClass: TypeORMBeneficientRepository,
+  },
+  {
+    provide: REPOSITORY_TOKENS.PROFILE,
+    useClass: TypeORMProfileRepository,
   },
   {
     provide: REPOSITORY_TOKENS.ASSIGNATION,

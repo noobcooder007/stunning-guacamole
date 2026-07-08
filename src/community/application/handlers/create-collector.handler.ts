@@ -8,10 +8,12 @@ import { BaseCommandHandler } from '@/shared/application/handler/base-command.ha
 import { ConflictException } from '@/shared/domain/exceptions/conflict-exception.exception';
 import { CreateCollectorCommand } from '@/community/application/command/create-collector.command';
 import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
+import { IProfileRepository } from '@/community/domain/repositories/profile.repository';
 import { CreateCollectorResponse } from '@/community/application/dto/create-collector.response';
 import { CollectorMapper } from '@/community/infrastructure/persistence/mappers/collector.mapper';
 import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
 import { Collector } from '@/community/domain/aggregate/collector.aggregate';
+import { Profile } from '@/community/domain/aggregate/profile.aggregate';
 import {
   Address,
   Numeration,
@@ -31,6 +33,8 @@ export class CreateCollectorHandler extends BaseCommandHandler<
     private readonly uow: UnitOfWork,
     @Inject(REPOSITORY_TOKENS.COLLECTOR)
     private readonly collectorRepository: ICollectorRepository,
+    @Inject(REPOSITORY_TOKENS.PROFILE)
+    private readonly profileRepository: IProfileRepository,
     private readonly createUserService: CreateUserService,
     @Inject('IBlindIndexHasher')
     private readonly hasher: IDataHasher,
@@ -70,12 +74,20 @@ export class CreateCollectorHandler extends BaseCommandHandler<
       command.addressHash = addressHash;
       command.phoneNumberHash = phoneNumberHash;
       command.telephoneNumberHash = telephoneNumberHash;
-      const collectorExists = await this.collectorRepository.exists({
+      const profileExists = await this.profileRepository.exists({
         firstname: command.firstname,
         firstLastname: command.firstLastname,
         secondLastname: command.secondLastname,
         addressHash: command.addressHash,
         phoneNumberHash: command.phoneNumberHash,
+      });
+      if (profileExists) {
+        throw new ConflictException(
+          'Collector already exists',
+          CollectorMapper.name,
+        );
+      }
+      const collectorExists = await this.collectorRepository.exists({
         telephoneNumberHash: command.telephoneNumberHash,
         nssHash: command.nssHash,
       });
@@ -85,7 +97,7 @@ export class CreateCollectorHandler extends BaseCommandHandler<
           CollectorMapper.name,
         );
       }
-      const collectorToSave = Collector.create({
+      const profileToSave = Profile.create({
         firstname: command.firstname,
         firstLastname: command.firstLastname,
         secondLastname: command.secondLastname,
@@ -104,6 +116,11 @@ export class CreateCollectorHandler extends BaseCommandHandler<
         addressHash: command.addressHash,
         phoneNumber: PhoneNumber.of(command.phoneNumber),
         phoneNumberHash: command.phoneNumberHash,
+      });
+      await this.profileRepository.save(profileToSave);
+      const collectorToSave = Collector.create({
+        profileId: profileToSave._id,
+        profile: profileToSave,
         telephoneNumber: command.telephoneNumber
           ? PhoneNumber.of(command.telephoneNumber)
           : null,
