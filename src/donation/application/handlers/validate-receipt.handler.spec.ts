@@ -11,6 +11,7 @@ function makeReceipt(
     chainValidator?: string | null;
     beneficientId?: string | null;
     amount?: number;
+    type?: 'RECURRING' | 'SPECIAL';
   } = {},
 ) {
   const beneficientId =
@@ -28,6 +29,7 @@ function makeReceipt(
     beneficient:
       beneficientId != null ? { unpack: () => beneficientId } : undefined,
     status: 'PENDING',
+    type: overrides.type ?? 'RECURRING',
   };
 }
 
@@ -80,8 +82,18 @@ describe('ValidateReceiptHandler', () => {
     expect(result.value.valid).toBe(true);
     expect(result.value.folio).toBe(FOLIO);
     expect(result.value.status).toBe('PENDING');
+    expect(result.value.type).toBe('RECURRING');
     expect(result.value.amount).toBe(500);
     expect(result.value.currency).toBe('MXN');
+  });
+
+  it('debería devolver el tipo SPECIAL cuando el recibo es especial', async () => {
+    const { handler } = makeHandler(makeReceipt({ type: 'SPECIAL' }));
+
+    const result = await handler.execute(query);
+
+    expect(result.value.valid).toBe(true);
+    expect(result.value.type).toBe('SPECIAL');
   });
 
   it('debería devolver { valid: false } cuando ninguna combinación coincide con el hash', async () => {

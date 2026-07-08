@@ -57,6 +57,7 @@ export class ValidateReceiptHandler implements IQueryHandler<
             valid: true,
             folio,
             status: receipt.status,
+            type: receipt.type,
             amount: receipt.amount.amount,
             currency: receipt.amount.currency,
           });
