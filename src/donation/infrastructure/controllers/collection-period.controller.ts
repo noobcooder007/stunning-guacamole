@@ -105,9 +105,7 @@ export class CollectionPeriodController {
     @Query('month', ParseIntPipe) month: number,
     @Query('year', ParseIntPipe) year: number,
   ) {
-    return this.queryBus.execute(
-      new GetDonationGrowthReportQuery(month, year),
-    );
+    return this.queryBus.execute(new GetDonationGrowthReportQuery(month, year));
   }
 
   @Get('/:periodId/settlements')
