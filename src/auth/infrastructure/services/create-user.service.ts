@@ -19,7 +19,7 @@ export class CreateUserService {
     private readonly passwordHasher: IPasswordHasher,
   ) {}
 
-  async execute(data: CreateUserCommand) {
+  async execute(data: CreateUserCommand): Promise<Result<string>> {
     const [user, role] = await Promise.all([
       this.userRepository.findOneByUsername(data.username),
       this.roleRepository.findByName(data.role),

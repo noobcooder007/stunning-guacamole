@@ -11,6 +11,7 @@ import { JwtStrategy } from '@/auth/domain/strategies/jwt.strategy';
 import { AuthController } from '@/auth/infrastructure/controllers/auth.controller';
 import { PermissionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/permission.schema';
 import { SessionSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/session.schema';
+import { CreateUserHandler } from '@/auth/application/handlers/create-user.handler';
 import { LoginUserHandler } from '@/auth/application/handlers/login-user.handler';
 import { SessionHandler } from '@/auth/application/handlers/session.handler';
 import { SeedController } from '@/auth/infrastructure/controllers/seed.controller';
@@ -66,6 +67,7 @@ import { UsersController } from '@/auth/infrastructure/controllers/users.control
     JwtStrategy,
     JWTService,
     CreateUserService,
+    CreateUserHandler,
     LoginUserHandler,
     SessionHandler,
     LogoutHandler,

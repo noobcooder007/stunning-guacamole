@@ -63,10 +63,17 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: minutes(1) } })
   @Auth(PermissionNames.ADD_USER)
   @Post('register')
-  register(@Body() dto: CreateUserDto) {
-    this.commandBus.execute(
+  async register(@Body() dto: CreateUserDto) {
+    const result = await this.commandBus.execute(
       new CreateUserCommand(dto.username, dto.password, dto.role, dto.gender),
     );
+    if (!result.isSuccess)
+      return Result.fail({
+        type: result.error.type,
+        message: result.error.message,
+        entity: AuthController.name,
+      });
+    return result;
   }
 
   @Throttle({ default: { limit: 10, ttl: minutes(1) } })
