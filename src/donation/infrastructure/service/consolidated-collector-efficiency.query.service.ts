@@ -65,7 +65,7 @@ export class ConsolidatedCollectorEfficiencyQueryService extends BaseQueryServic
 
   private async queryByPeriod(): Promise<any[]> {
     return this.baseQuery()
-      .select('cp.id', 'periodId')
+      .addSelect('cp.id', 'periodId')
       .addSelect('cp.month', 'month')
       .addSelect('cp.year', 'year')
       .addSelect('cp.status', 'periodStatus')
@@ -92,7 +92,7 @@ export class ConsolidatedCollectorEfficiencyQueryService extends BaseQueryServic
 
   private async queryByYear(): Promise<any[]> {
     return this.baseQuery()
-      .select('r."periodYear"', 'year')
+      .addSelect('r."periodYear"', 'year')
       .addSelect('c.id', 'collectorId')
       .addSelect('c."collectorNumber"', 'collectorNumber')
       .addSelect('p.firstname', 'firstname')
@@ -112,7 +112,7 @@ export class ConsolidatedCollectorEfficiencyQueryService extends BaseQueryServic
 
   private async queryHistorical(): Promise<any[]> {
     return this.baseQuery()
-      .select('c.id', 'collectorId')
+      .addSelect('c.id', 'collectorId')
       .addSelect('c."collectorNumber"', 'collectorNumber')
       .addSelect('p.firstname', 'firstname')
       .addSelect('p."firstLastname"', 'firstLastname')

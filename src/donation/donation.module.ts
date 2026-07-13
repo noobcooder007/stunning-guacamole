@@ -54,6 +54,13 @@ import { GetDonationGrowthReportHandler } from '@/donation/application/handlers/
 import { DonationGrowthReportQueryService } from '@/donation/infrastructure/service/donation-growth-report.query.service';
 import { GetConsolidatedCollectorEfficiencyHandler } from '@/donation/application/handlers/get-consolidated-collector-efficiency.handler';
 import { ConsolidatedCollectorEfficiencyQueryService } from '@/donation/infrastructure/service/consolidated-collector-efficiency.query.service';
+import { GeneralReportController } from '@/donation/infrastructure/controllers/general-report.controller';
+import { PrintQuantityDifferenceReportHandler } from '@/donation/application/handlers/print-quantity-difference-report.handler';
+import { QuantityDifferenceReportQueryService } from '@/donation/infrastructure/service/quantity-difference-report.query.service';
+import { PrintEfficiencyReportHandler } from '@/donation/application/handlers/print-efficiency-report.handler';
+import { EfficiencyReportQueryService } from '@/donation/infrastructure/service/efficiency-report.query.service';
+import { PrintEfficiencyConcentratedReportHandler } from '@/donation/application/handlers/print-efficiency-concentrated-report.handler';
+import { EfficiencyConcentratedReportQueryService } from '@/donation/infrastructure/service/efficiency-concentrated-report.query.service';
 
 @Module({
   imports: [
@@ -73,6 +80,7 @@ import { ConsolidatedCollectorEfficiencyQueryService } from '@/donation/infrastr
     PromiseDonationController,
     ReceiptController,
     CollectionPeriodController,
+    GeneralReportController,
   ],
   providers: [
     CreatePromiseDonationHandler,
@@ -112,6 +120,12 @@ import { ConsolidatedCollectorEfficiencyQueryService } from '@/donation/infrastr
     DonationGrowthReportQueryService,
     GetConsolidatedCollectorEfficiencyHandler,
     ConsolidatedCollectorEfficiencyQueryService,
+    PrintQuantityDifferenceReportHandler,
+    QuantityDifferenceReportQueryService,
+    PrintEfficiencyReportHandler,
+    EfficiencyReportQueryService,
+    PrintEfficiencyConcentratedReportHandler,
+    EfficiencyConcentratedReportQueryService,
     RegisterCollectorPaymentHandler,
     RegisterBulkCollectorPaymentsHandler,
     GetSettlementPaymentsHandler,
