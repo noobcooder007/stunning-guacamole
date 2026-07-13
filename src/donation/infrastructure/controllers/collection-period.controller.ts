@@ -43,19 +43,19 @@ export class CollectionPeriodController {
   ) {}
 
   @Post('/open')
-  @Auth(PermissionNames.EDIT_INVOICE)
+  @Auth(PermissionNames.RUN_PROCESS)
   async openPeriod(@GetUser() user: any) {
     return await this.commandBus.execute(new OpenPeriodCommand(user.id));
   }
 
   @Post('/close')
-  @Auth(PermissionNames.EDIT_INVOICE)
+  @Auth(PermissionNames.RUN_PROCESS)
   async closePeriod(@GetUser() user: any) {
     return await this.commandBus.execute(new ClosePeriodCommand(user.id));
   }
 
   @Get('/current')
-  @Auth(PermissionNames.VIEW_INVOICE)
+  @Auth(PermissionNames.VIEW_PROCESS)
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(seconds(30))
   async getCurrent() {
@@ -109,14 +109,14 @@ export class CollectionPeriodController {
   }
 
   @Get('/:periodId/settlements')
-  @Auth(PermissionNames.VIEW_INVOICE)
+  @Auth(PermissionNames.VIEW_SETTLEMENT)
   async getSettlements(@Param('periodId') periodId: string) {
     return this.queryBus.execute(new GetPeriodSettlementsQuery(periodId));
   }
 
   @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('/:periodId/settlement-letters/pdf')
-  @Auth(PermissionNames.VIEW_INVOICE)
+  @Auth(PermissionNames.VIEW_SETTLEMENT)
   async printSettlementLetters(
     @Param('periodId') periodId: string,
     @Res() res: Response,
@@ -140,7 +140,7 @@ export class CollectionPeriodController {
   }
 
   @Post('/settlements/:settlementId/payments')
-  @Auth(PermissionNames.EDIT_INVOICE)
+  @Auth(PermissionNames.EDIT_SETTLEMENT)
   async registerPayment(
     @Param('settlementId', new ParseUUIDPipe()) settlementId: string,
     @Body() dto: RegisterCollectorPaymentDto,
@@ -160,7 +160,7 @@ export class CollectionPeriodController {
   }
 
   @Post('/:periodId/payments/bulk')
-  @Auth(PermissionNames.EDIT_INVOICE)
+  @Auth(PermissionNames.EDIT_SETTLEMENT)
   async registerBulkPayments(
     @Param('periodId', new ParseUUIDPipe()) periodId: string,
     @Body() dto: RegisterBulkCollectorPaymentsDto,
@@ -179,7 +179,7 @@ export class CollectionPeriodController {
   }
 
   @Get('/settlements/:settlementId/payments')
-  @Auth(PermissionNames.VIEW_INVOICE)
+  @Auth(PermissionNames.VIEW_SETTLEMENT)
   async getSettlementPayments(
     @Param('settlementId', new ParseUUIDPipe()) settlementId: string,
   ) {

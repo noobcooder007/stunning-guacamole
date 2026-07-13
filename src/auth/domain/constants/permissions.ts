@@ -41,6 +41,8 @@ export enum PermissionNames {
   EDIT_INVOICE = 'edit:invoice',
   DELETE_INVOICE = 'delete:invoice',
   VIEW_INVOICE = 'view:invoice',
+  PRINT_INVOICE = 'print:invoice',
+  VOID_INVOICE = 'void:invoice',
   ADD_PAYMENT = 'add:payment',
   EDIT_PAYMENT = 'edit:payment',
   DELETE_PAYMENT = 'delete:payment',
@@ -49,4 +51,24 @@ export enum PermissionNames {
   EDIT_DONATION = 'edit:donation',
   DELETE_DONATION = 'delete:donation',
   VIEW_DONATION = 'view:donation',
+
+  // Asignaciones
+  ADD_ASSIGNMENT = 'add:assignment',
+  EDIT_ASSIGNMENT = 'edit:assignment',
+  DELETE_ASSIGNMENT = 'delete:assignment',
+  VIEW_ASSIGNMENT = 'view:assignment',
+
+  // Reportes
+  VIEW_REPORT = 'view:report',
+
+  // Procesos de colecta
+  VIEW_PROCESS = 'view:process',
+  RUN_PROCESS = 'run:process',
+
+  // Liquidaciones
+  VIEW_SETTLEMENT = 'view:settlement',
+  EDIT_SETTLEMENT = 'edit:settlement',
+
+  // Gestión de roles
+  MANAGE_ROLE = 'manage:role',
 }

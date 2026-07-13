@@ -41,7 +41,7 @@ export class RolesController {
   }
 
   @Put(':id/permissions')
-  @Auth(PermissionNames.EDIT_ROLE)
+  @Auth(PermissionNames.MANAGE_ROLE)
   assignPermissions(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: AssignPermissionsDto,

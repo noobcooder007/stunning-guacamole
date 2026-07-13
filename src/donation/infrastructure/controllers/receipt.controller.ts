@@ -109,7 +109,7 @@ export class ReceiptController {
 
   @Throttle({ default: { limit: 10, ttl: minutes(1) } })
   @Get('/pdf')
-  @Auth(PermissionNames.VIEW_INVOICE)
+  @Auth(PermissionNames.PRINT_INVOICE)
   async printReceipts(
     @Res() res: Response,
     @Query() query: PrintReceiptsQueryDto,
@@ -166,7 +166,7 @@ export class ReceiptController {
   }
 
   @Put('/:folio/cancel')
-  @Auth(PermissionNames.EDIT_INVOICE)
+  @Auth(PermissionNames.VOID_INVOICE)
   async cancelReceipt(
     @Param('folio') folio: string,
     @Body() dto: CancelReceiptDto,

@@ -55,6 +55,8 @@ const PERMISSION_DESCRIPTIONS: Record<PermissionNames, string> = {
   [PermissionNames.EDIT_INVOICE]: 'Editar recibo',
   [PermissionNames.DELETE_INVOICE]: 'Eliminar recibo',
   [PermissionNames.VIEW_INVOICE]: 'Ver recibo',
+  [PermissionNames.PRINT_INVOICE]: 'Imprimir recibo',
+  [PermissionNames.VOID_INVOICE]: 'Cancelar recibo',
   // Pagos
   [PermissionNames.ADD_PAYMENT]: 'Añadir pago',
   [PermissionNames.EDIT_PAYMENT]: 'Editar pago',
@@ -65,6 +67,21 @@ const PERMISSION_DESCRIPTIONS: Record<PermissionNames, string> = {
   [PermissionNames.EDIT_DONATION]: 'Editar donación',
   [PermissionNames.DELETE_DONATION]: 'Eliminar donación',
   [PermissionNames.VIEW_DONATION]: 'Ver donación',
+  // Asignaciones
+  [PermissionNames.ADD_ASSIGNMENT]: 'Añadir asignación',
+  [PermissionNames.EDIT_ASSIGNMENT]: 'Reasignar asignación',
+  [PermissionNames.DELETE_ASSIGNMENT]: 'Desactivar asignación',
+  [PermissionNames.VIEW_ASSIGNMENT]: 'Ver asignaciones',
+  // Reportes
+  [PermissionNames.VIEW_REPORT]: 'Ver reportes',
+  // Procesos de colecta
+  [PermissionNames.VIEW_PROCESS]: 'Ver periodo de colecta',
+  [PermissionNames.RUN_PROCESS]: 'Abrir/cerrar periodo de colecta',
+  // Liquidaciones
+  [PermissionNames.VIEW_SETTLEMENT]: 'Ver liquidaciones',
+  [PermissionNames.EDIT_SETTLEMENT]: 'Registrar pagos de liquidación',
+  // Gestión de roles
+  [PermissionNames.MANAGE_ROLE]: 'Asignar permisos a un rol',
 };
 
 @CommandHandler(SeedCommand)
@@ -122,8 +139,20 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
           p[PermissionNames.ADD_INVOICE],
           p[PermissionNames.EDIT_INVOICE],
           p[PermissionNames.VIEW_INVOICE],
+          p[PermissionNames.PRINT_INVOICE],
+          p[PermissionNames.VOID_INVOICE],
           p[PermissionNames.VIEW_PAYMENT],
           p[PermissionNames.VIEW_DONATION],
+          p[PermissionNames.ADD_ASSIGNMENT],
+          p[PermissionNames.EDIT_ASSIGNMENT],
+          p[PermissionNames.DELETE_ASSIGNMENT],
+          p[PermissionNames.VIEW_ASSIGNMENT],
+          p[PermissionNames.VIEW_REPORT],
+          p[PermissionNames.VIEW_PROCESS],
+          p[PermissionNames.RUN_PROCESS],
+          p[PermissionNames.VIEW_SETTLEMENT],
+          p[PermissionNames.EDIT_SETTLEMENT],
+          p[PermissionNames.MANAGE_ROLE],
         ]),
       });
 
@@ -139,6 +168,8 @@ export class SeedHandler extends BaseCommandHandler<SeedCommand, void> {
           p[PermissionNames.ADD_INVOICE],
           p[PermissionNames.EDIT_INVOICE],
           p[PermissionNames.VIEW_INVOICE],
+          p[PermissionNames.PRINT_INVOICE],
+          p[PermissionNames.VIEW_ASSIGNMENT],
         ]),
       });
 

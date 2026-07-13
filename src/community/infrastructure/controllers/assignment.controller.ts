@@ -31,7 +31,7 @@ export class AssignmentController {
   ) {}
 
   @Post()
-  @Auth(PermissionNames.EDIT_COLLECTOR)
+  @Auth(PermissionNames.ADD_ASSIGNMENT)
   assignBeneficientsToCollector(@Body() dto: AssignBeneficientsDto) {
     return this.commandBus.execute(
       new AssignBeneficientsCommand(dto.collectorId, dto.beneficientsIds),
@@ -39,7 +39,7 @@ export class AssignmentController {
   }
 
   @Post('reassign')
-  @Auth(PermissionNames.EDIT_COLLECTOR)
+  @Auth(PermissionNames.EDIT_ASSIGNMENT)
   reasignBeneficientsToCollector(@Body() dto: ReassignAssignationsDto) {
     return this.commandBus.execute(
       new ReassignBeneficientsCommand(
@@ -50,7 +50,7 @@ export class AssignmentController {
   }
 
   @Post('deactivate')
-  @Auth(PermissionNames.EDIT_COLLECTOR)
+  @Auth(PermissionNames.DELETE_ASSIGNMENT)
   deactivateAssignations(@Body() dto: DeactivateAssignationsDto) {
     return this.commandBus.execute(
       new DeactivateAssignationsCommand(dto.deactivateAssignations),
@@ -58,7 +58,7 @@ export class AssignmentController {
   }
 
   @Get('active-list')
-  @Auth(PermissionNames.VIEW_COLLECTOR)
+  @Auth(PermissionNames.VIEW_ASSIGNMENT)
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(minutes(2))
   getActiveList(
@@ -68,7 +68,7 @@ export class AssignmentController {
   }
 
   @Get('actives')
-  @Auth(PermissionNames.VIEW_COLLECTOR)
+  @Auth(PermissionNames.VIEW_ASSIGNMENT)
   getActives(@Query() query: GetActiveAssignationsQueryDto) {
     return this.queryBus.execute(
       new GetActiveAssignationsQuery(
@@ -80,7 +80,7 @@ export class AssignmentController {
   }
 
   @Get('orphans')
-  @Auth(PermissionNames.VIEW_COLLECTOR)
+  @Auth(PermissionNames.VIEW_ASSIGNMENT)
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(minutes(1))
   getOrphans() {
