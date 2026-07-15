@@ -37,6 +37,18 @@ export class CreateUserService {
         message: 'Role not found, select another one',
         entity: Role.name,
       });
+    if (role.name === 'superadministrator') {
+      const activeSuperadmins = await this.userRepository.countActiveUsersByRole(
+        role._id.unpack(),
+      );
+      if (activeSuperadmins > 0) {
+        return Result.fail({
+          type: ErrorType.CONFLICT,
+          message: 'A superadministrator user already exists',
+          entity: User.name,
+        });
+      }
+    }
     const hashedPassword = await this.passwordHasher.hash(data.password);
     const userToSave = User.create({
       username: data.username,

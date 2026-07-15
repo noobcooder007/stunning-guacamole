@@ -5,5 +5,6 @@ export abstract class IUserRepository {
   abstract findAll(): Promise<User[]>;
   abstract findOneById(id: string): Promise<User | null>;
   abstract findOneByUsername(username: string): Promise<User | null>;
+  abstract countActiveUsersByRole(roleId: string): Promise<number>;
   abstract save(user: User): Promise<string>;
 }

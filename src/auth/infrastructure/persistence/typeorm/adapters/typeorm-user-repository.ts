@@ -42,6 +42,14 @@ export class TypeORMUserRepository
     return userModel ? UserMapper.fromModelToDomain(userModel) : null;
   }
 
+  async countActiveUsersByRole(roleId: string): Promise<number> {
+    return await this.repository
+      .createQueryBuilder('u')
+      .where('u.roleId = :roleId', { roleId })
+      .andWhere('u.isActive = true')
+      .getCount();
+  }
+
   async save(user: User): Promise<string> {
     await this.repository.save(UserMapper.toPersistance(user));
     return user._id.unpack();
