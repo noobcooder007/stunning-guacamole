@@ -218,6 +218,8 @@ Colector (1) ──────────< (N) Asignación (N) >── (1) Bie
     │
     │
   Usuario ── (N) Sesión
+    │ (1:1 obligatoria)          │ (1:1 opcional)
+  Colector.userId          Bienhechor.userId
 
 PromesaDonación (1) ── (1) Bienhechor
        │
@@ -275,15 +277,15 @@ Solo puede existir un periodo `OPEN` a la vez (índice único parcial en Postgre
 | Método | Ruta | Auth |
 |---|---|---|
 | POST | `/` | `add:collector` |
-| GET | `/` | `view:collector` |
-| GET | `/:id` | `view:collector` |
+| GET | `/` | `view:collector` — un colector autenticado solo ve su propio registro |
+| GET | `/:id` | `view:collector` — 404 si el id no es el del colector vinculado (scoping por identidad) |
 | POST | `/:id/deactivate` | `edit:collector` |
 | POST | `/:id/reactivate` | `edit:collector` |
 
 ### Bienhechor (`/api/beneficient`)
 | Método | Ruta | Auth |
 |---|---|---|
-| POST | `/` | `add:beneficient` |
+| POST | `/` | `add:beneficient` — acepta `username`/`password` opcionales para crear una cuenta de acceso (rol `beneficient`) vinculada |
 | GET | `/` | `view:beneficient` |
 | GET | `/:id` | `view:beneficient` |
 | POST | `/deactivate` | `edit:beneficient` |
@@ -389,6 +391,9 @@ El `AuditService` usa un `QueryRunner` dedicado por entrada, independiente de la
 | **Cadena de Validación** | Cada recibo tiene un hash SHA-256 (`id\|folio\|monto\|beneficientId`) para integridad |
 | **RBAC** | Control de acceso basado en roles con permisos granulares (`PermissionNames`). El rol `superadministrator` bypass todos los checks |
 | **SetupGuard** | Protege el seed inicial con header `x-setup-key` |
+| **Superadministrator único** | `CreateUserService` rechaza (409) crear un segundo `User` activo con rol `superadministrator`. Se valida en aplicación (no con índice de BD) porque el UUID de ese rol se genera aleatoriamente en `seed.handler.ts` en cada entorno |
+| **Scoping de identidad** | `Collector` (`userId` 1:1 obligatorio) y `Beneficient` (`userId` 1:1 opcional) pueden vincularse a un `User`. Cuando ese vínculo existe, viaja en el JWT (`collectorId`/`beneficientId`) y las consultas de recibos (`/api/receipts`, `/api/receipts/:folio`), promesas de donación (`/api/promises`, `/api/promises/:id`) y colectores (`/api/collector`, `/api/collector/:id`) se restringen automáticamente a esa identidad — sin importar el permiso que tenga el usuario. Antes de esto, cualquier usuario con rol `beneficient`/`collector` podía ver los datos de todos los demás |
+| **Campos financieros de Collector** | `commissionPercent`, `nomina`, `transportAllowance`, `bank`, `reference` (`PaymentDataResponseDto`) y `CollectorResponse.notes` solo se exponen a `superadministrator`/`administrator`/`owner` (vía `@Expose({groups:[...]})` + `RolesSerializerInterceptor`). Antes se exponían a cualquier rol autenticado |
 
 ---
 
@@ -443,3 +448,6 @@ La generación de PDF se delega a un **worker thread** (`pdf.worker.ts`) para no
 7. **Índice único parcial PostgreSQL** para periodo OPEN (`WHERE status = 'OPEN'`) — garantiza a nivel de BD que solo existe un periodo abierto a la vez.
 8. **QueryRunner dedicado para auditoría** — los logs de auditoría sobreviven rollbacks de la transacción principal.
 9. **TypeORM con `synchronize: true`** en desarrollo — agiliza iteraciones; en producción se migraría a migraciones controladas.
+10. **Un solo `superadministrator` activo** — validado en `CreateUserService` (no con índice de BD) porque el UUID de ese rol se genera aleatoriamente en `seed.handler.ts` en cada entorno, a diferencia del índice único parcial de `CollectionPeriodSchema` que usa un literal de enum fijo.
+11. **Cuenta nueva por rol en vez de cambio de rol** — cuando una persona necesita un rol distinto (ej. un colector es promovido), la política es crear un `User` nuevo con `POST /api/auth/register`, dejando la cuenta original ligada a `Collector`/`Beneficient` intacta. Se descartó dar soporte a múltiples roles por usuario porque implicaba tocar las invariantes 1:1 de `Collector`/`Beneficient` y tenía mayor riesgo que la alternativa operativa.
+12. **Scoping de identidad vía JWT, no vía permisos** — `Collector`/`Beneficient` pueden vincularse a un `User` (`userId`, opcional para `Beneficient`). El vínculo se resuelve una sola vez en login/refresh y viaja en el token (`collectorId`/`beneficientId`); las consultas de recibos y promesas lo aplican siempre que existe, indistintamente de qué roles tenga el usuario — más simple de auditar que mezclar esa lógica con el sistema de permisos.
