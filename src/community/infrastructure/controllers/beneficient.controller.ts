@@ -83,6 +83,8 @@ export class BeneficientController {
         dto.rfc,
         dto.email,
         dto.phoneNumber,
+        dto.username,
+        dto.password,
       ),
     );
   }

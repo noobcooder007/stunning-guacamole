@@ -1,10 +1,15 @@
 import { CreateBeneficientHandler } from './create-beneficient.handler';
 import { CreateBeneficientCommand } from '@/community/application/command/create-beneficient.command';
-import { ErrorType } from '@/shared/domain/dto/result.dto';
+import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 
 const CHURCH_ID = '01907c2a-0000-7000-8000-000000000001';
+const NEW_USER_ID = '01907c2a-0000-7000-8000-000000000009';
 
-function makeCommand(withTax = false): CreateBeneficientCommand {
+function makeCommand(
+  withTax = false,
+  username?: string,
+  password?: string,
+): CreateBeneficientCommand {
   return new CreateBeneficientCommand(
     'Sr.',
     'Juan',
@@ -29,6 +34,8 @@ function makeCommand(withTax = false): CreateBeneficientCommand {
     withTax ? 'XAXX010101000' : undefined,
     'test@example.com',
     '5512345678',
+    username,
+    password,
   );
 }
 
@@ -47,6 +54,7 @@ describe('CreateBeneficientHandler', () => {
   let churchRepository: { findById: jest.Mock };
   let profileRepository: { exists: jest.Mock; save: jest.Mock };
   let hasher: { hash: jest.Mock };
+  let createUserService: { execute: jest.Mock };
 
   beforeEach(() => {
     uow = makeUow();
@@ -60,6 +68,9 @@ describe('CreateBeneficientHandler', () => {
       save: jest.fn().mockResolvedValue(undefined),
     };
     hasher = { hash: jest.fn().mockResolvedValue('hashed') };
+    createUserService = {
+      execute: jest.fn().mockResolvedValue(Result.ok(NEW_USER_ID)),
+    };
 
     handler = new CreateBeneficientHandler(
       uow as any,
@@ -67,6 +78,7 @@ describe('CreateBeneficientHandler', () => {
       churchRepository as any,
       profileRepository as any,
       hasher as any,
+      createUserService as any,
     );
   });
 
@@ -165,5 +177,70 @@ describe('CreateBeneficientHandler', () => {
     await handler.execute(makeCommand());
 
     expect(uow.runInTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  describe('cuenta de acceso opcional', () => {
+    it('no debería crear un usuario cuando no se proveen username/password', async () => {
+      churchRepository.findById.mockResolvedValue({ id: CHURCH_ID });
+
+      await handler.execute(makeCommand());
+
+      expect(createUserService.execute).not.toHaveBeenCalled();
+    });
+
+    it('debería crear un usuario con rol beneficient y vincularlo cuando se proveen username/password', async () => {
+      churchRepository.findById.mockResolvedValue({ id: CHURCH_ID });
+
+      const result = await handler.execute(
+        makeCommand(false, 'juanp', 'password123'),
+      );
+
+      expect(result.isSuccess).toBe(true);
+      expect(createUserService.execute).toHaveBeenCalledWith({
+        username: 'juanp',
+        password: 'password123',
+        role: 'beneficient',
+      });
+      expect(beneficientRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('debería fallar con VALIDATION si solo se provee username', async () => {
+      const result = await handler.execute(
+        makeCommand(false, 'juanp', undefined),
+      );
+
+      expect(result.isSuccess).toBe(false);
+      expect(result.error.type).toBe(ErrorType.VALIDATION);
+      expect(uow.runInTransaction).not.toHaveBeenCalled();
+    });
+
+    it('debería fallar con VALIDATION si solo se provee password', async () => {
+      const result = await handler.execute(
+        makeCommand(false, undefined, 'password123'),
+      );
+
+      expect(result.isSuccess).toBe(false);
+      expect(result.error.type).toBe(ErrorType.VALIDATION);
+      expect(uow.runInTransaction).not.toHaveBeenCalled();
+    });
+
+    it('debería propagar el error si CreateUserService falla (ej. username duplicado)', async () => {
+      churchRepository.findById.mockResolvedValue({ id: CHURCH_ID });
+      createUserService.execute.mockResolvedValue(
+        Result.fail({
+          type: ErrorType.CONFLICT,
+          message: 'User already exists',
+          entity: 'User',
+        }),
+      );
+
+      const result = await handler.execute(
+        makeCommand(false, 'juanp', 'password123'),
+      );
+
+      expect(result.isSuccess).toBe(false);
+      expect(result.error.type).toBe(ErrorType.CONFLICT);
+      expect(beneficientRepository.save).not.toHaveBeenCalled();
+    });
   });
 });

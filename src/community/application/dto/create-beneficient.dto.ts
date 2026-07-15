@@ -84,4 +84,12 @@ export class CreateBeneficientDto {
   @IsString()
   @IsOptional()
   rfc: string;
+
+  @IsString()
+  @IsOptional()
+  username?: string;
+
+  @IsString()
+  @IsOptional()
+  password?: string;
 }

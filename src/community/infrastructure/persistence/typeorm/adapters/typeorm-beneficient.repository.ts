@@ -41,6 +41,14 @@ export class TypeORMBeneficientRepository
     return beneficientModel ? this.toDomain(beneficientModel) : null;
   }
 
+  async findByUserId(userId: string): Promise<Beneficient | null> {
+    const beneficientModel = await this.repository.findOne({
+      where: { userId },
+      relations: ['profile'],
+    });
+    return beneficientModel ? this.toDomain(beneficientModel) : null;
+  }
+
   async findAll(offset: number, limit: number): Promise<Beneficient[] | []> {
     const beneficentModelList = await this.repository.find({
       where: { isActive: true },

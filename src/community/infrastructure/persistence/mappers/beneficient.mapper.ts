@@ -9,6 +9,7 @@ import { BeneficientChurchResponse } from '@/community/application/dto/beneficie
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 import { TaxInformation } from '@/community/domain/value-objects/tax-information.vo';
 import { AddressResponseDto } from '@/community/application/dto/address.response';
+import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 
 export interface IBeneficientPersistence {
   id: string;
@@ -31,6 +32,7 @@ export interface IBeneficientPersistence {
   deactivatedAt?: Date | null;
   beneficientNumber: number;
   keepPrivate: boolean;
+  userId?: string;
 }
 
 export class BeneficientMapper {
@@ -57,6 +59,7 @@ export class BeneficientMapper {
       deactivatedAt: beneficient.deactivatedAt,
       beneficientNumber: beneficient.beneficientNumber,
       keepPrivate: beneficient.keepPrivate,
+      userId: beneficient.userId?.unpack(),
     };
   }
 
@@ -84,6 +87,7 @@ export class BeneficientMapper {
       church: ChurchId.of(raw.churchId),
       beneficientNumber: raw.beneficientNumber,
       keepPrivate: raw.keepPrivate,
+      userId: raw.userId ? UserId.of(raw.userId) : undefined,
     });
   }
 

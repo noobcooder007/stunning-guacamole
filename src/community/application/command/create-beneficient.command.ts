@@ -23,5 +23,7 @@ export class CreateBeneficientCommand {
     public readonly rfc?: string,
     public readonly email?: string,
     public readonly phoneNumber?: string,
+    public readonly username?: string,
+    public readonly password?: string,
   ) {}
 }

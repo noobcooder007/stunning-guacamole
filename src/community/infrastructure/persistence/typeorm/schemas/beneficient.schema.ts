@@ -14,6 +14,7 @@ import { ProfileSchema } from '@/community/infrastructure/persistence/typeorm/sc
 import { IBeneficientPersistence } from '@/community/infrastructure/persistence/mappers/beneficient.mapper';
 import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 import { PromiseDonationSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/promise-donation.schema';
+import { UserSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/user.schema';
 
 @Entity('beneficients')
 @Index(['createdAt'])
@@ -137,4 +138,17 @@ export class BeneficientSchema implements IBeneficientPersistence {
     default: false,
   })
   keepPrivate: boolean;
+
+  @Column('uuid', {
+    nullable: true,
+    unique: true,
+  })
+  userId: string;
+
+  @OneToOne(() => UserSchema, (user) => user.beneficient, {
+    nullable: true,
+    onDelete: 'RESTRICT',
+  })
+  @JoinColumn({ name: 'userId' })
+  authenticationAccount: UserSchema;
 }

@@ -8,5 +8,6 @@ export abstract class IBeneficientRepository {
   abstract exists(beneficient: BeneficientFilters): Promise<boolean>;
   abstract findAll(offset: number, limit: number): Promise<Beneficient[] | []>;
   abstract findById(id: string): Promise<Beneficient | null>;
+  abstract findByUserId(userId: string): Promise<Beneficient | null>;
   abstract inIds(ids: string[]): Promise<Beneficient[] | []>;
 }

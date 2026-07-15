@@ -4,6 +4,7 @@ import { GeneralGuard } from '@/shared/domain/guards/general.guard';
 import { ValueObject } from '@/shared/domain/vo/value-objet';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 import { TaxInformation } from '@/community/domain/value-objects/tax-information.vo';
+import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import {
   Profile,
   ProfileId,
@@ -56,6 +57,7 @@ export interface BeneficientProps {
   reasonDeactivated?: string;
   deactivatedAt?: Date | null;
   beneficientNumber?: number;
+  userId?: UserId;
 }
 
 export class Beneficient extends AggregateRoot {
@@ -183,6 +185,10 @@ export class Beneficient extends AggregateRoot {
 
   public get beneficientNumber(): number {
     return this.props.beneficientNumber;
+  }
+
+  public get userId(): UserId | undefined {
+    return this.props.userId;
   }
 
   public update(command: UpdateBeneficientCommand) {

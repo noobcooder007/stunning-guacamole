@@ -20,6 +20,8 @@ import { ZipCode } from '@/community/domain/value-objects/zip-code.vo';
 import { PhoneNumber } from '@/community/domain/value-objects/phone-number.vo';
 import { ChurchId } from '@/community/domain/aggregate/church.aggregate';
 import { TaxInformation } from '@/community/domain/value-objects/tax-information.vo';
+import { CreateUserService } from '@/auth/infrastructure/services/create-user.service';
+import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 
 @CommandHandler(CreateBeneficientCommand)
 export class CreateBeneficientHandler extends BaseCommandHandler<
@@ -36,6 +38,7 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
     private readonly profileRepository: IProfileRepository,
     @Inject('IBlindIndexHasher')
     private readonly hasher: IDataHasher,
+    private readonly createUserService: CreateUserService,
   ) {
     super();
   }
@@ -43,7 +46,29 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
   protected async process(
     command: CreateBeneficientCommand,
   ): Promise<Result<CreateBeneficientResponse>> {
+    if (
+      (command.username && !command.password) ||
+      (!command.username && command.password)
+    ) {
+      return Result.fail({
+        type: ErrorType.VALIDATION,
+        message: 'username and password must be provided together',
+        entity: CreateBeneficientHandler.name,
+      });
+    }
     return await this.uow.runInTransaction(async () => {
+      let userId: UserId | undefined;
+      if (command.username && command.password) {
+        const resultCreateUser = await this.createUserService.execute({
+          username: command.username,
+          password: command.password,
+          role: 'beneficient',
+        });
+        if (!resultCreateUser.isSuccess) {
+          return Result.fail(resultCreateUser.error);
+        }
+        userId = UserId.of(resultCreateUser.value as string);
+      }
       const [addressHash, emailHash, rfcHash, phoneNumberHash, church] =
         await Promise.all([
           this.hasher.hash(
@@ -126,6 +151,7 @@ export class CreateBeneficientHandler extends BaseCommandHandler<
               rfcHash: rfcHash,
             })
           : null,
+        userId,
       });
       await this.beneficientRepository.save(beneficient);
       return Result.ok({

@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { RoleSchema } from '@/auth/infrastructure/persistence/typeorm/schemas/role.schema';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
+import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
 import { IUserPersistence } from '@/auth/infrastructure/persistence/mappers/user.mapper';
 import { SessionSchema } from './session.schema';
 
@@ -44,6 +45,12 @@ export class UserSchema implements IUserPersistence {
     (collector) => collector.authenticationAccount,
   )
   collector: CollectorSchema;
+
+  @OneToOne(
+    () => BeneficientSchema,
+    (beneficient) => beneficient.authenticationAccount,
+  )
+  beneficient: BeneficientSchema;
 
   @OneToMany(() => SessionSchema, (session) => session.user)
   sessions: SessionSchema[];

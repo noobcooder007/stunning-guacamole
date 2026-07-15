@@ -1,5 +1,6 @@
 import { Beneficient } from './beneficient.aggregate';
 import { ChurchId } from './church.aggregate';
+import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { Profile } from '@/community/domain/aggregate/profile.aggregate';
 import {
   Address,
@@ -18,6 +19,7 @@ import {
 const BID = '01907c2a-0000-7000-8000-000000000001';
 const CID = '01907c2a-0000-7000-8000-000000000002';
 const PROFILE_ID = '01907c2a-0000-7000-8000-000000000003';
+const USER_ID = '01907c2a-0000-7000-8000-000000000004';
 
 function makeProfile() {
   return Profile.recreate(PROFILE_ID, {
@@ -38,7 +40,7 @@ function makeProfile() {
   });
 }
 
-function makeBeneficient(isActive = true): Beneficient {
+function makeBeneficient(isActive = true, userId?: UserId): Beneficient {
   return Beneficient.recreate(BID, {
     title: 'Sr.',
     profileId: makeProfile()._id,
@@ -51,6 +53,7 @@ function makeBeneficient(isActive = true): Beneficient {
     isActive,
     reasonDeactivated: isActive ? null : 'Baja',
     beneficientNumber: 99,
+    userId,
   });
 }
 
@@ -116,6 +119,15 @@ describe('Beneficient', () => {
       const b = makeBeneficient();
       expect(b.profile.firstname).toBe('Juan');
       expect(b.profileId.equals(b.profile._id)).toBe(true);
+    });
+
+    it('debería retornar userId undefined cuando no tiene cuenta de acceso', () => {
+      expect(makeBeneficient().userId).toBeUndefined();
+    });
+
+    it('debería retornar userId cuando tiene cuenta de acceso vinculada', () => {
+      const b = makeBeneficient(true, UserId.of(USER_ID));
+      expect(b.userId.unpack()).toBe(USER_ID);
     });
   });
 
