@@ -36,6 +36,8 @@ describe('LoginUserHandler', () => {
   let sessionRepository: { save: jest.Mock };
   let roleRepository: { findById: jest.Mock };
   let permissionRepository: { findByRoleId: jest.Mock };
+  let collectorRepository: { findByUserId: jest.Mock };
+  let beneficientRepository: { findByUserId: jest.Mock };
   let hasherService: { compare: jest.Mock };
   let hasherTokenService: { hash: jest.Mock };
   let jwtService: {
@@ -55,6 +57,10 @@ describe('LoginUserHandler', () => {
       findById: jest.fn().mockResolvedValue({ name: 'collector' }),
     };
     permissionRepository = { findByRoleId: jest.fn().mockResolvedValue([]) };
+    collectorRepository = { findByUserId: jest.fn().mockResolvedValue(null) };
+    beneficientRepository = {
+      findByUserId: jest.fn().mockResolvedValue(null),
+    };
     hasherService = { compare: jest.fn().mockResolvedValue(true) };
     hasherTokenService = {
       hash: jest.fn().mockResolvedValue('hashed-refresh-token'),
@@ -71,6 +77,8 @@ describe('LoginUserHandler', () => {
       sessionRepository as any,
       roleRepository as any,
       permissionRepository as any,
+      collectorRepository as any,
+      beneficientRepository as any,
       hasherService as any,
       hasherTokenService as any,
       jwtService as any,
@@ -117,5 +125,41 @@ describe('LoginUserHandler', () => {
 
     expect(userRepository.save).toHaveBeenCalledTimes(1);
     expect(hasherTokenService.hash).toHaveBeenCalledWith('refresh-token');
+  });
+
+  it('no debería incluir collectorId/beneficientId cuando el usuario no está vinculado', async () => {
+    userRepository.findOneByUsername.mockResolvedValue(makeUser());
+
+    await handler.execute(makeCommand());
+
+    expect(jwtService.createAccessToken).toHaveBeenCalledWith(
+      expect.objectContaining({ collectorId: undefined, beneficientId: undefined }),
+    );
+  });
+
+  it('debería incluir collectorId en el token cuando el usuario está vinculado a un Collector', async () => {
+    userRepository.findOneByUsername.mockResolvedValue(makeUser());
+    collectorRepository.findByUserId.mockResolvedValue({
+      _id: { unpack: () => 'collector-id-1' },
+    });
+
+    await handler.execute(makeCommand());
+
+    expect(jwtService.createAccessToken).toHaveBeenCalledWith(
+      expect.objectContaining({ collectorId: 'collector-id-1' }),
+    );
+  });
+
+  it('debería incluir beneficientId en el token cuando el usuario está vinculado a un Beneficient', async () => {
+    userRepository.findOneByUsername.mockResolvedValue(makeUser());
+    beneficientRepository.findByUserId.mockResolvedValue({
+      _id: { unpack: () => 'beneficient-id-1' },
+    });
+
+    await handler.execute(makeCommand());
+
+    expect(jwtService.createAccessToken).toHaveBeenCalledWith(
+      expect.objectContaining({ beneficientId: 'beneficient-id-1' }),
+    );
   });
 });

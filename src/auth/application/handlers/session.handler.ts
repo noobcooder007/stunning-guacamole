@@ -12,6 +12,8 @@ import { User } from '@/auth/domain/aggregates/user.aggregate';
 import { IUserRepository } from '@/auth/application/repositories/user.repository';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
+import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
+import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { RefreshTokenHash } from '@/auth/domain/value-objects/refresh-token-hash.vo';
 import { ExpiresAtDate } from '@/auth/domain/value-objects/expires-at-date.vo';
 import { IDataHasher } from '@/auth/domain/services/data-hasher.service';
@@ -41,6 +43,10 @@ export class SessionHandler extends BaseCommandHandler<
     private readonly roleRepository: IRoleRepository,
     @Inject(REPOSITORY_TOKENS.PERMISSION)
     private readonly permissionRepository: IPermissionRepository,
+    @Inject(REPOSITORY_TOKENS.COLLECTOR)
+    private readonly collectorRepository: ICollectorRepository,
+    @Inject(REPOSITORY_TOKENS.BENEFICIENT)
+    private readonly beneficientRepository: IBeneficientRepository,
     @Inject(REPOSITORY_TOKENS.SESSION)
     private readonly sessionRepository: ISessionRepository,
     @Inject('ITokenHasher')
@@ -163,15 +169,19 @@ export class SessionHandler extends BaseCommandHandler<
         entity: SessionHandler.name,
       });
     }
-    const [role, permissions] = await Promise.all([
+    const [role, permissions, collector, beneficient] = await Promise.all([
       this.roleRepository.findById(user.role.unpack()),
       this.permissionRepository.findByRoleId(user.role.unpack()),
+      this.collectorRepository.findByUserId(user._id.unpack()),
+      this.beneficientRepository.findByUserId(user._id.unpack()),
     ]);
     const newAccessToken = this.jwtService.createAccessToken({
       id: user._id.unpack(),
       role: role.name,
       rights: permissions.map((p) => p.name),
       gender: user.gender,
+      collectorId: collector?._id.unpack(),
+      beneficientId: beneficient?._id.unpack(),
     });
     const newRawRefreshToken = this.jwtService.createRefreshToken({
       id: user._id.unpack(),

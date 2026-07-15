@@ -8,5 +8,6 @@ export class GetReceiptsQueryParams {
     public readonly periodMonth?: number,
     public readonly periodYear?: number,
     public readonly folio?: string,
+    public readonly beneficientId?: string,
   ) {}
 }

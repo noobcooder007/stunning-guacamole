@@ -5,6 +5,8 @@ export class AccessJwtPayload {
   role: string;
   rights?: string[];
   gender?: string;
+  collectorId?: string;
+  beneficientId?: string;
 }
 
 export interface RefreshJwtPayload {

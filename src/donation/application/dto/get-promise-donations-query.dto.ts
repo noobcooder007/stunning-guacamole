@@ -1,11 +1,21 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { PaginationDto } from '@/shared/infrastructure/dto/pagination.dto';
 
 export class GetPromiseDonationsQueryDto extends PaginationDto {
   @IsOptional()
   @IsString()
   currency?: string;
+
+  @IsOptional()
+  @IsUUID()
+  beneficientId?: string;
 
   @IsOptional()
   @IsString()

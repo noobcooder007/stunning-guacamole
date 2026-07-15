@@ -23,11 +23,21 @@ export class GetReceiptByFolioHandler extends BaseQueryHandler<
   protected async handle(
     query: GetReceiptByFolioQuery,
   ): Promise<Result<ReceiptResponse, IErrorResult>> {
-    const receipt = await this.datasource
+    const qb = this.datasource
       .getRepository(ReceiptSchema)
       .createQueryBuilder('receipt')
-      .where('receipt.folio = :folio', { folio: query.folio })
-      .getOne();
+      .where('receipt.folio = :folio', { folio: query.folio });
+    if (query.scopedBeneficientId) {
+      qb.andWhere('receipt.beneficientId = :beneficientId', {
+        beneficientId: query.scopedBeneficientId,
+      });
+    }
+    if (query.scopedCollectorId) {
+      qb.andWhere('receipt.collectorId = :collectorId', {
+        collectorId: query.scopedCollectorId,
+      });
+    }
+    const receipt = await qb.getOne();
 
     if (!receipt) {
       return Result.fail({

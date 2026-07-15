@@ -12,11 +12,16 @@ export class GetPromiseDonationByIdHandler extends BaseQueryHandler<GetPromiseDo
   }
 
   protected async handle(query: GetPromiseDonationByIdQuery) {
-    const promise = await this.datasource
+    const qb = this.datasource
       .getRepository(PromiseDonationSchema)
       .createQueryBuilder('promise')
-      .where('promise.id = :id', { id: query.id })
-      .getOne();
+      .where('promise.id = :id', { id: query.id });
+    if (query.scopedBeneficientId) {
+      qb.andWhere('promise.beneficientId = :beneficientId', {
+        beneficientId: query.scopedBeneficientId,
+      });
+    }
+    const promise = await qb.getOne();
 
     if (!promise) {
       return Result.fail({

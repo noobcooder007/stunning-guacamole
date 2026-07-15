@@ -35,6 +35,7 @@ import { GetConsolidatedCollectorEfficiencyQuery } from '@/donation/application/
 import { PrintCollectorEfficiencyCommand } from '@/donation/application/command/print-collector-efficiency.command';
 import { ValidateReceiptQuery } from '@/donation/application/query/validate-receipt.query';
 import { GetReceiptByFolioQuery } from '@/donation/application/query/get-receipt-by-folio.query';
+import { getOwnershipScope } from '@/shared/infrastructure/utils/ownership-scope.util';
 
 @Controller('receipts')
 export class ReceiptController {
@@ -92,17 +93,22 @@ export class ReceiptController {
 
   @Get()
   @Auth(PermissionNames.VIEW_INVOICE)
-  async findAll(@Query() query: GetReceiptsQueryDto) {
+  async findAll(
+    @Query() query: GetReceiptsQueryDto,
+    @GetUser() user: any,
+  ) {
+    const scope = getOwnershipScope(user);
     return await this.queryBus.execute(
       new GetReceiptsQueryParams(
         query.status,
         query.type,
-        query.collectorId,
+        scope.collectorId ?? query.collectorId,
         query.page,
         query.limit,
         query.month,
         query.year,
         query.folio,
+        scope.beneficientId ?? query.beneficientId,
       ),
     );
   }
@@ -225,8 +231,15 @@ export class ReceiptController {
 
   @Get('/:folio')
   @Auth(PermissionNames.VIEW_INVOICE)
-  async findByFolio(@Param('folio') folio: string) {
-    return this.queryBus.execute(new GetReceiptByFolioQuery(folio));
+  async findByFolio(@Param('folio') folio: string, @GetUser() user: any) {
+    const scope = getOwnershipScope(user);
+    return this.queryBus.execute(
+      new GetReceiptByFolioQuery(
+        folio,
+        scope.beneficientId,
+        scope.collectorId,
+      ),
+    );
   }
 
   @Get('/collectors/efficiency')

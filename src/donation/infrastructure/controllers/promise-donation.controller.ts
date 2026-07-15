@@ -32,6 +32,7 @@ import {
   UpdateRecurrence,
 } from '@/donation/application/dto/update-promise-donation.dto';
 import { GetPromiseDonationWithBeneficientsQueryParams } from '@/donation/application/query/get-promise-donation-with-beneficients-paginated.query';
+import { getOwnershipScope } from '@/shared/infrastructure/utils/ownership-scope.util';
 
 @Controller('promises')
 export class PromiseDonationController {
@@ -66,7 +67,11 @@ export class PromiseDonationController {
 
   @Get()
   @Auth(PermissionNames.VIEW_PROMISE_DONATION)
-  async findAll(@Query() query: GetPromiseDonationsQueryDto) {
+  async findAll(
+    @Query() query: GetPromiseDonationsQueryDto,
+    @GetUser() user: any,
+  ) {
+    const scope = getOwnershipScope(user);
     return await this.queryBus.execute(
       new GetPromiseDonationQueryParams(
         query.currency,
@@ -76,14 +81,21 @@ export class PromiseDonationController {
         query.isActive,
         query.page,
         query.limit,
+        scope.beneficientId ?? query.beneficientId,
       ),
     );
   }
 
   @Get(':id')
   @Auth(PermissionNames.VIEW_PROMISE_DONATION)
-  async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-    return await this.queryBus.execute(new GetPromiseDonationByIdQuery(id));
+  async findOne(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @GetUser() user: any,
+  ) {
+    const scope = getOwnershipScope(user);
+    return await this.queryBus.execute(
+      new GetPromiseDonationByIdQuery(id, scope.beneficientId),
+    );
   }
 
   @Patch(':id/deactivate')

@@ -12,6 +12,8 @@ import { IUserRepository } from '@/auth/application/repositories/user.repository
 import { ISessionRepository } from '@/auth/application/repositories/session.repository';
 import { IRoleRepository } from '@/auth/application/repositories/role.repository';
 import { IPermissionRepository } from '@/auth/application/repositories/permission.repository';
+import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
+import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { ErrorType, Result } from '@/shared/domain/dto/result.dto';
 import { User } from '@/auth/domain/aggregates/user.aggregate';
@@ -41,6 +43,10 @@ export class LoginUserHandler extends BaseCommandHandler<
     private readonly roleRepository: IRoleRepository,
     @Inject(REPOSITORY_TOKENS.PERMISSION)
     private readonly permissionRepository: IPermissionRepository,
+    @Inject(REPOSITORY_TOKENS.COLLECTOR)
+    private readonly collectorRepository: ICollectorRepository,
+    @Inject(REPOSITORY_TOKENS.BENEFICIENT)
+    private readonly beneficientRepository: IBeneficientRepository,
     @Inject('IPasswordHasher')
     private readonly hasherService: IPasswordHasher,
     @Inject('ITokenHasher')
@@ -100,9 +106,11 @@ export class LoginUserHandler extends BaseCommandHandler<
   ): Promise<TokenResult> {
     const sessionId = SessionId.create();
     user.updateLastLogin();
-    const [role, permissions] = await Promise.all([
+    const [role, permissions, collector, beneficient] = await Promise.all([
       this.roleRepository.findById(user.role.unpack()),
       this.permissionRepository.findByRoleId(user.role.unpack()),
+      this.collectorRepository.findByUserId(user._id.unpack()),
+      this.beneficientRepository.findByUserId(user._id.unpack()),
       this.userRepository.save(user),
     ]);
     const rawAccessToken = this.jwtService.createAccessToken({
@@ -110,6 +118,8 @@ export class LoginUserHandler extends BaseCommandHandler<
       role: role.name,
       rights: permissions.map((p) => p.name),
       gender: user.gender,
+      collectorId: collector?._id.unpack(),
+      beneficientId: beneficient?._id.unpack(),
     });
     const rawRefreshToken = this.jwtService.createRefreshToken({
       id: user._id.unpack(),

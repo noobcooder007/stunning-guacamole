@@ -7,5 +7,6 @@ export class GetPromiseDonationQueryParams {
     public readonly isActive?: boolean,
     public readonly page?: number,
     public readonly limit?: number,
+    public readonly beneficientId?: string,
   ) {}
 }

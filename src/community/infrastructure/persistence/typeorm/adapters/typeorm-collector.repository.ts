@@ -63,6 +63,14 @@ export class TypeORMCollectorRepository
     return collectorModel ? this.toDomain(collectorModel) : null;
   }
 
+  async findByUserId(userId: string): Promise<Collector | null> {
+    const collectorModel = await this.repository.findOne({
+      where: { userId },
+      relations: ['profile'],
+    });
+    return collectorModel ? this.toDomain(collectorModel) : null;
+  }
+
   async findInactiveById(id: string): Promise<Collector | null> {
     const collectorModel = await this.repository.findOne({
       where: { id, isActive: false },

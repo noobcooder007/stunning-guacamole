@@ -16,6 +16,9 @@ export class GetReceiptsQueryDto extends PaginationDto {
   @IsUUID()
   collectorId: string;
   @IsOptional()
+  @IsUUID()
+  beneficientId: string;
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   folio: string;

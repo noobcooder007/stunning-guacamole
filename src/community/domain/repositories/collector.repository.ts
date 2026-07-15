@@ -7,6 +7,7 @@ export abstract class ICollectorRepository {
   abstract isActive(id: string): Promise<boolean>;
   abstract exists(collector: CollectorFilters): Promise<boolean>;
   abstract findById(id: string): Promise<Collector | null>;
+  abstract findByUserId(userId: string): Promise<Collector | null>;
   abstract findInactiveById(id: string): Promise<Collector | null>;
   abstract findByIdWithAssignations(id: string): Promise<Collector | null>;
   abstract findAll(offset: number, limit: number): Promise<Collector[]>;
