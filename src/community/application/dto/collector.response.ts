@@ -38,7 +38,7 @@ export class CollectorResponse {
   @Expose()
   @Type(() => PaymentDataResponseDto)
   paymentData: PaymentDataResponseDto;
-  @Expose()
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   notes: string;
   @Expose()
   createdAt: Date;

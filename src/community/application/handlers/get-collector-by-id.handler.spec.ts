@@ -43,4 +43,35 @@ describe('GetCollectorByIdHandler', () => {
       mockCollector,
     );
   });
+
+  describe('scoping por identidad', () => {
+    it('debería devolver NOT_FOUND cuando el id consultado no es el del colector vinculado', async () => {
+      collectorRepository.findById.mockResolvedValue({});
+      jest
+        .spyOn(CollectorMapper, 'fromDomainToResponse')
+        .mockReturnValue({ id: COLLECTOR_ID } as any);
+      const scopedQuery = new GetCollectorByIdQuery(
+        COLLECTOR_ID,
+        '01907c2a-0000-7000-8000-000000000099',
+      );
+
+      const result = await handler.execute(scopedQuery);
+
+      expect(result.isSuccess).toBe(false);
+      expect(result.error.type).toBe(ErrorType.NOT_FOUND);
+    });
+
+    it('debería devolver el colector cuando el id consultado coincide con el vinculado', async () => {
+      collectorRepository.findById.mockResolvedValue({});
+      jest
+        .spyOn(CollectorMapper, 'fromDomainToResponse')
+        .mockReturnValue({ id: COLLECTOR_ID } as any);
+      const scopedQuery = new GetCollectorByIdQuery(COLLECTOR_ID, COLLECTOR_ID);
+
+      const result = await handler.execute(scopedQuery);
+
+      expect(result.isSuccess).toBe(true);
+      expect(result.value.id).toBe(COLLECTOR_ID);
+    });
+  });
 });

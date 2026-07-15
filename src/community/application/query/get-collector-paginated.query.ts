@@ -8,5 +8,6 @@ export class GetCollectorQueryParams {
     readonly zipCode?: string,
     readonly page?: number,
     readonly limit?: number,
+    readonly scopedCollectorId?: string,
   ) {}
 }

@@ -2,14 +2,14 @@ import { Exclude, Expose } from 'class-transformer';
 
 @Exclude()
 export class PaymentDataResponseDto {
-  @Expose()
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   commissionPercent: number;
-  @Expose()
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   nomina: number;
-  @Expose()
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   transportAllowance: number;
-  @Expose()
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   bank: string;
-  @Expose()
+  @Expose({ groups: ['superadministrator', 'administrator', 'owner'] })
   reference: string;
 }

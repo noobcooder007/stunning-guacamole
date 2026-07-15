@@ -20,11 +20,14 @@ export class CollectorQueryService extends BaseQueryService {
   async searchCollectors(
     query: GetCollectorQueryParams,
   ): Promise<Paginated<CollectorResponse>> {
-    const { page, limit, ...filters } = query;
+    const { page, limit, scopedCollectorId, ...filters } = query;
     const qb = this.getQueryBuilder(
       CollectorSchema,
       'collector',
     ).leftJoinAndSelect('collector.profile', 'profile');
+    if (scopedCollectorId) {
+      qb.andWhere('collector.id = :scopedCollectorId', { scopedCollectorId });
+    }
     this.applyFilters(qb, 'profile', filters, ProfileSchema);
     this.applyPagination(qb, page, limit);
     const [items, total] = await qb.getManyAndCount();

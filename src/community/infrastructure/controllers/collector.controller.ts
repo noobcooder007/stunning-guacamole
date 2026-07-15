@@ -19,6 +19,8 @@ import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { Throttle, minutes } from '@nestjs/throttler';
 import { Auth } from '@/auth/infrastructure/decorators/auth.decorator';
 import { PermissionNames } from '@/auth/domain/constants/permissions';
+import { GetUser } from '@/auth/infrastructure/decorators/get-user.decorator';
+import { getOwnershipScope } from '@/shared/infrastructure/utils/ownership-scope.util';
 import { profileMulterOptions } from '@/shared/infrastructure/interceptors/multer.constants';
 import { validateImageFile } from '@/shared/infrastructure/utils/file-validator.util';
 import { processProfileImage } from '@/shared/infrastructure/utils/image-processor.util';
@@ -119,7 +121,8 @@ export class CollectorController {
 
   @Get()
   @Auth(PermissionNames.VIEW_COLLECTOR)
-  findAll(@Query() query: GetCollectorsQueryDto) {
+  findAll(@Query() query: GetCollectorsQueryDto, @GetUser() user: any) {
+    const scope = getOwnershipScope(user);
     return this.queryBus.execute(
       new GetCollectorQueryParams(
         query.firstname,
@@ -130,14 +133,18 @@ export class CollectorController {
         query.zipCode,
         query.page,
         query.limit,
+        scope.collectorId,
       ),
     );
   }
 
   @Get(':id')
   @Auth(PermissionNames.VIEW_COLLECTOR)
-  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.queryBus.execute(new GetCollectorByIdQuery(id));
+  findOne(@Param('id', new ParseUUIDPipe()) id: string, @GetUser() user: any) {
+    const scope = getOwnershipScope(user);
+    return this.queryBus.execute(
+      new GetCollectorByIdQuery(id, scope.collectorId),
+    );
   }
 
   @Post(':id/deactivate')

@@ -33,8 +33,17 @@ export class GetCollectorByIdHandler extends BaseQueryHandler<
         entity: GetCollectorByIdHandler.name,
       });
     }
-    return Result.ok<CollectorResponse>(
-      CollectorMapper.fromDomainToResponse(collector),
-    );
+    const response = CollectorMapper.fromDomainToResponse(collector);
+    if (
+      query.scopedCollectorId &&
+      response.id !== query.scopedCollectorId
+    ) {
+      return Result.fail({
+        type: ErrorType.NOT_FOUND,
+        message: 'The collector was not found',
+        entity: GetCollectorByIdHandler.name,
+      });
+    }
+    return Result.ok<CollectorResponse>(response);
   }
 }
