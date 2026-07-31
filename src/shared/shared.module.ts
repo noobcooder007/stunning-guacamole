@@ -4,8 +4,10 @@ import { TokenHasher } from '@/shared/infrastructure/security/token-hasher';
 import { EncryptionService } from '@/shared/infrastructure/services/encryption.service';
 import { PDFService } from '@/shared/application/service/pdf.service';
 import { AuditService } from '@/shared/infrastructure/services/audit.service';
+import { HealthController } from '@/shared/infrastructure/controllers/health.controller';
 
 @Module({
+  controllers: [HealthController],
   providers: [
     TokenHasher,
     {

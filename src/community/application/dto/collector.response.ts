@@ -48,9 +48,8 @@ export class CollectorResponse {
   profilePath: string;
   @Expose()
   get profilePictureUrl(): string {
-    const host = process.env.APP_URL || 'http://localhost:4321';
     if (!this.profilePath) return null;
-    return `${host}/public/profile-pictures/${this.profilePath}`;
+    return `${process.env.APP_URL}/public/profile-pictures/${this.profilePath}`;
   }
   @Expose()
   collectorNumber: number;

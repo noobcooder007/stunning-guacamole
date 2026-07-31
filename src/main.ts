@@ -44,7 +44,7 @@ async function bootstrap() {
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
   }
-  const port = configService.get('PORT') || 3000;
+  const port = configService.get('PORT') || 4321;
   await app.listen(port);
   logger.log(`App running on port ${port}`);
 }

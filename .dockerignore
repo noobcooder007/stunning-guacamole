@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.git
+.github
+postgres
+images
+.env
+.env.*
+!.env.template
+*.md
+!README.md
+.vscode
+.idea
