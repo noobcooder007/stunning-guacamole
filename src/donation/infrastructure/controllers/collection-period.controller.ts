@@ -22,6 +22,7 @@ import { IPrinterService } from '@/shared/infrastructure/services/print.service'
 import { OpenPeriodCommand } from '@/donation/application/command/open-period.command';
 import { ClosePeriodCommand } from '@/donation/application/command/close-period.command';
 import { GetCurrentPeriodQuery } from '@/donation/application/query/get-current-period.query';
+import { GetLastClosedPeriodQuery } from '@/donation/application/query/get-last-closed-period.query';
 import { GetPeriodSettlementsQuery } from '@/donation/application/query/get-period-settlements.query';
 import { GetReceiptsReportByPeriodQuery } from '@/donation/application/query/get-receipts-report-by-period.query';
 import { GetDonationGrowthReportQuery } from '@/donation/application/query/get-donation-growth-report.query';
@@ -60,6 +61,14 @@ export class CollectionPeriodController {
   @CacheTTL(seconds(30))
   async getCurrent() {
     return await this.queryBus.execute(new GetCurrentPeriodQuery());
+  }
+
+  @Get('/last-closed')
+  @Auth(PermissionNames.VIEW_PROCESS)
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(seconds(30))
+  async getLastClosed() {
+    return await this.queryBus.execute(new GetLastClosedPeriodQuery());
   }
 
   @Get('/report')

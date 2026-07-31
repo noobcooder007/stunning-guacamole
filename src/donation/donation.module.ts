@@ -39,6 +39,7 @@ import { GetSettlementPaymentsHandler } from '@/donation/application/handlers/ge
 import { OpenPeriodHandler } from '@/donation/application/handlers/open-period.handler';
 import { ClosePeriodHandler } from '@/donation/application/handlers/close-period.handler';
 import { GetCurrentPeriodHandler } from '@/donation/application/handlers/get-current-period.handler';
+import { GetLastClosedPeriodHandler } from '@/donation/application/handlers/get-last-closed-period.handler';
 import { GetPeriodSettlementsHandler } from '@/donation/application/handlers/get-period-settlements.handler';
 import { PrintSettlementLettersHandler } from '@/donation/application/handlers/print-settlement-letters.handler';
 import { PrintDeliveryLettersHandler } from '@/donation/application/handlers/print-delivery-letters.handler';
@@ -105,6 +106,7 @@ import { EfficiencyConcentratedReportQueryService } from '@/donation/infrastruct
     OpenPeriodHandler,
     ClosePeriodHandler,
     GetCurrentPeriodHandler,
+    GetLastClosedPeriodHandler,
     GetPeriodSettlementsHandler,
     PrintSettlementLettersHandler,
     PrintDeliveryLettersHandler,
