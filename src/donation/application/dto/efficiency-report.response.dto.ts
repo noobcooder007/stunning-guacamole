@@ -2,23 +2,35 @@ export interface EfficiencyReportRowDto {
   collectorId: string;
   collectorNumber: number;
   collectorName: string;
-  assignedAmount: number;
+  assignedAmountMxn: number;
+  assignedAmountUsd: number;
+  assignedAmountConsolidatedMxn: number | null;
   assignedCount: number;
-  collectedAmount: number;
+  collectedAmountMxn: number;
+  collectedAmountUsd: number;
+  collectedAmountConsolidatedMxn: number | null;
   collectedCount: number;
-  pendingAmount: number;
+  pendingAmountMxn: number;
+  pendingAmountUsd: number;
+  pendingAmountConsolidatedMxn: number | null;
   pendingCount: number;
-  collectionRate: number;
+  collectionRate: number | null;
 }
 
 export interface EfficiencyReportTotalsDto {
-  assignedAmount: number;
+  assignedAmountMxn: number;
+  assignedAmountUsd: number;
+  assignedAmountConsolidatedMxn: number | null;
   assignedCount: number;
-  collectedAmount: number;
+  collectedAmountMxn: number;
+  collectedAmountUsd: number;
+  collectedAmountConsolidatedMxn: number | null;
   collectedCount: number;
-  pendingAmount: number;
+  pendingAmountMxn: number;
+  pendingAmountUsd: number;
+  pendingAmountConsolidatedMxn: number | null;
   pendingCount: number;
-  collectionRate: number;
+  collectionRate: number | null;
 }
 
 export interface EfficiencyReportResponseDto {

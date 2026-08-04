@@ -16,7 +16,8 @@ const MONTH_LABELS = [
   'DIC',
 ];
 
-function fmt(amount: number): string {
+function fmt(amount: number | null): string {
+  if (amount === null) return 'N/D';
   return `$${Number(amount).toFixed(2)}`;
 }
 
@@ -41,21 +42,30 @@ export const quantityDifferenceReportTemplate = (
 ): TDocumentDefinitions => {
   const periodLabel = `${MONTH_LABELS[data.month - 1]} ${data.year}`;
 
+  // Se muestra el total consolidado en MXN (moneda base). Si el período está
+  // abierto y tiene recibos en USD, aún no hay tipo de cambio y se muestra "N/D".
   const collectorRows: Content[][] = data.collectors.map((c) => [
     { text: String(c.collectorNumber), fontSize: 9, alignment: 'center' },
     { text: c.collectorName, fontSize: 9 },
-    { text: fmt(c.assignedAmount), fontSize: 9, alignment: 'right' },
     {
-      text: fmt(c.collectedAmount),
+      text: fmt(c.assignedAmountConsolidatedMxn),
+      fontSize: 9,
+      alignment: 'right',
+    },
+    {
+      text: fmt(c.collectedAmountConsolidatedMxn),
       fontSize: 9,
       alignment: 'right',
       color: '#2e7d32',
     },
     {
-      text: fmt(c.difference),
+      text: fmt(c.differenceConsolidatedMxn),
       fontSize: 9,
       alignment: 'right',
-      color: c.difference > 0 ? '#e65100' : '#555555',
+      color:
+        c.differenceConsolidatedMxn !== null && c.differenceConsolidatedMxn > 0
+          ? '#e65100'
+          : '#555555',
     },
   ]);
 
@@ -69,20 +79,20 @@ export const quantityDifferenceReportTemplate = (
     } as any,
     {} as any,
     {
-      text: fmt(data.totals.assignedAmount),
+      text: fmt(data.totals.assignedAmountConsolidatedMxn),
       bold: true,
       fontSize: 9,
       alignment: 'right',
     },
     {
-      text: fmt(data.totals.collectedAmount),
+      text: fmt(data.totals.collectedAmountConsolidatedMxn),
       bold: true,
       fontSize: 9,
       alignment: 'right',
       color: '#2e7d32',
     },
     {
-      text: fmt(data.totals.difference),
+      text: fmt(data.totals.differenceConsolidatedMxn),
       bold: true,
       fontSize: 9,
       alignment: 'right',
@@ -172,21 +182,21 @@ export const quantityDifferenceReportTemplate = (
               },
               { text: 'COLECTOR', bold: true, fontSize: 8, color: '#555555' },
               {
-                text: 'ASIGNADO',
+                text: 'ASIGNADO (MXN)',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',
                 color: '#555555',
               },
               {
-                text: 'COBRADO',
+                text: 'COBRADO (MXN)',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',
                 color: '#555555',
               },
               {
-                text: 'DIFERENCIA',
+                text: 'DIFERENCIA (MXN)',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',

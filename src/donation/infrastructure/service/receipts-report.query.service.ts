@@ -4,6 +4,7 @@ import { BaseQueryService } from '@/shared/application/query/base-query.service'
 import { ReceiptSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/receipt.schema';
 import { CollectorSchema } from '@/community/infrastructure/persistence/typeorm/schemas/collector.schema';
 import { ProfileSchema } from '@/community/infrastructure/persistence/typeorm/schemas/profile.schema';
+import { CollectionPeriodSchema } from '@/donation/infrastructure/persistence/typeorm/schemas/collection-period.schema';
 import {
   CollectorReceiptsReportItemDto,
   ReceiptsReportByPeriodResponseDto,
@@ -26,12 +27,32 @@ export class ReceiptsReportQueryService extends BaseQueryService {
       .addSelect('p."firstLastname"', 'firstLastname')
       .addSelect('p."secondLastname"', 'secondLastname')
       .addSelect(
-        `SUM(CASE WHEN r.status != 'CANCELLED' THEN r.amount ELSE 0 END)`,
-        'accumulatedAmount',
+        `SUM(CASE WHEN r.status != 'CANCELLED' AND r.currency = 'MXN' THEN r.amount ELSE 0 END)`,
+        'accumulatedAmountMxn',
+      )
+      .addSelect(
+        `SUM(CASE WHEN r.status != 'CANCELLED' AND r.currency = 'USD' THEN r.amount ELSE 0 END)`,
+        'accumulatedAmountUsd',
+      )
+      .addSelect(
+        `SUM(CASE
+          WHEN r.status != 'CANCELLED' AND r.currency = 'MXN' THEN r.amount
+          WHEN r.status != 'CANCELLED' AND r.currency = 'USD' AND cp."exchangeRateUsdToMxn" IS NOT NULL THEN r.amount * cp."exchangeRateUsdToMxn"
+          ELSE 0
+        END)`,
+        'accumulatedAmountConsolidatedMxn',
+      )
+      .addSelect(
+        // SUM() ignora los NULL de la CASE de arriba en vez de propagarlos:
+        // este flag detecta si hubo algún USD sin tipo de cambio para forzar
+        // el consolidado a null en JS, en vez de reportar un total parcial.
+        `MAX(CASE WHEN r.status != 'CANCELLED' AND r.currency = 'USD' AND cp."exchangeRateUsdToMxn" IS NULL THEN 1 ELSE 0 END)`,
+        'accumulatedHasUnconvertedUsd',
       )
       .from(ReceiptSchema, 'r')
       .innerJoin(CollectorSchema, 'c', 'c.id = r."collectorId"')
       .innerJoin(ProfileSchema, 'p', 'p.id = c."profileId"')
+      .leftJoin(CollectionPeriodSchema, 'cp', 'cp.id = r."collectionPeriodId"')
       .where('r."periodMonth" = :month', { month })
       .andWhere('r."periodYear" = :year', { year })
       .groupBy('c."collectorNumber"')
@@ -46,14 +67,37 @@ export class ReceiptsReportQueryService extends BaseQueryService {
       collectorName: [r.firstname, r.firstLastname, r.secondLastname]
         .filter(Boolean)
         .join(' '),
-      accumulatedAmount: Number(r.accumulatedAmount ?? 0),
+      accumulatedAmountMxn: Number(r.accumulatedAmountMxn ?? 0),
+      accumulatedAmountUsd: Number(r.accumulatedAmountUsd ?? 0),
+      accumulatedAmountConsolidatedMxn: Number(r.accumulatedHasUnconvertedUsd)
+        ? null
+        : Number(r.accumulatedAmountConsolidatedMxn ?? 0),
     }));
 
-    const totalAccumulatedAmount = collectors.reduce(
-      (sum, c) => sum + c.accumulatedAmount,
+    const totalAccumulatedAmountMxn = collectors.reduce(
+      (sum, c) => sum + c.accumulatedAmountMxn,
       0,
     );
+    const totalAccumulatedAmountUsd = collectors.reduce(
+      (sum, c) => sum + c.accumulatedAmountUsd,
+      0,
+    );
+    const totalAccumulatedAmountConsolidatedMxn = collectors.some(
+      (c) => c.accumulatedAmountConsolidatedMxn === null,
+    )
+      ? null
+      : collectors.reduce(
+          (sum, c) => sum + c.accumulatedAmountConsolidatedMxn,
+          0,
+        );
 
-    return { month, year, collectors, totalAccumulatedAmount };
+    return {
+      month,
+      year,
+      collectors,
+      totalAccumulatedAmountMxn,
+      totalAccumulatedAmountUsd,
+      totalAccumulatedAmountConsolidatedMxn,
+    };
   }
 }

@@ -52,13 +52,21 @@ export class DonationGrowthReportQueryService extends BaseQueryService {
     return {
       currentPeriod: current,
       previousPeriod: prior,
-      receiptsVariation: calcVariation(
-        current.totalReceipts,
-        prior.totalReceipts,
+      receiptsVariationMxn: calcVariation(
+        current.totalReceiptsMxn,
+        prior.totalReceiptsMxn,
       ),
-      promiseAmountVariation: calcVariation(
-        current.newPromiseAmount,
-        prior.newPromiseAmount,
+      receiptsVariationUsd: calcVariation(
+        current.totalReceiptsUsd,
+        prior.totalReceiptsUsd,
+      ),
+      promiseAmountVariationMxn: calcVariation(
+        current.newPromiseAmountMxn,
+        prior.newPromiseAmountMxn,
+      ),
+      promiseAmountVariationUsd: calcVariation(
+        current.newPromiseAmountUsd,
+        prior.newPromiseAmountUsd,
       ),
     };
   }
@@ -75,26 +83,40 @@ export class DonationGrowthReportQueryService extends BaseQueryService {
     return {
       month,
       year,
-      totalReceipts: receiptsReport.totalAccumulatedAmount,
-      newPromiseAmount,
+      totalReceiptsMxn: receiptsReport.totalAccumulatedAmountMxn,
+      totalReceiptsUsd: receiptsReport.totalAccumulatedAmountUsd,
+      totalReceiptsConsolidatedMxn:
+        receiptsReport.totalAccumulatedAmountConsolidatedMxn,
+      newPromiseAmountMxn: newPromiseAmount.mxn,
+      newPromiseAmountUsd: newPromiseAmount.usd,
     };
   }
 
+  // promise_donations no está ligado a un período de cobro (son compromisos
+  // recurrentes, no transacciones puntuales), así que no hay tipo de cambio
+  // de referencia para consolidar USD->MXN aquí; se reporta el desglose crudo.
   private async getNewPromiseAmount(
     month: number,
     year: number,
-  ): Promise<number> {
+  ): Promise<{ mxn: number; usd: number }> {
     const from = new Date(year, month - 1, 1, 0, 0, 0, 0);
     const to = new Date(year, month, 1, 0, 0, 0, 0);
 
-    const { total } = await this.dataSource
+    const { mxn, usd } = await this.dataSource
       .createQueryBuilder()
-      .select('SUM(p."promiseAmount")', 'total')
+      .select(
+        `SUM(CASE WHEN p.currency = 'MXN' THEN p."promiseAmount" ELSE 0 END)`,
+        'mxn',
+      )
+      .addSelect(
+        `SUM(CASE WHEN p.currency = 'USD' THEN p."promiseAmount" ELSE 0 END)`,
+        'usd',
+      )
       .from(PromiseDonationSchema, 'p')
       .where('p."createdAt" >= :from', { from })
       .andWhere('p."createdAt" < :to', { to })
       .getRawOne();
 
-    return Number(total ?? 0);
+    return { mxn: Number(mxn ?? 0), usd: Number(usd ?? 0) };
   }
 }

@@ -16,7 +16,8 @@ const MONTH_LABELS = [
   'DIC',
 ];
 
-function fmt(amount: number): string {
+function fmt(amount: number | null): string {
+  if (amount === null) return 'N/D';
   return `$${Number(amount).toFixed(2)}`;
 }
 
@@ -44,7 +45,14 @@ export const receiptsReportByPeriodTemplate = (
   const collectorRows: Content[][] = data.collectors.map((c) => [
     { text: String(c.collectorNumber), fontSize: 9, alignment: 'center' },
     { text: c.collectorName, fontSize: 9 },
-    { text: fmt(c.accumulatedAmount), fontSize: 9, alignment: 'right' },
+    { text: fmt(c.accumulatedAmountMxn), fontSize: 9, alignment: 'right' },
+    { text: fmt(c.accumulatedAmountUsd), fontSize: 9, alignment: 'right' },
+    {
+      text: fmt(c.accumulatedAmountConsolidatedMxn),
+      fontSize: 9,
+      alignment: 'right',
+      bold: true,
+    },
   ]);
 
   const totalsRow: Content[] = [
@@ -57,7 +65,19 @@ export const receiptsReportByPeriodTemplate = (
     } as any,
     {} as any,
     {
-      text: fmt(data.totalAccumulatedAmount),
+      text: fmt(data.totalAccumulatedAmountMxn),
+      bold: true,
+      fontSize: 9,
+      alignment: 'right',
+    },
+    {
+      text: fmt(data.totalAccumulatedAmountUsd),
+      bold: true,
+      fontSize: 9,
+      alignment: 'right',
+    },
+    {
+      text: fmt(data.totalAccumulatedAmountConsolidatedMxn),
       bold: true,
       fontSize: 9,
       alignment: 'right',
@@ -112,7 +132,7 @@ export const receiptsReportByPeriodTemplate = (
         layout: 'letterTable',
         table: {
           headerRows: 1,
-          widths: ['auto', '*', 'auto'],
+          widths: ['auto', '*', 'auto', 'auto', 'auto'],
           body: [
             [
               {
@@ -124,7 +144,21 @@ export const receiptsReportByPeriodTemplate = (
               },
               { text: 'COLECTOR', bold: true, fontSize: 8, color: '#555555' },
               {
-                text: 'MONTO ACUMULADO',
+                text: 'MXN',
+                bold: true,
+                fontSize: 8,
+                alignment: 'right',
+                color: '#555555',
+              },
+              {
+                text: 'USD',
+                bold: true,
+                fontSize: 8,
+                alignment: 'right',
+                color: '#555555',
+              },
+              {
+                text: 'TOTAL MXN',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',

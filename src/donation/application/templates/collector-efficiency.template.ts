@@ -20,11 +20,13 @@ const MONTH_LABELS = [
   'DIC',
 ];
 
-function fmt(amount: number): string {
+function fmt(amount: number | null): string {
+  if (amount === null) return 'N/D';
   return `$${Number(amount).toFixed(2)}`;
 }
 
-function rate(value: number): string {
+function rate(value: number | null): string {
+  if (value === null) return 'N/D';
   return `${Number(value).toFixed(2)}%`;
 }
 
@@ -67,7 +69,7 @@ export const collectorEfficiencyTemplate = (
     [
       { text: 'Monto asignado', fontSize: 9 },
       {
-        text: fmt(efficiency.historical.assignedAmount),
+        text: fmt(efficiency.historical.assignedAmountConsolidatedMxn),
         fontSize: 9,
         alignment: 'right',
       },
@@ -80,7 +82,7 @@ export const collectorEfficiencyTemplate = (
     [
       { text: 'Monto cobrado', fontSize: 9 },
       {
-        text: fmt(efficiency.historical.collectedAmount),
+        text: fmt(efficiency.historical.collectedAmountConsolidatedMxn),
         fontSize: 9,
         alignment: 'right',
         color: '#2e7d32',
@@ -95,7 +97,7 @@ export const collectorEfficiencyTemplate = (
     [
       { text: 'Pendiente por cobrar', fontSize: 9 },
       {
-        text: fmt(efficiency.historical.pendingAmount),
+        text: fmt(efficiency.historical.pendingAmountConsolidatedMxn),
         fontSize: 9,
         alignment: 'right',
         color: '#e65100',
@@ -129,15 +131,19 @@ export const collectorEfficiencyTemplate = (
   const yearRows: Content[][] = efficiency.byYear.map(
     (y: YearEfficiencyDto) => [
       { text: String(y.year), fontSize: 9, bold: true },
-      { text: fmt(y.assignedAmount), fontSize: 9, alignment: 'right' },
       {
-        text: fmt(y.collectedAmount),
+        text: fmt(y.assignedAmountConsolidatedMxn),
+        fontSize: 9,
+        alignment: 'right',
+      },
+      {
+        text: fmt(y.collectedAmountConsolidatedMxn),
         fontSize: 9,
         alignment: 'right',
         color: '#2e7d32',
       },
       {
-        text: fmt(y.pendingAmount),
+        text: fmt(y.pendingAmountConsolidatedMxn),
         fontSize: 9,
         alignment: 'right',
         color: '#e65100',
@@ -176,15 +182,19 @@ export const collectorEfficiencyTemplate = (
         alignment: 'center',
         color: p.periodStatus === 'OPEN' ? '#1565c0' : '#555555',
       },
-      { text: fmt(p.assignedAmount), fontSize: 9, alignment: 'right' },
       {
-        text: fmt(p.collectedAmount),
+        text: fmt(p.assignedAmountConsolidatedMxn),
+        fontSize: 9,
+        alignment: 'right',
+      },
+      {
+        text: fmt(p.collectedAmountConsolidatedMxn),
         fontSize: 9,
         alignment: 'right',
         color: '#2e7d32',
       },
       {
-        text: fmt(p.pendingAmount),
+        text: fmt(p.pendingAmountConsolidatedMxn),
         fontSize: 9,
         alignment: 'right',
         color: '#e65100',
@@ -316,21 +326,21 @@ export const collectorEfficiencyTemplate = (
                   [
                     { text: 'AÑO', bold: true, fontSize: 8, color: '#555555' },
                     {
-                      text: 'ASIGNADO',
+                      text: 'ASIGNADO (MXN)',
                       bold: true,
                       fontSize: 8,
                       alignment: 'right',
                       color: '#555555',
                     },
                     {
-                      text: 'COBRADO',
+                      text: 'COBRADO (MXN)',
                       bold: true,
                       fontSize: 8,
                       alignment: 'right',
                       color: '#555555',
                     },
                     {
-                      text: 'PENDIENTE',
+                      text: 'PENDIENTE (MXN)',
                       bold: true,
                       fontSize: 8,
                       alignment: 'right',
@@ -391,21 +401,21 @@ export const collectorEfficiencyTemplate = (
                       color: '#555555',
                     },
                     {
-                      text: 'ASIGNADO',
+                      text: 'ASIGNADO (MXN)',
                       bold: true,
                       fontSize: 8,
                       alignment: 'right',
                       color: '#555555',
                     },
                     {
-                      text: 'COBRADO',
+                      text: 'COBRADO (MXN)',
                       bold: true,
                       fontSize: 8,
                       alignment: 'right',
                       color: '#555555',
                     },
                     {
-                      text: 'PENDIENTE',
+                      text: 'PENDIENTE (MXN)',
                       bold: true,
                       fontSize: 8,
                       alignment: 'right',

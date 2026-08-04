@@ -26,23 +26,61 @@ const MONTH_LABELS = [
   'DIC',
 ];
 
-const RECEIPT_AGGREGATE_SELECTS = [
+function consolidatedMxnCase(statusCondition: string): string {
+  return `SUM(CASE
+    WHEN ${statusCondition} AND r.currency = 'MXN' THEN r.amount
+    WHEN ${statusCondition} AND r.currency = 'USD' AND cp."exchangeRateUsdToMxn" IS NOT NULL THEN r.amount * cp."exchangeRateUsdToMxn"
+    ELSE 0
+  END)`;
+}
+
+// SUM() ignora los NULL en vez de propagarlos: este flag detecta si hubo
+// algún USD sin tipo de cambio para forzar el consolidado a null en JS.
+function hasUnconvertedUsdCase(statusCondition: string): string {
+  return `MAX(CASE WHEN ${statusCondition} AND r.currency = 'USD' AND cp."exchangeRateUsdToMxn" IS NULL THEN 1 ELSE 0 END)`;
+}
+
+const RECEIPT_AGGREGATE_SELECTS: [string, string][] = [
   [
-    `SUM(CASE WHEN r.status != 'CANCELLED' THEN r.amount ELSE 0 END)`,
-    'assignedAmount',
+    `SUM(CASE WHEN r.status != 'CANCELLED' AND r.currency = 'MXN' THEN r.amount ELSE 0 END)`,
+    'assignedAmountMxn',
+  ],
+  [
+    `SUM(CASE WHEN r.status != 'CANCELLED' AND r.currency = 'USD' THEN r.amount ELSE 0 END)`,
+    'assignedAmountUsd',
+  ],
+  [
+    consolidatedMxnCase(`r.status != 'CANCELLED'`),
+    'assignedAmountConsolidatedMxn',
+  ],
+  [
+    hasUnconvertedUsdCase(`r.status != 'CANCELLED'`),
+    'assignedHasUnconvertedUsd',
   ],
   [`COUNT(CASE WHEN r.status != 'CANCELLED' THEN 1 END)`, 'assignedCount'],
   [
-    `SUM(CASE WHEN r.status = 'PAID' THEN r.amount ELSE 0 END)`,
-    'collectedAmount',
+    `SUM(CASE WHEN r.status = 'PAID' AND r.currency = 'MXN' THEN r.amount ELSE 0 END)`,
+    'collectedAmountMxn',
   ],
+  [
+    `SUM(CASE WHEN r.status = 'PAID' AND r.currency = 'USD' THEN r.amount ELSE 0 END)`,
+    'collectedAmountUsd',
+  ],
+  [consolidatedMxnCase(`r.status = 'PAID'`), 'collectedAmountConsolidatedMxn'],
+  [hasUnconvertedUsdCase(`r.status = 'PAID'`), 'collectedHasUnconvertedUsd'],
   [`COUNT(CASE WHEN r.status = 'PAID' THEN 1 END)`, 'collectedCount'],
   [
-    `SUM(CASE WHEN r.status = 'PENDING' THEN r.amount ELSE 0 END)`,
-    'pendingAmount',
+    `SUM(CASE WHEN r.status = 'PENDING' AND r.currency = 'MXN' THEN r.amount ELSE 0 END)`,
+    'pendingAmountMxn',
   ],
+  [
+    `SUM(CASE WHEN r.status = 'PENDING' AND r.currency = 'USD' THEN r.amount ELSE 0 END)`,
+    'pendingAmountUsd',
+  ],
+  [consolidatedMxnCase(`r.status = 'PENDING'`), 'pendingAmountConsolidatedMxn'],
+  [hasUnconvertedUsdCase(`r.status = 'PENDING'`), 'pendingHasUnconvertedUsd'],
   [`COUNT(CASE WHEN r.status = 'PENDING' THEN 1 END)`, 'pendingCount'],
-] as const;
+];
 
 export interface EfficiencyConcentratedReportParams {
   startDate: string;
@@ -63,10 +101,13 @@ export class EfficiencyConcentratedReportQueryService extends BaseQueryService {
     params: EfficiencyConcentratedReportParams,
   ): Promise<EfficiencyConcentratedReportResponseDto> {
     const rawRows = await this.queryRows(params);
+    // Filas sin tipo de cambio determinable (periodo abierto con USD) no
+    // tienen una eficiencia calculable en MXN y se excluyen del filtro.
     const rows = rawRows
       .map((r) => this.toRow(r, params.efficiencyType))
       .filter(
         (r) =>
+          r.collectionRate !== null &&
           r.collectionRate >= params.initialPercentage &&
           r.collectionRate <= params.finalPercentage,
       );
@@ -151,6 +192,7 @@ export class EfficiencyConcentratedReportQueryService extends BaseQueryService {
       .addSelect('p.firstname', 'firstname')
       .addSelect('p."firstLastname"', 'firstLastname')
       .addSelect('p."secondLastname"', 'secondLastname')
+      .leftJoin(CollectionPeriodSchema, 'cp', 'cp.id = r."collectionPeriodId"')
       .andWhere('r."periodYear" IS NOT NULL')
       .groupBy('r."periodYear"')
       .addGroupBy('c.id')
@@ -171,6 +213,7 @@ export class EfficiencyConcentratedReportQueryService extends BaseQueryService {
       .addSelect('p.firstname', 'firstname')
       .addSelect('p."firstLastname"', 'firstLastname')
       .addSelect('p."secondLastname"', 'secondLastname')
+      .leftJoin(CollectionPeriodSchema, 'cp', 'cp.id = r."collectionPeriodId"')
       .groupBy('c.id')
       .addGroupBy('c."collectorNumber"')
       .addGroupBy('p.firstname')
@@ -180,8 +223,12 @@ export class EfficiencyConcentratedReportQueryService extends BaseQueryService {
       .getRawMany();
   }
 
-  private calcRate(collected: number, assigned: number): number {
-    if (!assigned || assigned === 0) return 0;
+  private calcRate(
+    collected: number | null,
+    assigned: number | null,
+  ): number | null {
+    if (collected === null || assigned === null) return null;
+    if (!assigned) return 0;
     return Math.round((collected / assigned) * 10000) / 100;
   }
 
@@ -199,8 +246,15 @@ export class EfficiencyConcentratedReportQueryService extends BaseQueryService {
     r: any,
     efficiencyType: EfficiencyType,
   ): EfficiencyConcentratedRowDto {
-    const assigned = Number(r.assignedAmount ?? 0);
-    const collected = Number(r.collectedAmount ?? 0);
+    const assignedConsolidatedMxn = Number(r.assignedHasUnconvertedUsd)
+      ? null
+      : Number(r.assignedAmountConsolidatedMxn ?? 0);
+    const collectedConsolidatedMxn = Number(r.collectedHasUnconvertedUsd)
+      ? null
+      : Number(r.collectedAmountConsolidatedMxn ?? 0);
+    const pendingConsolidatedMxn = Number(r.pendingHasUnconvertedUsd)
+      ? null
+      : Number(r.pendingAmountConsolidatedMxn ?? 0);
     return {
       collectorId: r.collectorId,
       collectorNumber: Number(r.collectorNumber),
@@ -208,13 +262,22 @@ export class EfficiencyConcentratedReportQueryService extends BaseQueryService {
         .filter(Boolean)
         .join(' '),
       groupLabel: this.groupLabel(r, efficiencyType),
-      assignedAmount: assigned,
+      assignedAmountMxn: Number(r.assignedAmountMxn ?? 0),
+      assignedAmountUsd: Number(r.assignedAmountUsd ?? 0),
+      assignedAmountConsolidatedMxn: assignedConsolidatedMxn,
       assignedCount: Number(r.assignedCount ?? 0),
-      collectedAmount: collected,
+      collectedAmountMxn: Number(r.collectedAmountMxn ?? 0),
+      collectedAmountUsd: Number(r.collectedAmountUsd ?? 0),
+      collectedAmountConsolidatedMxn: collectedConsolidatedMxn,
       collectedCount: Number(r.collectedCount ?? 0),
-      pendingAmount: Number(r.pendingAmount ?? 0),
+      pendingAmountMxn: Number(r.pendingAmountMxn ?? 0),
+      pendingAmountUsd: Number(r.pendingAmountUsd ?? 0),
+      pendingAmountConsolidatedMxn: pendingConsolidatedMxn,
       pendingCount: Number(r.pendingCount ?? 0),
-      collectionRate: this.calcRate(collected, assigned),
+      collectionRate: this.calcRate(
+        collectedConsolidatedMxn,
+        assignedConsolidatedMxn,
+      ),
     };
   }
 }

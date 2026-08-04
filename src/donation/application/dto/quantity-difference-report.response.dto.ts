@@ -2,19 +2,31 @@ export interface QuantityDifferenceRowDto {
   collectorId: string;
   collectorNumber: number;
   collectorName: string;
-  assignedAmount: number;
+  assignedAmountMxn: number;
+  assignedAmountUsd: number;
+  assignedAmountConsolidatedMxn: number | null;
   assignedCount: number;
-  collectedAmount: number;
+  collectedAmountMxn: number;
+  collectedAmountUsd: number;
+  collectedAmountConsolidatedMxn: number | null;
   collectedCount: number;
-  difference: number;
+  differenceMxn: number;
+  differenceUsd: number;
+  differenceConsolidatedMxn: number | null;
 }
 
 export interface QuantityDifferenceTotalsDto {
-  assignedAmount: number;
+  assignedAmountMxn: number;
+  assignedAmountUsd: number;
+  assignedAmountConsolidatedMxn: number | null;
   assignedCount: number;
-  collectedAmount: number;
+  collectedAmountMxn: number;
+  collectedAmountUsd: number;
+  collectedAmountConsolidatedMxn: number | null;
   collectedCount: number;
-  difference: number;
+  differenceMxn: number;
+  differenceUsd: number;
+  differenceConsolidatedMxn: number | null;
 }
 
 export interface QuantityDifferenceReportResponseDto {

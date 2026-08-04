@@ -1,8 +1,11 @@
 export class PeriodTotalsDto {
   month: number;
   year: number;
-  totalReceipts: number;
-  newPromiseAmount: number;
+  totalReceiptsMxn: number;
+  totalReceiptsUsd: number;
+  totalReceiptsConsolidatedMxn: number | null;
+  newPromiseAmountMxn: number;
+  newPromiseAmountUsd: number;
 }
 
 export class VariationDto {
@@ -13,6 +16,8 @@ export class VariationDto {
 export class DonationGrowthReportResponseDto {
   currentPeriod: PeriodTotalsDto;
   previousPeriod: PeriodTotalsDto;
-  receiptsVariation: VariationDto;
-  promiseAmountVariation: VariationDto;
+  receiptsVariationMxn: VariationDto;
+  receiptsVariationUsd: VariationDto;
+  promiseAmountVariationMxn: VariationDto;
+  promiseAmountVariationUsd: VariationDto;
 }

@@ -1,16 +1,12 @@
-import { HistoricalEfficiencyDto } from '@/donation/application/dto/collector-efficiency.response.dto';
+import {
+  AmountBreakdownDto,
+  HistoricalEfficiencyDto,
+} from '@/donation/application/dto/collector-efficiency.response.dto';
 
-export interface CollectorEfficiencyRowDto {
+export interface CollectorEfficiencyRowDto extends AmountBreakdownDto {
   collectorId: string;
   collectorNumber: number;
   collectorName: string;
-  assignedAmount: number;
-  assignedCount: number;
-  collectedAmount: number;
-  collectedCount: number;
-  pendingAmount: number;
-  pendingCount: number;
-  collectionRate: number;
 }
 
 export interface ConsolidatedPeriodEfficiencyDto {

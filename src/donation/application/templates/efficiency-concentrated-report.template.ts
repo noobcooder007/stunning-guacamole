@@ -1,11 +1,13 @@
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { EfficiencyConcentratedReportResponseDto } from '@/donation/application/dto/efficiency-concentrated-report.response.dto';
 
-function fmt(amount: number): string {
+function fmt(amount: number | null): string {
+  if (amount === null) return 'N/D';
   return `$${Number(amount).toFixed(2)}`;
 }
 
-function rate(value: number): string {
+function rate(value: number | null): string {
+  if (value === null) return 'N/D';
   return `${Number(value).toFixed(2)}%`;
 }
 
@@ -48,9 +50,13 @@ export const efficiencyConcentratedReportTemplate = (
     { text: String(r.collectorNumber), fontSize: 9, alignment: 'center' },
     { text: r.collectorName, fontSize: 9 },
     { text: r.groupLabel, fontSize: 9 },
-    { text: fmt(r.assignedAmount), fontSize: 9, alignment: 'right' },
     {
-      text: fmt(r.collectedAmount),
+      text: fmt(r.assignedAmountConsolidatedMxn),
+      fontSize: 9,
+      alignment: 'right',
+    },
+    {
+      text: fmt(r.collectedAmountConsolidatedMxn),
       fontSize: 9,
       alignment: 'right',
       color: '#2e7d32',
@@ -129,14 +135,14 @@ export const efficiencyConcentratedReportTemplate = (
               { text: 'COLECTOR', bold: true, fontSize: 8, color: '#555555' },
               { text: 'GRUPO', bold: true, fontSize: 8, color: '#555555' },
               {
-                text: 'ASIGNADO',
+                text: 'ASIGNADO (MXN)',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',
                 color: '#555555',
               },
               {
-                text: 'COBRADO',
+                text: 'COBRADO (MXN)',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',

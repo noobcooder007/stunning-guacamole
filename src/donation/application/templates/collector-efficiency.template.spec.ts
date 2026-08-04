@@ -18,11 +18,17 @@ function makeEfficiencyData(
           month: 6,
           year: 2026,
           periodStatus: 'OPEN',
-          assignedAmount: 1000,
+          assignedAmountMxn: 1000,
+          assignedAmountUsd: 0,
+          assignedAmountConsolidatedMxn: 1000,
           assignedCount: 5,
-          collectedAmount: 800,
+          collectedAmountMxn: 800,
+          collectedAmountUsd: 0,
+          collectedAmountConsolidatedMxn: 800,
           collectedCount: 4,
-          pendingAmount: 200,
+          pendingAmountMxn: 200,
+          pendingAmountUsd: 0,
+          pendingAmountConsolidatedMxn: 200,
           pendingCount: 1,
           collectionRate: 80,
         },
@@ -30,21 +36,33 @@ function makeEfficiencyData(
       byYear: [
         {
           year: 2026,
-          assignedAmount: 5000,
+          assignedAmountMxn: 5000,
+          assignedAmountUsd: 0,
+          assignedAmountConsolidatedMxn: 5000,
           assignedCount: 20,
-          collectedAmount: 4000,
+          collectedAmountMxn: 4000,
+          collectedAmountUsd: 0,
+          collectedAmountConsolidatedMxn: 4000,
           collectedCount: 16,
-          pendingAmount: 1000,
+          pendingAmountMxn: 1000,
+          pendingAmountUsd: 0,
+          pendingAmountConsolidatedMxn: 1000,
           pendingCount: 4,
           collectionRate: 80,
         },
       ],
       historical: {
-        assignedAmount: 12000,
+        assignedAmountMxn: 12000,
+        assignedAmountUsd: 0,
+        assignedAmountConsolidatedMxn: 12000,
         assignedCount: 60,
-        collectedAmount: 10000,
+        collectedAmountMxn: 10000,
+        collectedAmountUsd: 0,
+        collectedAmountConsolidatedMxn: 10000,
         collectedCount: 50,
-        pendingAmount: 2000,
+        pendingAmountMxn: 2000,
+        pendingAmountUsd: 0,
+        pendingAmountConsolidatedMxn: 2000,
         pendingCount: 10,
         collectionRate: 83.33,
       },
@@ -77,5 +95,14 @@ describe('collectorEfficiencyTemplate', () => {
     const doc = collectorEfficiencyTemplate(makeEfficiencyData());
     const docStr = JSON.stringify(doc);
     expect(docStr).toContain('Juan Pérez García');
+  });
+
+  it('debería mostrar N/D cuando el consolidado en MXN no es calculable', () => {
+    const data = makeEfficiencyData();
+    data.efficiency.historical.assignedAmountConsolidatedMxn = null;
+    data.efficiency.historical.collectionRate = null;
+    const doc = collectorEfficiencyTemplate(data);
+    const docStr = JSON.stringify(doc);
+    expect(docStr).toContain('N/D');
   });
 });

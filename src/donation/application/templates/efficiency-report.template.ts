@@ -16,11 +16,13 @@ const MONTH_LABELS = [
   'DIC',
 ];
 
-function fmt(amount: number): string {
+function fmt(amount: number | null): string {
+  if (amount === null) return 'N/D';
   return `$${Number(amount).toFixed(2)}`;
 }
 
-function rate(value: number): string {
+function rate(value: number | null): string {
+  if (value === null) return 'N/D';
   return `${Number(value).toFixed(2)}%`;
 }
 
@@ -56,15 +58,19 @@ export const efficiencyReportTemplate = (
   const collectorRows: Content[][] = data.collectors.map((c) => [
     { text: String(c.collectorNumber), fontSize: 9, alignment: 'center' },
     { text: c.collectorName, fontSize: 9 },
-    { text: fmt(c.assignedAmount), fontSize: 9, alignment: 'right' },
     {
-      text: fmt(c.collectedAmount),
+      text: fmt(c.assignedAmountConsolidatedMxn),
+      fontSize: 9,
+      alignment: 'right',
+    },
+    {
+      text: fmt(c.collectedAmountConsolidatedMxn),
       fontSize: 9,
       alignment: 'right',
       color: '#2e7d32',
     },
     {
-      text: fmt(c.pendingAmount),
+      text: fmt(c.pendingAmountConsolidatedMxn),
       fontSize: 9,
       alignment: 'right',
       color: '#e65100',
@@ -87,20 +93,20 @@ export const efficiencyReportTemplate = (
     } as any,
     {} as any,
     {
-      text: fmt(data.totals.assignedAmount),
+      text: fmt(data.totals.assignedAmountConsolidatedMxn),
       bold: true,
       fontSize: 9,
       alignment: 'right',
     },
     {
-      text: fmt(data.totals.collectedAmount),
+      text: fmt(data.totals.collectedAmountConsolidatedMxn),
       bold: true,
       fontSize: 9,
       alignment: 'right',
       color: '#2e7d32',
     },
     {
-      text: fmt(data.totals.pendingAmount),
+      text: fmt(data.totals.pendingAmountConsolidatedMxn),
       bold: true,
       fontSize: 9,
       alignment: 'right',
@@ -176,21 +182,21 @@ export const efficiencyReportTemplate = (
               },
               { text: 'COLECTOR', bold: true, fontSize: 8, color: '#555555' },
               {
-                text: 'ASIGNADO',
+                text: 'ASIGNADO (MXN)',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',
                 color: '#555555',
               },
               {
-                text: 'COBRADO',
+                text: 'COBRADO (MXN)',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',
                 color: '#555555',
               },
               {
-                text: 'PENDIENTE',
+                text: 'PENDIENTE (MXN)',
                 bold: true,
                 fontSize: 8,
                 alignment: 'right',
