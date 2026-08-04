@@ -23,6 +23,9 @@ export class CollectorSettlementSchema {
   @Column('decimal', { precision: 14, scale: 2 })
   totalCollected: number;
 
+  @Column('jsonb', { nullable: true })
+  collectedByCurrency: Partial<Record<string, number>>;
+
   @Column('integer')
   commissionPercent: number;
 

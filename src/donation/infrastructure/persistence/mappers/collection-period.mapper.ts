@@ -17,6 +17,7 @@ export interface ICollectionPeriodPersistence {
   totalCollected: number;
   totalCommissions: number;
   totalNet: number;
+  exchangeRateUsdToMxn: number;
 }
 
 export class CollectionPeriodMapper {
@@ -33,6 +34,7 @@ export class CollectionPeriodMapper {
       totalCollected: period.totalCollected ?? null,
       totalCommissions: period.totalCommissions ?? null,
       totalNet: period.totalNet ?? null,
+      exchangeRateUsdToMxn: period.exchangeRateUsdToMxn ?? null,
     };
   }
 
@@ -50,6 +52,10 @@ export class CollectionPeriodMapper {
       totalCommissions:
         raw.totalCommissions != null ? Number(raw.totalCommissions) : undefined,
       totalNet: raw.totalNet != null ? Number(raw.totalNet) : undefined,
+      exchangeRateUsdToMxn:
+        raw.exchangeRateUsdToMxn != null
+          ? Number(raw.exchangeRateUsdToMxn)
+          : undefined,
     });
   }
 }

@@ -3,6 +3,7 @@ import {
   CollectorSettlementPaymentStatus,
 } from './collector-settlement.entity';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
+import { Currency } from '@/shared/domain/enums/currency.enum';
 
 const COLLECTOR_ID = '01907c2a-0000-7000-8000-000000000001';
 const PERIOD_ID = '01907c2a-0000-7000-8000-000000000010';
@@ -12,6 +13,7 @@ function makeSettlement(
     netCommission: number;
     totalPaid: number;
     paymentStatus: CollectorSettlementPaymentStatus;
+    collectedByCurrency: Partial<Record<Currency, number>>;
   }> = {},
 ): CollectorSettlement {
   const netCommission = overrides.netCommission ?? 100;
@@ -21,6 +23,7 @@ function makeSettlement(
     month: 6,
     year: 2026,
     totalCollected: 1000,
+    collectedByCurrency: overrides.collectedByCurrency ?? { MXN: 1000 },
     commissionPercent: 10,
     commissionAmount: 100,
     nomina: 50,
@@ -96,6 +99,16 @@ describe('CollectorSettlement', () => {
       settlement.registerPayment(50.1);
 
       expect(settlement.remainingBalance).toBeCloseTo(50.23, 2);
+    });
+  });
+
+  describe('collectedByCurrency', () => {
+    it('debería exponer el desglose crudo por moneda', () => {
+      const settlement = makeSettlement({
+        collectedByCurrency: { MXN: 600, USD: 20 },
+      });
+
+      expect(settlement.collectedByCurrency).toEqual({ MXN: 600, USD: 20 });
     });
   });
 });

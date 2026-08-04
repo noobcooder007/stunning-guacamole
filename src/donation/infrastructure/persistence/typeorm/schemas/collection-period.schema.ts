@@ -39,4 +39,7 @@ export class CollectionPeriodSchema {
 
   @Column('decimal', { precision: 14, scale: 2, nullable: true })
   totalNet: number;
+
+  @Column('decimal', { precision: 10, scale: 4, nullable: true })
+  exchangeRateUsdToMxn: number;
 }

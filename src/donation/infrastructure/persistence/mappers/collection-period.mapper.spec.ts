@@ -23,7 +23,7 @@ function makeOpenPeriod(): CollectionPeriod {
 
 function makeClosedPeriod(): CollectionPeriod {
   const period = makeOpenPeriod();
-  period.close(UserId.of(USER_ID), 5000, 500);
+  period.close(UserId.of(USER_ID), 5000, 500, 17.5);
   return period;
 }
 
@@ -39,6 +39,7 @@ const rawOpen: ICollectionPeriodPersistence = {
   totalCollected: null,
   totalCommissions: null,
   totalNet: null,
+  exchangeRateUsdToMxn: null,
 };
 
 const rawClosed: ICollectionPeriodPersistence = {
@@ -49,6 +50,7 @@ const rawClosed: ICollectionPeriodPersistence = {
   totalCollected: '5000' as any,
   totalCommissions: '500' as any,
   totalNet: '4500' as any,
+  exchangeRateUsdToMxn: '17.5' as any,
 };
 
 describe('CollectionPeriodMapper', () => {
@@ -69,6 +71,7 @@ describe('CollectionPeriodMapper', () => {
       expect(raw.totalCommissions).toBe(500);
       expect(raw.totalNet).toBe(4500);
       expect(raw.closedBy).toBe(USER_ID);
+      expect(raw.exchangeRateUsdToMxn).toBe(17.5);
     });
   });
 
@@ -87,6 +90,7 @@ describe('CollectionPeriodMapper', () => {
       expect(period.isOpen).toBe(false);
       expect(typeof period.totalCollected).toBe('number');
       expect(period.totalCollected).toBe(5000);
+      expect(period.exchangeRateUsdToMxn).toBe(17.5);
     });
 
     it('debería manejar closedBy null correctamente', () => {

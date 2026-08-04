@@ -4,6 +4,7 @@ import {
   CollectorSettlementPaymentStatus,
 } from '@/donation/domain/entities/collector-settlement.entity';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
+import { Currency } from '@/shared/domain/enums/currency.enum';
 
 export interface ICollectorSettlementPersistence {
   id: string;
@@ -12,6 +13,7 @@ export interface ICollectorSettlementPersistence {
   month: number;
   year: number;
   totalCollected: number;
+  collectedByCurrency: Partial<Record<Currency, number>>;
   commissionPercent: number;
   commissionAmount: number;
   nomina: number;
@@ -33,6 +35,7 @@ export class CollectorSettlementMapper {
       month: settlement.month,
       year: settlement.year,
       totalCollected: settlement.totalCollected,
+      collectedByCurrency: settlement.collectedByCurrency,
       commissionPercent: settlement.commissionPercent,
       commissionAmount: settlement.commissionAmount,
       nomina: settlement.nomina,
@@ -51,6 +54,7 @@ export class CollectorSettlementMapper {
       month: raw.month,
       year: raw.year,
       totalCollected: Number(raw.totalCollected),
+      collectedByCurrency: raw.collectedByCurrency ?? {},
       commissionPercent: raw.commissionPercent,
       commissionAmount: Number(raw.commissionAmount),
       nomina: Number(raw.nomina),

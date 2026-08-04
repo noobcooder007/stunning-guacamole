@@ -20,6 +20,7 @@ function makeSettlement(): CollectorSettlement {
     month: 6,
     year: 2026,
     totalCollected: 1000,
+    collectedByCurrency: { MXN: 1000 },
     commissionPercent: 10,
     commissionAmount: 100,
     nomina: 50,
@@ -38,6 +39,7 @@ const validRaw: ICollectorSettlementPersistence = {
   month: 6,
   year: 2026,
   totalCollected: '1000' as any,
+  collectedByCurrency: { MXN: 1000 },
   commissionPercent: 10,
   commissionAmount: '100' as any,
   nomina: '50' as any,
@@ -59,6 +61,7 @@ describe('CollectorSettlementMapper', () => {
       expect(raw.month).toBe(6);
       expect(raw.year).toBe(2026);
       expect(raw.totalCollected).toBe(1000);
+      expect(raw.collectedByCurrency).toEqual({ MXN: 1000 });
       expect(raw.commissionAmount).toBe(100);
       expect(raw.netCommission).toBe(70);
       expect(raw.paymentStatus).toBe(CollectorSettlementPaymentStatus.PENDING);
@@ -75,6 +78,7 @@ describe('CollectorSettlementMapper', () => {
       expect(settlement.month).toBe(6);
       expect(settlement.year).toBe(2026);
       expect(settlement.totalCollected).toBe(1000);
+      expect(settlement.collectedByCurrency).toEqual({ MXN: 1000 });
       expect(settlement.netCommission).toBe(70);
       expect(settlement.paymentStatus).toBe(
         CollectorSettlementPaymentStatus.PENDING,

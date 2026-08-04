@@ -70,6 +70,20 @@ describe('CollectionPeriod', () => {
 
       expect(period.totalNet).toBe(2700);
     });
+
+    it('debería registrar el tipo de cambio USD->MXN cuando se provee', () => {
+      const period = makeOpenPeriod();
+      period.close(UserId.of(USER_ID), 5000, 500, 17.85);
+
+      expect(period.exchangeRateUsdToMxn).toBe(17.85);
+    });
+
+    it('debería dejar exchangeRateUsdToMxn indefinido cuando no se provee', () => {
+      const period = makeOpenPeriod();
+      period.close(UserId.of(USER_ID), 5000, 500);
+
+      expect(period.exchangeRateUsdToMxn).toBeUndefined();
+    });
   });
 
   describe('isOpen', () => {

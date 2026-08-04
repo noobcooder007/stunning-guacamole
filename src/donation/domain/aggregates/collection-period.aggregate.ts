@@ -35,6 +35,7 @@ interface CollectionPeriodProps {
   totalCollected?: number;
   totalCommissions?: number;
   totalNet?: number;
+  exchangeRateUsdToMxn?: number;
 }
 
 export class CollectionPeriod extends AggregateRoot {
@@ -124,10 +125,15 @@ export class CollectionPeriod extends AggregateRoot {
     return this.props.totalNet;
   }
 
+  public get exchangeRateUsdToMxn(): number | undefined {
+    return this.props.exchangeRateUsdToMxn;
+  }
+
   public close(
     closedBy: UserId,
     totalCollected: number,
     totalCommissions: number,
+    exchangeRateUsdToMxn?: number,
   ): void {
     if (this.props.status === 'CLOSED') {
       throw new Error('Period is already closed');
@@ -138,5 +144,6 @@ export class CollectionPeriod extends AggregateRoot {
     this.props.totalCollected = totalCollected;
     this.props.totalCommissions = totalCommissions;
     this.props.totalNet = totalCollected - totalCommissions;
+    this.props.exchangeRateUsdToMxn = exchangeRateUsdToMxn;
   }
 }

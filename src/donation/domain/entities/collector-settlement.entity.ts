@@ -1,5 +1,6 @@
 import { v7 as uuidv7 } from 'uuid';
 import { CollectorId } from '@/community/domain/aggregate/collector.aggregate';
+import { Currency } from '@/shared/domain/enums/currency.enum';
 
 export enum CollectorSettlementPaymentStatus {
   PENDING = 'PENDING',
@@ -12,7 +13,10 @@ interface CollectorSettlementProps {
   collectorId: CollectorId;
   month: number;
   year: number;
+  // totalCollected ya está convertido a MXN (moneda base); collectedByCurrency
+  // conserva el desglose crudo por moneda solo para trazabilidad/auditoría.
   totalCollected: number;
+  collectedByCurrency: Partial<Record<Currency, number>>;
   commissionPercent: number;
   commissionAmount: number;
   nomina: number;
@@ -95,6 +99,10 @@ export class CollectorSettlement {
 
   public get totalCollected(): number {
     return this.props.totalCollected;
+  }
+
+  public get collectedByCurrency(): Partial<Record<Currency, number>> {
+    return this.props.collectedByCurrency;
   }
 
   public get commissionPercent(): number {
