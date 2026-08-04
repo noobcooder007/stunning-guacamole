@@ -32,6 +32,13 @@ import { AuditLogSchema } from '@/shared/infrastructure/persistence/audit-log.sc
         database: configService.get('DB_NAME'),
         autoLoadEntities: true,
         synchronize: configService.get('NODE_ENV') !== 'production',
+        extra: {
+          max: configService.get('DB_POOL_MAX'),
+          idleTimeoutMillis: configService.get('DB_POOL_IDLE_TIMEOUT_MS'),
+          connectionTimeoutMillis: configService.get(
+            'DB_POOL_CONNECTION_TIMEOUT_MS',
+          ),
+        },
       }),
     }),
     TypeOrmModule.forFeature([

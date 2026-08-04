@@ -11,4 +11,8 @@ export const AppDataSource = new DataSource({
   entities: [path.join(__dirname, '/../**/*.schema{.ts,.js}')],
   migrations: [path.join(__dirname, '/migrations/*{.ts,.js}')],
   synchronize: false,
+  extra: {
+    max: 5,
+    connectionTimeoutMillis: 5000,
+  },
 });
