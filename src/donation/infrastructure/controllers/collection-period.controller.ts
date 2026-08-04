@@ -33,6 +33,7 @@ import { RegisterBulkCollectorPaymentsCommand } from '@/donation/application/com
 import { GetSettlementPaymentsQuery } from '@/donation/application/query/get-settlement-payments.query';
 import { RegisterCollectorPaymentDto } from '@/donation/application/dto/register-collector-payment.dto';
 import { RegisterBulkCollectorPaymentsDto } from '@/donation/application/dto/register-bulk-collector-payments.dto';
+import { ClosePeriodDto } from '@/donation/application/dto/close-period.dto';
 
 @Controller('periods')
 export class CollectionPeriodController {
@@ -51,8 +52,10 @@ export class CollectionPeriodController {
 
   @Post('/close')
   @Auth(PermissionNames.RUN_PROCESS)
-  async closePeriod(@GetUser() user: any) {
-    return await this.commandBus.execute(new ClosePeriodCommand(user.id));
+  async closePeriod(@GetUser() user: any, @Body() dto: ClosePeriodDto) {
+    return await this.commandBus.execute(
+      new ClosePeriodCommand(user.id, dto.exchangeRateUsdToMxn),
+    );
   }
 
   @Get('/current')

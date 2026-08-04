@@ -77,4 +77,18 @@ describe('settlementLetterTemplate', () => {
 
     expect((doc.content as any[]).length).toBe(0);
   });
+
+  it('debería incluir la nota de tipo de cambio cuando la liquidación incluye USD', () => {
+    const doc = settlementLetterTemplate([
+      makeLetter({ exchangeRateUsdToMxn: 18.25 }),
+    ]);
+
+    expect(JSON.stringify(doc)).toContain('18.2500');
+  });
+
+  it('no debería incluir la nota de tipo de cambio cuando la liquidación es 100% MXN', () => {
+    const doc = settlementLetterTemplate([makeLetter()]);
+
+    expect(JSON.stringify(doc)).not.toContain('tipo de cambio');
+  });
 });

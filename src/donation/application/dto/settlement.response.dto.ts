@@ -1,4 +1,5 @@
 import { CollectorSettlementPaymentStatus } from '@/donation/domain/entities/collector-settlement.entity';
+import { Currency } from '@/shared/domain/enums/currency.enum';
 
 export class SettlementResponseDto {
   id: string;
@@ -7,6 +8,7 @@ export class SettlementResponseDto {
   month: number;
   year: number;
   totalCollected: number;
+  collectedByCurrency: Partial<Record<Currency, number>>;
   commissionPercent: number;
   commissionAmount: number;
   nomina: number;

@@ -137,6 +137,9 @@ export class PrintSettlementLettersHandler extends BaseCommandHandler<
         transportAllowance: settlement.transportAllowance,
         netCommission: settlement.netCommission,
         currency: 'MXN',
+        exchangeRateUsdToMxn: settlement.collectedByCurrency?.USD
+          ? period.exchangeRateUsdToMxn
+          : undefined,
       };
     });
 

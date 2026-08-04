@@ -21,6 +21,8 @@ export interface SettlementLetterData {
   transportAllowance: number;
   netCommission: number;
   currency: string;
+  // Solo presente cuando la liquidación incluye recibos en USD convertidos a MXN.
+  exchangeRateUsdToMxn?: number;
 }
 
 function fmt(amount: number, currency: string): string {
@@ -186,8 +188,19 @@ function buildLetter(
             alignment: 'right',
           },
         ],
-        margin: [0, 0, 0, 8],
+        margin: [0, 0, 0, letter.exchangeRateUsdToMxn ? 2 : 8],
       },
+      ...(letter.exchangeRateUsdToMxn
+        ? [
+            {
+              text: `Incluye recibos en USD, tipo de cambio aplicado: $${letter.exchangeRateUsdToMxn.toFixed(4)} MXN por USD`,
+              fontSize: 7,
+              color: '#888888',
+              alignment: 'right' as const,
+              margin: [0, 0, 0, 8] as [number, number, number, number],
+            },
+          ]
+        : []),
       {
         table: {
           widths: ['*', 'auto', 'auto'],

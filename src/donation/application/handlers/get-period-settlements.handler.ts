@@ -30,6 +30,7 @@ export class GetPeriodSettlementsHandler implements IQueryHandler<
         month: s.month,
         year: s.year,
         totalCollected: s.totalCollected,
+        collectedByCurrency: s.collectedByCurrency,
         commissionPercent: s.commissionPercent,
         commissionAmount: s.commissionAmount,
         nomina: s.nomina,

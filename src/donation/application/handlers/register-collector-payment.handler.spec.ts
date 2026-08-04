@@ -24,6 +24,7 @@ function makeSettlement(
     month: 6,
     year: 2026,
     totalCollected: 2000,
+    collectedByCurrency: { MXN: 2000 },
     commissionPercent: 10,
     commissionAmount: 200,
     nomina: 50,

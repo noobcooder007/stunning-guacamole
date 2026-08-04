@@ -16,6 +16,8 @@ import { UserId } from '@/auth/domain/aggregates/user.aggregate';
 import { REPOSITORY_TOKENS } from '@/database/infrastructure/persistence';
 import { UnitOfWork } from '@/database/unit-of-work';
 import { SettlementResponseDto } from '@/donation/application/dto/settlement.response.dto';
+import { Currency } from '@/shared/domain/enums/currency.enum';
+import { CurrencyConverter } from '@/shared/domain/utils/currency-converter';
 
 export interface ClosePeriodResponse {
   periodId: string;
@@ -25,6 +27,7 @@ export interface ClosePeriodResponse {
   totalCollected: number;
   totalCommissions: number;
   totalNet: number;
+  exchangeRateUsdToMxn?: number;
   settlements: SettlementResponseDto[];
 }
 
@@ -63,15 +66,37 @@ export class ClosePeriodHandler extends BaseCommandHandler<
       await this.receiptRepository.findByCollectionPeriodId(
         period._id.unpack(),
       );
+
+    // La tasa se exige si hay CUALQUIER recibo en USD no cancelado (pagado o
+    // pendiente), no solo los pagados: los reportes del periodo (asignado/
+    // pendiente) también necesitan poder convertir a MXN, y una vez cerrado
+    // el periodo no hay forma de capturar la tasa después.
+    const hasUsdReceipts = receiptsInPeriod.some(
+      (r) => r.status !== 'CANCELLED' && r.amount.currency === Currency.USD,
+    );
+    if (hasUsdReceipts && !command.exchangeRateUsdToMxn) {
+      return Result.fail({
+        type: ErrorType.VALIDATION,
+        message:
+          'Se requiere el tipo de cambio: el período tiene recibos en USD',
+        entity: ClosePeriodHandler.name,
+      });
+    }
+
     // Settlement only counts receipts effectively collected (PAID)
     const paidReceipts = receiptsInPeriod.filter((r) => r.status === 'PAID');
 
-    // Group totals by collectorId
-    const totalsMap = new Map<string, number>();
+    // Group totals by collectorId, and within each collector, by currency —
+    // nunca se suman montos de distinta moneda directamente.
+    const totalsMap = new Map<string, Partial<Record<Currency, number>>>();
     for (const receipt of paidReceipts) {
       const cid = receipt.collector?.unpack();
       if (!cid) continue;
-      totalsMap.set(cid, (totalsMap.get(cid) ?? 0) + receipt.amount.amount);
+      const currency = receipt.amount.currency as Currency;
+      const byCurrency = totalsMap.get(cid) ?? {};
+      byCurrency[currency] =
+        (byCurrency[currency] ?? 0) + receipt.amount.amount;
+      totalsMap.set(cid, byCurrency);
     }
 
     // Fetch collectors in parallel to snapshot commissionPercent
@@ -84,7 +109,23 @@ export class ClosePeriodHandler extends BaseCommandHandler<
       .filter(Boolean)
       .map((collector) => {
         const cid = collector._id.unpack();
-        const totalCollected = totalsMap.get(cid) ?? 0;
+        const collectedByCurrency = totalsMap.get(cid) ?? {};
+        // commissionPercent/nomina/transportAllowance del cobrador están fijos
+        // en MXN, así que la comisión siempre se calcula sobre el total ya
+        // convertido a la moneda base.
+        const totalCollected =
+          Math.round(
+            Object.entries(collectedByCurrency).reduce(
+              (sum, [currency, amount]) =>
+                sum +
+                CurrencyConverter.toMxn(
+                  amount,
+                  currency as Currency,
+                  command.exchangeRateUsdToMxn,
+                ),
+              0,
+            ) * 100,
+          ) / 100;
         const commissionPercent = collector.paymentData.commissionPercent;
         const commissionAmount =
           Math.round(totalCollected * commissionPercent) / 100;
@@ -99,6 +140,7 @@ export class ClosePeriodHandler extends BaseCommandHandler<
           month: period.month,
           year: period.year,
           totalCollected,
+          collectedByCurrency,
           commissionPercent,
           commissionAmount,
           nomina,
@@ -120,7 +162,12 @@ export class ClosePeriodHandler extends BaseCommandHandler<
     );
 
     const closedBy = UserId.of(command.userId);
-    period.close(closedBy, totalCollected, totalCommissions);
+    period.close(
+      closedBy,
+      totalCollected,
+      totalCommissions,
+      command.exchangeRateUsdToMxn,
+    );
 
     await this.uow.runInTransaction(async () => {
       await this.periodRepository.save(period);
@@ -136,6 +183,7 @@ export class ClosePeriodHandler extends BaseCommandHandler<
       month: s.month,
       year: s.year,
       totalCollected: s.totalCollected,
+      collectedByCurrency: s.collectedByCurrency,
       commissionPercent: s.commissionPercent,
       commissionAmount: s.commissionAmount,
       nomina: s.nomina,
@@ -155,6 +203,7 @@ export class ClosePeriodHandler extends BaseCommandHandler<
       totalCollected: period.totalCollected,
       totalCommissions: period.totalCommissions,
       totalNet: period.totalNet,
+      exchangeRateUsdToMxn: period.exchangeRateUsdToMxn,
       settlements: settlementDtos,
     });
   }

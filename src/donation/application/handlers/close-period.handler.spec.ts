@@ -20,11 +20,16 @@ function makePeriod() {
   };
 }
 
-function makeReceipt(collectorId: string, amount: number, status = 'PAID') {
+function makeReceipt(
+  collectorId: string,
+  amount: number,
+  status = 'PAID',
+  currency = 'MXN',
+) {
   return {
     status,
     collector: { unpack: () => collectorId },
-    amount: { amount },
+    amount: { amount, currency },
   };
 }
 
@@ -203,6 +208,78 @@ describe('ClosePeriodHandler', () => {
     const settlement = result.value.settlements[0];
     expect(settlement.totalCollected).toBe(0);
     expect(settlement.commissionAmount).toBe(0);
+  });
+
+  it('debería convertir a MXN los recibos en USD usando el tipo de cambio del comando', async () => {
+    const period = makePeriod();
+    const collector = makeCollector(COLLECTOR_ID, 10, 0, 0);
+    periodRepository.findOpen.mockResolvedValue(period);
+    receiptRepository.findByCollectionPeriodId.mockResolvedValue([
+      makeReceipt(COLLECTOR_ID, 600, 'PAID', 'MXN'),
+      makeReceipt(COLLECTOR_ID, 100, 'PAID', 'USD'),
+    ]);
+    collectorRepository.findById.mockResolvedValue(collector);
+    const commandWithRate = new ClosePeriodCommand(USER_ID, 18);
+
+    const result = await handler.execute(commandWithRate);
+
+    expect(result.isSuccess).toBe(true);
+    const settlement = result.value.settlements[0];
+    expect(settlement.totalCollected).toBe(2400); // 600 + 100*18
+    expect(settlement.collectedByCurrency).toEqual({ MXN: 600, USD: 100 });
+  });
+
+  it('debería fallar con VALIDATION cuando hay recibos en USD y no se provee tipo de cambio', async () => {
+    const period = makePeriod();
+    periodRepository.findOpen.mockResolvedValue(period);
+    receiptRepository.findByCollectionPeriodId.mockResolvedValue([
+      makeReceipt(COLLECTOR_ID, 100, 'PAID', 'USD'),
+    ]);
+
+    const result = await handler.execute(command);
+
+    expect(result.isSuccess).toBe(false);
+    expect(result.error.type).toBe(ErrorType.VALIDATION);
+  });
+
+  it('debería fallar con VALIDATION cuando hay un recibo USD PENDIENTE (no solo pagados) y no se provee tipo de cambio', async () => {
+    const period = makePeriod();
+    periodRepository.findOpen.mockResolvedValue(period);
+    receiptRepository.findByCollectionPeriodId.mockResolvedValue([
+      makeReceipt(COLLECTOR_ID, 100, 'PENDING', 'USD'),
+    ]);
+
+    const result = await handler.execute(command);
+
+    expect(result.isSuccess).toBe(false);
+    expect(result.error.type).toBe(ErrorType.VALIDATION);
+  });
+
+  it('no debería exigir tipo de cambio cuando el único recibo USD está CANCELADO', async () => {
+    const period = makePeriod();
+    periodRepository.findOpen.mockResolvedValue(period);
+    receiptRepository.findByCollectionPeriodId.mockResolvedValue([
+      makeReceipt(COLLECTOR_ID, 100, 'CANCELLED', 'USD'),
+    ]);
+
+    const result = await handler.execute(command);
+
+    expect(result.isSuccess).toBe(true);
+  });
+
+  it('no debería exigir tipo de cambio cuando el período es 100% MXN', async () => {
+    const period = makePeriod();
+    const collector = makeCollector(COLLECTOR_ID, 10, 0, 0);
+    periodRepository.findOpen.mockResolvedValue(period);
+    receiptRepository.findByCollectionPeriodId.mockResolvedValue([
+      makeReceipt(COLLECTOR_ID, 1000, 'PAID', 'MXN'),
+    ]);
+    collectorRepository.findById.mockResolvedValue(collector);
+
+    const result = await handler.execute(command);
+
+    expect(result.isSuccess).toBe(true);
+    expect(result.value.settlements[0].totalCollected).toBe(1000);
   });
 
   it('debería persistir dentro de una transacción', async () => {
