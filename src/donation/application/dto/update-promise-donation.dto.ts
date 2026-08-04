@@ -9,11 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { WeeklySchedule } from './create-promise-donation.dto';
-
-enum UpdateCurrency {
-  USD = 'USD',
-  MXN = 'MXN',
-}
+import { Currency } from '@/shared/domain/enums/currency.enum';
 
 export enum UpdateRecurrence {
   MONTHLY = 'MONTHLY',
@@ -39,7 +35,7 @@ export class UpdatePromiseDonationAmountDto {
   @Type(() => Number)
   promiseAmount: number;
 
-  @IsEnum(UpdateCurrency)
+  @IsEnum(Currency)
   @IsNotEmpty()
   currency: string;
 }

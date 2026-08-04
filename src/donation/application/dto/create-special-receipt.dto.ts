@@ -1,9 +1,5 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsUUID, Min } from 'class-validator';
-
-enum actualCurrencies {
-  USD = 'USD',
-  MXN = 'MXN',
-}
+import { Currency } from '@/shared/domain/enums/currency.enum';
 
 export class CreateSpecialReceiptDto {
   @IsNotEmpty()
@@ -12,7 +8,7 @@ export class CreateSpecialReceiptDto {
   amount: number;
 
   @IsNotEmpty()
-  @IsEnum(actualCurrencies)
+  @IsEnum(Currency)
   currency: string;
 
   @IsNotEmpty()

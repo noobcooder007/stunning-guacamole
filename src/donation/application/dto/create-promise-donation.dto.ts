@@ -11,6 +11,7 @@ import {
   IsArray,
   IsEnum,
 } from 'class-validator';
+import { Currency } from '@/shared/domain/enums/currency.enum';
 
 export class WeeklySchedule {
   @IsString()
@@ -45,11 +46,6 @@ export class InstructionsDto {
   generalObservations: string;
 }
 
-enum actualCurrencies {
-  USD = 'USD',
-  MXN = 'MXN',
-}
-
 enum actualRecurrences {
   MONTHLY = 'MONTHLY',
   BIMONTHLY = 'BIMONTHLY',
@@ -69,7 +65,7 @@ export class CreatePromiseDonationDto {
   @Type(() => Number)
   promiseAmount: number;
 
-  @IsEnum(actualCurrencies)
+  @IsEnum(Currency)
   @IsNotEmpty()
   currency: string;
 
