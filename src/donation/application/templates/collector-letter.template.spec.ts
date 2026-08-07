@@ -20,8 +20,8 @@ function makeLetter(
         recurrence: 'MONTHLY',
       },
     ],
-    totalAmount: 500,
-    currency: 'MXN',
+    totalAmountMxn: 500,
+    totalAmountUsd: 0,
     ...overrides,
   };
 }
@@ -68,5 +68,42 @@ describe('collectorLetterTemplate', () => {
   it('debería retornar content vacío para array vacío de cartas', () => {
     const doc = collectorLetterTemplate([]);
     expect((doc.content as any[]).length).toBe(0);
+  });
+
+  it('debería mostrar MXN y USD por separado sin sumarlos, cuando el colector tiene ambas monedas', () => {
+    const doc = collectorLetterTemplate([
+      makeLetter({
+        totalAmountMxn: 100,
+        totalAmountUsd: 50,
+        overdueTotalMxn: 20,
+        overdueTotalUsd: 10,
+        overdueReceipts: [
+          {
+            folio: 'F-002',
+            beneficientName: 'Pedro Ruiz',
+            beneficientNumber: 7,
+            amount: 20,
+            currency: 'MXN',
+            recurrence: 'MONTHLY',
+            period: 'MAY2026',
+          },
+        ],
+      }),
+    ]);
+    const docStr = JSON.stringify(doc);
+
+    // El total a cobrar nunca debe aparecer como una sola cifra mezclando
+    // pesos y dólares (ej. 100+50=150 sin distinguir moneda).
+    expect(docStr).toContain('$120.00 MXN');
+    expect(docStr).toContain('$60.00 USD');
+    expect(docStr).not.toContain('$150.00');
+    expect(docStr).not.toContain('$180.00');
+  });
+
+  it('debería omitir la línea de USD cuando el colector no tiene recibos en esa moneda', () => {
+    const doc = collectorLetterTemplate([makeLetter()]);
+    const docStr = JSON.stringify(doc);
+
+    expect(docStr).not.toContain('USD');
   });
 });

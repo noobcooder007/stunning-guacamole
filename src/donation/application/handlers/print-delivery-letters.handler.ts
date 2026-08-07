@@ -187,28 +187,35 @@ export class PrintDeliveryLettersHandler extends BaseCommandHandler<
         ?.collector as CollectorSchema;
       if (!collector) continue;
 
-      const totalAmount = current.reduce((sum, r) => sum + Number(r.amount), 0);
-      const overdueTotal = overdue.reduce(
-        (sum, r) => sum + Number(r.amount),
-        0,
-      );
-      const currency = (current[0] ?? overdue[0]).currency;
+      // Nunca se suman montos de distinta moneda: se acumulan por separado.
+      const sumByCurrency = (receipts: ReceiptSchema[], currency: string) =>
+        receipts
+          .filter((r) => r.currency === currency)
+          .reduce((sum, r) => sum + Number(r.amount), 0);
 
       letters.push({
         collectorName: this.getCollectorFullname(collector),
         collectorNumber: collector.collectorNumber,
         period: periodLabel,
-        currency,
-        totalAmount,
+        totalAmountMxn: sumByCurrency(current, 'MXN'),
+        totalAmountUsd: sumByCurrency(current, 'USD'),
         receipts: current.map((r) => this.toReceiptRow(r, periodLabel)),
         overdueReceipts: overdue.map((r) => this.toOverdueRow(r)),
-        overdueTotal,
+        overdueTotalMxn: sumByCurrency(overdue, 'MXN'),
+        overdueTotalUsd: sumByCurrency(overdue, 'USD'),
       });
     }
 
     letters.sort((a, b) => a.collectorNumber - b.collectorNumber);
 
-    if (!letters.length) return Result.ok(null);
+    if (!letters.length) {
+      return Result.fail({
+        type: ErrorType.NOT_FOUND,
+        message:
+          'No se pudo generar la carta: los recibos encontrados no tienen un colector válido asociado.',
+        entity: PrintDeliveryLettersHandler.name,
+      });
+    }
 
     const docDefinition = collectorLetterTemplate(letters);
     const pdfStream = await this.pdfService.print(docDefinition);

@@ -18,14 +18,24 @@ export interface CollectorLetterData {
   collectorNumber: number;
   period: string;
   receipts: CollectorLetterReceiptRow[];
-  totalAmount: number;
-  currency: string;
+  totalAmountMxn: number;
+  totalAmountUsd: number;
   overdueReceipts?: CollectorLetterOverdueRow[];
-  overdueTotal?: number;
+  overdueTotalMxn?: number;
+  overdueTotalUsd?: number;
 }
 
 function fmt(amount: number, currency: string): string {
   return `$${Number(amount).toFixed(2)} ${currency}`;
+}
+
+// Los montos en MXN y USD nunca se suman entre sí: se muestran como líneas
+// separadas, y la línea de una moneda se omite cuando esa moneda no aplica.
+function fmtByCurrency(mxn: number, usd: number): string {
+  const parts: string[] = [];
+  if (mxn !== 0 || usd === 0) parts.push(fmt(mxn, 'MXN'));
+  if (usd !== 0) parts.push(fmt(usd, 'USD'));
+  return parts.join('  +  ');
 }
 
 const divider = (): Content => ({
@@ -72,9 +82,11 @@ function buildLetter(
   addPageBreak: boolean,
 ): Content {
   const overdue = letter.overdueReceipts ?? [];
-  const overdueTotal = letter.overdueTotal ?? 0;
+  const overdueTotalMxn = letter.overdueTotalMxn ?? 0;
+  const overdueTotalUsd = letter.overdueTotalUsd ?? 0;
   const hasOverdue = overdue.length > 0;
-  const grandTotal = letter.totalAmount + overdueTotal;
+  const grandTotalMxn = letter.totalAmountMxn + overdueTotalMxn;
+  const grandTotalUsd = letter.totalAmountUsd + overdueTotalUsd;
 
   const firstFolio = letter.receipts[0]?.folio ?? '—';
   const lastFolio = letter.receipts[letter.receipts.length - 1]?.folio ?? '—';
@@ -103,7 +115,7 @@ function buildLetter(
         ),
         summaryRow(
           'Total atrasado:',
-          fmt(overdueTotal, letter.currency),
+          fmtByCurrency(overdueTotalMxn, overdueTotalUsd),
           '#c0392b',
         ),
       ]
@@ -185,7 +197,7 @@ function buildLetter(
       ),
       summaryRow(
         'Total del periodo:',
-        fmt(letter.totalAmount, letter.currency),
+        fmtByCurrency(letter.totalAmountMxn, letter.totalAmountUsd),
       ),
       ...overdueSection,
       divider(),
@@ -193,7 +205,7 @@ function buildLetter(
         columns: [
           { text: '', width: '*' },
           {
-            text: `TOTAL A COBRAR: ${fmt(grandTotal, letter.currency)}`,
+            text: `TOTAL A COBRAR: ${fmtByCurrency(grandTotalMxn, grandTotalUsd)}`,
             bold: true,
             fontSize: 13,
             alignment: 'right',
