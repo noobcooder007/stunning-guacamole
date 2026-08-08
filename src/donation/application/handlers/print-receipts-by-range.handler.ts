@@ -13,6 +13,7 @@ import {
 } from '@/donation/application/templates/receipt.template';
 import { ReceiptMapper } from '@/donation/infrastructure/persistence/mappers/receipt.mapper';
 import { BeneficientSchema } from '@/community/infrastructure/persistence/typeorm/schemas/beneficient.schema';
+import { fetchPdfCompatibleImage } from '@/shared/infrastructure/utils/fetch-pdf-image.util';
 
 const RECURRENCE_LABELS: Record<number, string> = {
   1: 'MENSUAL',
@@ -52,21 +53,6 @@ export class PrintReceiptsByRangeHandler extends BaseCommandHandler<
     super();
   }
 
-  private async getBase64FromUrl(url: string): Promise<string | null> {
-    try {
-      const response = await fetch(
-        `${process.env.APP_URL}/public/profile-pictures/${url}`,
-      );
-      if (!response.ok) return null;
-      const contentType = response.headers.get('content-type') ?? 'image/webp';
-      const buffer = await response.arrayBuffer();
-      const base64 = Buffer.from(buffer).toString('base64');
-      return `data:${contentType};base64,${base64}`;
-    } catch {
-      return null;
-    }
-  }
-
   private getBeneficientAddress(b: BeneficientSchema): string {
     return `${b.profile.street} ${b.profile.noExt} ${b.profile.noInt ?? ''} ${b.profile.neighborhood ?? ''} ${b.profile.locality ?? ''} ${b.profile.city} ${b.profile.state} ${b.profile.zipCode}`;
   }
@@ -91,7 +77,7 @@ export class PrintReceiptsByRangeHandler extends BaseCommandHandler<
 
       let photoBase64 = collectorPhotosCache.get(receipt.collectorId);
       if (!photoBase64 && receipt.collector.profilePath) {
-        photoBase64 = await this.getBase64FromUrl(
+        photoBase64 = await fetchPdfCompatibleImage(
           receipt.collector.profilePath,
         );
         collectorPhotosCache.set(receipt.collectorId, photoBase64);
