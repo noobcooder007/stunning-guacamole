@@ -25,7 +25,8 @@ export class BeneficientsReportItemDto {
   collectorFirstname: string | null;
   collectorFirstLastname: string | null;
   donationCount: number;
-  donationTotal: number;
+  donationTotalMxn: number;
+  donationTotalUsd: number;
   promiseAmount: number | null;
   currency: string | null;
   recurring: boolean | null;

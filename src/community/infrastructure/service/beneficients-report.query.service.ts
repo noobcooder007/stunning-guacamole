@@ -84,12 +84,25 @@ export class BeneficientsReportQueryService extends BaseQueryService {
         .createQueryBuilder()
         .select('r."beneficientId"', 'beneficientId')
         .addSelect('COUNT(*)::int', 'count')
-        .addSelect('COALESCE(SUM(r.amount), 0)::decimal', 'total')
+        // Nunca se suman montos de distinta moneda: se acumulan por separado.
+        .addSelect(
+          `COALESCE(SUM(CASE WHEN r.currency = 'MXN' THEN r.amount ELSE 0 END), 0)::decimal`,
+          'totalMxn',
+        )
+        .addSelect(
+          `COALESCE(SUM(CASE WHEN r.currency = 'USD' THEN r.amount ELSE 0 END), 0)::decimal`,
+          'totalUsd',
+        )
         .from(ReceiptSchema, 'r')
         .where('r."beneficientId" IN (:...ids)', { ids })
         .andWhere(`r.status != 'CANCELLED'`)
         .groupBy('r."beneficientId"')
-        .getRawMany<{ beneficientId: string; count: number; total: string }>(),
+        .getRawMany<{
+          beneficientId: string;
+          count: number;
+          totalMxn: string;
+          totalUsd: string;
+        }>(),
     ]);
 
     const assignationMap = new Map(
@@ -98,8 +111,11 @@ export class BeneficientsReportQueryService extends BaseQueryService {
     const countMap = new Map(
       receiptCounts.map((r) => [r.beneficientId, Number(r.count)]),
     );
-    const totalMap = new Map(
-      receiptCounts.map((r) => [r.beneficientId, Number(r.total)]),
+    const totalMxnMap = new Map(
+      receiptCounts.map((r) => [r.beneficientId, Number(r.totalMxn)]),
+    );
+    const totalUsdMap = new Map(
+      receiptCounts.map((r) => [r.beneficientId, Number(r.totalUsd)]),
     );
 
     return beneficients.map((b) => {
@@ -132,7 +148,8 @@ export class BeneficientsReportQueryService extends BaseQueryService {
         collectorFirstLastname:
           assignation?.collector?.profile?.firstLastname ?? null,
         donationCount: countMap.get(b.id) ?? 0,
-        donationTotal: totalMap.get(b.id) ?? 0,
+        donationTotalMxn: totalMxnMap.get(b.id) ?? 0,
+        donationTotalUsd: totalUsdMap.get(b.id) ?? 0,
         promiseAmount: b.promiseDonation
           ? Number(b.promiseDonation.promiseAmount)
           : null,
