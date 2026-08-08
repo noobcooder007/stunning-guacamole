@@ -38,38 +38,59 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<
   async execute(
     command: GenerateRecurringReceiptsCommand,
   ): Promise<Result<void>> {
-    const now = new Date();
-    const currentMonth = now.getMonth() + 1;
-    const currentYear = now.getFullYear();
-    const lastDayOfCurrentMonth = new Date(
-      currentYear,
-      currentMonth,
+    const openPeriod = await this.periodRepository.findOpen();
+    const scheduledPeriod = await this.periodRepository.findScheduled();
+    const targetPeriod =
+      command.targetPeriod === 'SCHEDULED' ? scheduledPeriod : openPeriod;
+
+    if (!targetPeriod) {
+      return Result.fail({
+        type: ErrorType.NOT_FOUND,
+        message:
+          command.targetPeriod === 'SCHEDULED'
+            ? 'No hay un periodo programado (SCHEDULED) para generar recibos anticipados.'
+            : 'No hay un periodo abierto para generar recibos.',
+        entity: GenerateRecurringReceiptsHandler.name,
+      });
+    }
+
+    const lastDayOfTargetMonth = new Date(
+      targetPeriod.year,
+      targetPeriod.month,
       0,
       23,
       59,
       59,
     );
 
-    const openPeriod = await this.periodRepository.findOpen();
-
-    if (
-      openPeriod &&
-      (openPeriod.month !== currentMonth || openPeriod.year !== currentYear)
-    ) {
-      return Result.fail({
-        type: ErrorType.CONFLICT,
-        message: `El periodo abierto corresponde a ${openPeriod.month}/${openPeriod.year}. No se pueden generar recibos de ${currentMonth}/${currentYear} hasta que inicie ese mes.`,
-        entity: GenerateRecurringReceiptsHandler.name,
-      });
-    }
-
-    const collectionPeriodId = openPeriod?._id.unpack();
+    // Cada recibo generado (incluido el rezago de una promesa) se liga al
+    // periodo cuyo mes/año coincida con el suyo, no siempre al targetPeriod.
+    const resolveCollectionPeriodId = (
+      month: number,
+      year: number,
+    ): string | undefined => {
+      if (
+        openPeriod &&
+        openPeriod.month === month &&
+        openPeriod.year === year
+      ) {
+        return openPeriod._id.unpack();
+      }
+      if (
+        scheduledPeriod &&
+        scheduledPeriod.month === month &&
+        scheduledPeriod.year === year
+      ) {
+        return scheduledPeriod._id.unpack();
+      }
+      return undefined;
+    };
 
     await this.uow.runInTransaction(async () => {
       const promisesWithCollectorId =
         await this.promiseDonationService.searchWithActiveAssignments(
-          currentMonth,
-          currentYear,
+          targetPeriod.month,
+          targetPeriod.year,
         );
       for (const promiseWithCollectorId of promisesWithCollectorId) {
         const promise = PromiseDonation.recreate(promiseWithCollectorId.id, {
@@ -93,7 +114,7 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<
 
         while (
           promise.nextDonation &&
-          promise.nextDonation <= lastDayOfCurrentMonth
+          promise.nextDonation <= lastDayOfTargetMonth
         ) {
           const targetDate = new Date(promise.nextDonation);
           const targetMonth = targetDate.getMonth() + 1;
@@ -111,6 +132,10 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<
               'RECURRING',
               targetDate,
             );
+            const collectionPeriodId = resolveCollectionPeriodId(
+              targetMonth,
+              targetYear,
+            );
             const receipt = Receipt.createRecurring(
               folio,
               Money.of(
@@ -126,6 +151,12 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<
               targetYear,
               collectionPeriodId,
             );
+            if (
+              scheduledPeriod &&
+              collectionPeriodId === scheduledPeriod._id.unpack()
+            ) {
+              receipt.markAsScheduled();
+            }
             await receipt.generateValidationChain(this.hasher);
             await this.receiptRepository.save(receipt);
           }

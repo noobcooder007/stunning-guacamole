@@ -36,6 +36,7 @@ import { PrintCollectorEfficiencyCommand } from '@/donation/application/command/
 import { ValidateReceiptQuery } from '@/donation/application/query/validate-receipt.query';
 import { GetReceiptByFolioQuery } from '@/donation/application/query/get-receipt-by-folio.query';
 import { getOwnershipScope } from '@/shared/infrastructure/utils/ownership-scope.util';
+import { pipePdfStream } from '@/shared/infrastructure/utils/pipe-pdf-stream.util';
 
 @Controller('receipts')
 export class ReceiptController {
@@ -49,9 +50,15 @@ export class ReceiptController {
   @Throttle({ default: { limit: 3, ttl: minutes(1) } })
   @Post('/generate/recurring')
   @Auth(PermissionNames.ADD_INVOICE)
-  generateRecurringReceipts(@GetUser() user: any) {
+  generateRecurringReceipts(
+    @GetUser() user: any,
+    @Query('targetPeriod') targetPeriod?: 'OPEN' | 'SCHEDULED',
+  ) {
     return this.commandBus.execute(
-      new GenerateRecurringReceiptsCommand(user.id),
+      new GenerateRecurringReceiptsCommand(
+        user.id,
+        targetPeriod === 'SCHEDULED' ? 'SCHEDULED' : 'OPEN',
+      ),
     );
   }
 
@@ -88,15 +95,12 @@ export class ReceiptController {
       'Content-Disposition',
       `attachment; filename=receipts-${dto.collectorId}.pdf`,
     );
-    pdfStream.pipe(res);
+    await pipePdfStream(pdfStream, res);
   }
 
   @Get()
   @Auth(PermissionNames.VIEW_INVOICE)
-  async findAll(
-    @Query() query: GetReceiptsQueryDto,
-    @GetUser() user: any,
-  ) {
+  async findAll(@Query() query: GetReceiptsQueryDto, @GetUser() user: any) {
     const scope = getOwnershipScope(user);
     return await this.queryBus.execute(
       new GetReceiptsQueryParams(
@@ -168,7 +172,7 @@ export class ReceiptController {
     }
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename=receipts.pdf');
-    pdfStream.pipe(res);
+    await pipePdfStream(pdfStream, res);
   }
 
   @Put('/:folio/cancel')
@@ -220,7 +224,7 @@ export class ReceiptController {
       'Content-Disposition',
       'attachment; filename=delivery-letter.pdf',
     );
-    pdfStream.pipe(res);
+    await pipePdfStream(pdfStream, res);
   }
 
   @Throttle({ default: { limit: 30, ttl: minutes(1) } })
@@ -234,11 +238,7 @@ export class ReceiptController {
   async findByFolio(@Param('folio') folio: string, @GetUser() user: any) {
     const scope = getOwnershipScope(user);
     return this.queryBus.execute(
-      new GetReceiptByFolioQuery(
-        folio,
-        scope.beneficientId,
-        scope.collectorId,
-      ),
+      new GetReceiptByFolioQuery(folio, scope.beneficientId, scope.collectorId),
     );
   }
 
@@ -276,6 +276,6 @@ export class ReceiptController {
       'Content-Disposition',
       `attachment; filename=eficiencia-${collectorId}.pdf`,
     );
-    result.value.pipe(res);
+    await pipePdfStream(result.value, res);
   }
 }
