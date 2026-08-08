@@ -4,6 +4,11 @@ export enum ErrorType {
   CONFLICT = 'CONFLICT',
   UNAUTHORIZED = 'UNAUTHORIZED',
   FORBIDDEN = 'FORBIDDEN',
+  // El recurso sí se creó/persistió; solo falló un paso posterior no
+  // transaccional (ej. renderizar el PDF en el worker). Distinto de una
+  // falla real, para que el cliente pueda avisar sin sugerir reintentar
+  // la creación (generaría un duplicado).
+  PDF_GENERATION_FAILED = 'PDF_GENERATION_FAILED',
 }
 
 export interface IErrorResult {

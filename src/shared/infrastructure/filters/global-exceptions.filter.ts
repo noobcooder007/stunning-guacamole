@@ -20,6 +20,7 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
     [ErrorType.CONFLICT]: HttpStatus.CONFLICT,
     [ErrorType.UNAUTHORIZED]: HttpStatus.UNAUTHORIZED,
     [ErrorType.FORBIDDEN]: HttpStatus.FORBIDDEN,
+    [ErrorType.PDF_GENERATION_FAILED]: HttpStatus.UNPROCESSABLE_ENTITY,
   };
 
   catch(exception: unknown, host: ArgumentsHost) {

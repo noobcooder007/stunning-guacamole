@@ -28,6 +28,7 @@ import {
 import { ICollectorRepository } from '@/community/domain/repositories/collector.repository';
 import { IBeneficientRepository } from '@/community/domain/repositories/beneficient.repository';
 import { ICollectionPeriodRepository } from '@/donation/domain/repositories/collection-period.repository';
+import { fetchPdfCompatibleImage } from '@/shared/infrastructure/utils/fetch-pdf-image.util';
 
 @CommandHandler(CreateSpecialReceiptCommand)
 export class CreateSpecialReceiptHandler extends BaseCommandHandler<
@@ -53,14 +54,6 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
     super();
   }
 
-  async getBase64FromUrl(url: string): Promise<string> {
-    const host = process.env.APP_URL || 'http://localhost:4321';
-    const response = await fetch(`${host}/public/profile-pictures/${url}`);
-    const buffer = await response.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString('base64');
-    return `data:image/png;base64,${base64}`;
-  }
-
   private getBeneficientAddress(beneficient: Beneficient): string {
     const street = beneficient.profile.address.street;
     const noExt = beneficient.profile.address.numeration.noExt;
@@ -69,7 +62,7 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
     const locality = beneficient.profile.address.locality ?? '';
     const city = beneficient.profile.address.city;
     const state = beneficient.profile.address.state;
-    const zipCode = beneficient.profile.address.zipCode;
+    const zipCode = beneficient.profile.address.zipCode.unpack();
     return `${street} ${noExt} ${noInt} ${neighborhood} ${locality} ${city} ${state} ${zipCode}`;
   }
 
@@ -98,18 +91,22 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
       'DIC',
     ];
     const openPeriod = await this.periodRepository.findOpen();
-    if (!openPeriod) {
+    const scheduledPeriod = openPeriod
+      ? null
+      : await this.periodRepository.findScheduled();
+    const period = openPeriod ?? scheduledPeriod;
+    if (!period) {
       return Result.fail({
         type: ErrorType.VALIDATION,
         message:
-          'No hay un periodo abierto. Abre un periodo antes de crear un recibo especial.',
+          'No hay un periodo abierto ni programado. Abre un periodo antes de crear un recibo especial.',
         entity: 'CollectionPeriod',
       });
     }
 
-    const periodMonth = openPeriod.month;
-    const periodYear = openPeriod.year;
-    const collectionPeriodId = openPeriod._id.unpack();
+    const periodMonth = period.month;
+    const periodYear = period.year;
+    const collectionPeriodId = period._id.unpack();
 
     const alreadyExists = await this.receiptRepository.existsSpecial(
       command.beneficientId,
@@ -128,57 +125,76 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
 
     const periodDate = new Date(periodYear, periodMonth - 1, 1);
 
-    const { specialReceipt } = await this.uow.runInTransaction(async () => {
-      const folio = await this.folioProvider.generateNext(
-        command.collectorId,
-        'SPECIAL',
-        periodDate,
-      );
-      const specialReceipt = Receipt.createSpecial(
-        folio,
-        Money.of(command.amount, command.currency as 'MXN' | 'USD'),
-        CollectorId.of(command.collectorId),
-        UserId.of(command.userId),
-        null,
-        BeneficientId.of(command.beneficientId),
-        periodMonth,
-        periodYear,
-        collectionPeriodId,
-      );
-      specialReceipt.updatePrintCount();
-      await specialReceipt.generateValidationChain(this.hasher);
-      await this.receiptRepository.save(specialReceipt);
-      return { specialReceipt };
-    });
-    const [collector, beneficient] = await Promise.all([
-      this.collectorRepository.findById(specialReceipt.collector.unpack()),
-      specialReceipt.beneficient &&
-        this.beneficientRepository.findById(
-          specialReceipt.beneficient.unpack(),
-        ),
-    ]);
-    const receiptToPrint: ReceiptData = {
-      folio: specialReceipt.folio.unpack(),
-      printCount: specialReceipt.printCount,
-      amount: specialReceipt.amount.amount,
-      currency: specialReceipt.amount.currency,
-      chainValidator: specialReceipt.chainValidator,
-      photoCollector: await this.getBase64FromUrl(collector.profilePath),
-      collector: collector.collectorNumber,
-      beneficient: beneficient ? beneficient.beneficientNumber : null,
-      donorName: beneficient
-        ? this.getBeneficientsFullname(beneficient)
-        : 'Anónimo',
-      addressDonor: beneficient
-        ? this.getBeneficientAddress(beneficient)
-        : 'Domicilio desconocido',
-      telephoneDonor: beneficient.profile.phoneNumber?.unpack() ?? '',
-      recurrence: 'ESPECIAL',
-      period: `${months[specialReceipt.periodMonth - 1]}${specialReceipt.periodYear}`,
-      keepPrivate: beneficient.keepPrivate,
-    };
-    const docDefinition = receiptTemplate(Array.from([receiptToPrint]));
-    const pdfStream = await this.pdfService.print(docDefinition);
-    return Result.ok(pdfStream);
+    const { specialReceipt, printCountForDisplay } =
+      await this.uow.runInTransaction(async () => {
+        const folio = await this.folioProvider.generateNext(
+          command.collectorId,
+          'SPECIAL',
+          periodDate,
+        );
+        const specialReceipt = Receipt.createSpecial(
+          folio,
+          Money.of(command.amount, command.currency as 'MXN' | 'USD'),
+          CollectorId.of(command.collectorId),
+          UserId.of(command.userId),
+          null,
+          BeneficientId.of(command.beneficientId),
+          periodMonth,
+          periodYear,
+          collectionPeriodId,
+        );
+        if (scheduledPeriod) {
+          specialReceipt.markAsScheduled();
+        }
+        // Se captura antes de incrementar: el PDF debe reflejar el
+        // printCount de ESTA impresión, no el que queda persistido después.
+        const printCountForDisplay = specialReceipt.printCount;
+        specialReceipt.updatePrintCount();
+        await specialReceipt.generateValidationChain(this.hasher);
+        await this.receiptRepository.save(specialReceipt);
+        return { specialReceipt, printCountForDisplay };
+      });
+    // El recibo ya quedó creado y persistido (transacción arriba). Un fallo
+    // de aquí en adelante (búsquedas, render del PDF en el worker) no debe
+    // reportarse como si la creación hubiera fallado — eso invitaría a
+    // reintentar y generar un recibo especial duplicado.
+    try {
+      const [collector, beneficient] = await Promise.all([
+        this.collectorRepository.findById(specialReceipt.collector.unpack()),
+        specialReceipt.beneficient &&
+          this.beneficientRepository.findById(
+            specialReceipt.beneficient.unpack(),
+          ),
+      ]);
+      const receiptToPrint: ReceiptData = {
+        folio: specialReceipt.folio.unpack(),
+        printCount: printCountForDisplay,
+        amount: specialReceipt.amount.amount,
+        currency: specialReceipt.amount.currency,
+        chainValidator: specialReceipt.chainValidator,
+        photoCollector: await fetchPdfCompatibleImage(collector.profilePath),
+        collector: collector.collectorNumber,
+        beneficient: beneficient ? beneficient.beneficientNumber : null,
+        donorName: beneficient
+          ? this.getBeneficientsFullname(beneficient)
+          : 'Anónimo',
+        addressDonor: beneficient
+          ? this.getBeneficientAddress(beneficient)
+          : 'Domicilio desconocido',
+        telephoneDonor: beneficient.profile.phoneNumber?.unpack() ?? '',
+        recurrence: 'ESPECIAL',
+        period: `${months[specialReceipt.periodMonth - 1]}${specialReceipt.periodYear}`,
+        keepPrivate: beneficient.keepPrivate,
+      };
+      const docDefinition = receiptTemplate(Array.from([receiptToPrint]));
+      const pdfStream = await this.pdfService.print(docDefinition);
+      return Result.ok(pdfStream);
+    } catch {
+      return Result.fail({
+        type: ErrorType.PDF_GENERATION_FAILED,
+        message: `El recibo especial ${specialReceipt.folio.unpack()} se creó correctamente, pero no se pudo generar el PDF. Puedes reimprimirlo más tarde.`,
+        entity: CreateSpecialReceiptHandler.name,
+      });
+    }
   }
 }
