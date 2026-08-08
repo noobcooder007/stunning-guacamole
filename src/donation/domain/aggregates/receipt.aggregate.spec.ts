@@ -11,7 +11,7 @@ const PROMISE_ID = '01907c2a-0000-7000-8000-000000000004';
 const PERIOD_ID = '01907c2a-0000-7000-8000-000000000005';
 
 function makePendingReceipt(
-  overrides: { status?: 'PENDING' | 'PAID' | 'CANCELLED' } = {},
+  overrides: { status?: 'PENDING' | 'PAID' | 'CANCELLED' | 'SCHEDULED' } = {},
 ) {
   return Receipt.recreate(ReceiptId.of(USER_ID), {
     folio: ReceiptFolio.of('ENE2025-001-R-0001'),
@@ -237,6 +237,44 @@ describe('Receipt.markAsPaid()', () => {
   it('debería lanzar si el recibo está CANCELLED', () => {
     const receipt = makePendingReceipt({ status: 'CANCELLED' });
     expect(() => receipt.markAsPaid('CASH')).toThrow();
+  });
+
+  it('debería lanzar si el recibo está SCHEDULED (debe pasar por markAsPending primero)', () => {
+    const receipt = makePendingReceipt({ status: 'SCHEDULED' });
+    expect(() => receipt.markAsPaid('CASH')).toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Receipt.markAsScheduled() / Receipt.markAsPending()
+// ---------------------------------------------------------------------------
+describe('Receipt.markAsScheduled()', () => {
+  it('debería cambiar estado de PENDING a SCHEDULED', () => {
+    const receipt = makePendingReceipt();
+
+    receipt.markAsScheduled();
+
+    expect(receipt.status).toBe('SCHEDULED');
+  });
+
+  it('debería lanzar si el recibo no está PENDING', () => {
+    const receipt = makePendingReceipt({ status: 'SCHEDULED' });
+    expect(() => receipt.markAsScheduled()).toThrow();
+  });
+});
+
+describe('Receipt.markAsPending()', () => {
+  it('debería cambiar estado de SCHEDULED a PENDING', () => {
+    const receipt = makePendingReceipt({ status: 'SCHEDULED' });
+
+    receipt.markAsPending();
+
+    expect(receipt.status).toBe('PENDING');
+  });
+
+  it('debería lanzar si el recibo no está SCHEDULED', () => {
+    const receipt = makePendingReceipt({ status: 'PENDING' });
+    expect(() => receipt.markAsPending()).toThrow();
   });
 });
 

@@ -97,4 +97,56 @@ describe('CollectionPeriod', () => {
       expect(period.isOpen).toBe(false);
     });
   });
+
+  describe('schedule()', () => {
+    it('debería crear un período SCHEDULED con mes y año correctos', () => {
+      const period = CollectionPeriod.schedule(7, 2026, UserId.of(USER_ID));
+
+      expect(period.month).toBe(7);
+      expect(period.year).toBe(2026);
+      expect(period.status).toBe('SCHEDULED');
+      expect(period.isOpen).toBe(false);
+    });
+
+    it('debería lanzar si month es null', () => {
+      expect(() =>
+        CollectionPeriod.schedule(null, 2026, UserId.of(USER_ID)),
+      ).toThrow(InvalidAttributeException);
+    });
+
+    it('debería lanzar si year es null', () => {
+      expect(() =>
+        CollectionPeriod.schedule(7, null, UserId.of(USER_ID)),
+      ).toThrow(InvalidAttributeException);
+    });
+  });
+
+  describe('activate()', () => {
+    it('debería pasar un período SCHEDULED a OPEN', () => {
+      const period = CollectionPeriod.schedule(7, 2026, UserId.of(USER_ID));
+
+      period.activate();
+
+      expect(period.status).toBe('OPEN');
+      expect(period.isOpen).toBe(true);
+    });
+
+    it('debería preservar month/year/createdAt/createdBy al activar', () => {
+      const period = CollectionPeriod.schedule(7, 2026, UserId.of(USER_ID));
+      const createdAt = period.createdAt;
+
+      period.activate();
+
+      expect(period.month).toBe(7);
+      expect(period.year).toBe(2026);
+      expect(period.createdAt).toBe(createdAt);
+      expect(period.createdBy.unpack()).toBe(USER_ID);
+    });
+
+    it('debería lanzar Error si el período no está SCHEDULED', () => {
+      const period = makeOpenPeriod();
+
+      expect(() => period.activate()).toThrow(Error);
+    });
+  });
 });

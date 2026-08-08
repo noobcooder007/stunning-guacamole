@@ -104,7 +104,7 @@ export class ReceiptFolio extends ValueObject<string> {
   }
 }
 
-export type ReceiptStatus = 'PENDING' | 'PAID' | 'CANCELLED';
+export type ReceiptStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'SCHEDULED';
 export type ReceiptType = 'RECURRING' | 'SPECIAL';
 export type ReceiptOrigin = 'PROMISE' | 'NON_PROMISE';
 export type PaymentMethod = 'CASH' | 'TRANSFER' | 'CARD';
@@ -320,6 +320,13 @@ export class Receipt extends AggregateRoot {
       'CANCELLED',
       'Receipt',
     );
+    // Un recibo generado de forma anticipada para un periodo SCHEDULED debe
+    // esperar a que ese periodo abra (markAsPending) antes de poder cobrarse.
+    GeneralGuard.againstValueIsEqualTo(
+      this.props.status,
+      'SCHEDULED',
+      'Receipt',
+    );
     GeneralGuard.againstGreatherThanZero(
       this.props.amount.amount,
       'Amount must be greater than zero',
@@ -331,6 +338,26 @@ export class Receipt extends AggregateRoot {
     this.props.externalReference = reference;
     this.props.paymentMethod = method;
     this.props.collectionPeriodId = collectionPeriodId;
+  }
+
+  public markAsScheduled(): void {
+    GeneralGuard.againstValueIsNotEqualTo(
+      this.props.status,
+      'PENDING',
+      'Receipt',
+    );
+    this.props.status = 'SCHEDULED';
+    this.props.updatedAt = new Date();
+  }
+
+  public markAsPending(): void {
+    GeneralGuard.againstValueIsNotEqualTo(
+      this.props.status,
+      'SCHEDULED',
+      'Receipt',
+    );
+    this.props.status = 'PENDING';
+    this.props.updatedAt = new Date();
   }
 
   public updatePrintCount(): void {

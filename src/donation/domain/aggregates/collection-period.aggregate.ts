@@ -22,7 +22,7 @@ export class CollectionPeriodId extends ValueObject<string> {
   }
 }
 
-export type CollectionPeriodStatus = 'OPEN' | 'CLOSED';
+export type CollectionPeriodStatus = 'OPEN' | 'CLOSED' | 'SCHEDULED';
 
 interface CollectionPeriodProps {
   month: number;
@@ -65,6 +65,30 @@ export class CollectionPeriod extends AggregateRoot {
       month,
       year,
       status: 'OPEN',
+      createdAt: new Date(),
+      createdBy,
+    });
+  }
+
+  public static schedule(
+    month: number,
+    year: number,
+    createdBy: UserId,
+  ): CollectionPeriod {
+    GeneralGuard.againstNullOrUndefined(
+      month,
+      'Month is required',
+      CollectionPeriod.name,
+    );
+    GeneralGuard.againstNullOrUndefined(
+      year,
+      'Year is required',
+      CollectionPeriod.name,
+    );
+    return new CollectionPeriod(CollectionPeriodId.create(), {
+      month,
+      year,
+      status: 'SCHEDULED',
       createdAt: new Date(),
       createdBy,
     });
@@ -145,5 +169,12 @@ export class CollectionPeriod extends AggregateRoot {
     this.props.totalCommissions = totalCommissions;
     this.props.totalNet = totalCollected - totalCommissions;
     this.props.exchangeRateUsdToMxn = exchangeRateUsdToMxn;
+  }
+
+  public activate(): void {
+    if (this.props.status !== 'SCHEDULED') {
+      throw new Error('Only a scheduled period can be activated');
+    }
+    this.props.status = 'OPEN';
   }
 }
