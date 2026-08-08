@@ -34,6 +34,7 @@ import { GetSettlementPaymentsQuery } from '@/donation/application/query/get-set
 import { RegisterCollectorPaymentDto } from '@/donation/application/dto/register-collector-payment.dto';
 import { RegisterBulkCollectorPaymentsDto } from '@/donation/application/dto/register-bulk-collector-payments.dto';
 import { ClosePeriodDto } from '@/donation/application/dto/close-period.dto';
+import { pipePdfStream } from '@/shared/infrastructure/utils/pipe-pdf-stream.util';
 
 @Controller('periods')
 export class CollectionPeriodController {
@@ -108,7 +109,7 @@ export class CollectionPeriodController {
       'Content-Disposition',
       `attachment; filename=reporte-recibos-${month}-${year}.pdf`,
     );
-    result.value.pipe(res);
+    await pipePdfStream(result.value, res);
   }
 
   @Get('/growth-report')
@@ -148,7 +149,7 @@ export class CollectionPeriodController {
       'Content-Disposition',
       `attachment; filename=liquidacion-${periodId}.pdf`,
     );
-    result.value.pipe(res);
+    await pipePdfStream(result.value, res);
   }
 
   @Post('/settlements/:settlementId/payments')

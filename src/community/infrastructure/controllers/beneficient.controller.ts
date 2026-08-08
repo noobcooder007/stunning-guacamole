@@ -47,6 +47,7 @@ import {
   UpdateBeneficientPrivacyDto,
   UpdateBeneficientTaxDto,
 } from '@/community/application/dto/update-beneficient.dto';
+import { pipePdfStream } from '@/shared/infrastructure/utils/pipe-pdf-stream.util';
 
 @Controller('beneficient')
 export class BeneficientController {
@@ -119,7 +120,7 @@ export class BeneficientController {
       'Content-Disposition',
       `attachment; filename=reporte-bienhechor-${id}.pdf`,
     );
-    result.value.pipe(res);
+    await pipePdfStream(result.value, res);
   }
 
   @Get('registry')
@@ -148,7 +149,7 @@ export class BeneficientController {
       'Content-Disposition',
       'attachment; filename=registro-bienhechores.pdf',
     );
-    result.value.pipe(res);
+    await pipePdfStream(result.value, res);
   }
 
   @Get()

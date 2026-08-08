@@ -10,6 +10,7 @@ import { EfficiencyConcentratedReportDto } from '@/donation/application/dto/effi
 import { PrintQuantityDifferenceReportCommand } from '@/donation/application/command/print-quantity-difference-report.command';
 import { PrintEfficiencyReportCommand } from '@/donation/application/command/print-efficiency-report.command';
 import { PrintEfficiencyConcentratedReportCommand } from '@/donation/application/command/print-efficiency-concentrated-report.command';
+import { pipePdfStream } from '@/shared/infrastructure/utils/pipe-pdf-stream.util';
 
 @Controller('reports/general')
 export class GeneralReportController {
@@ -25,7 +26,7 @@ export class GeneralReportController {
     const result = await this.commandBus.execute(
       new PrintQuantityDifferenceReportCommand(dto.month, dto.year),
     );
-    this.streamPdf(
+    await this.streamPdf(
       res,
       result,
       `diferencia-cantidades-${dto.month}-${dto.year}.pdf`,
@@ -49,7 +50,11 @@ export class GeneralReportController {
         dto.collectorNum,
       ),
     );
-    this.streamPdf(res, result, `eficiencia-${dto.month}-${dto.year}.pdf`);
+    await this.streamPdf(
+      res,
+      result,
+      `eficiencia-${dto.month}-${dto.year}.pdf`,
+    );
   }
 
   @Throttle({ default: { limit: 10, ttl: minutes(1) } })
@@ -69,10 +74,14 @@ export class GeneralReportController {
         dto.collectorNum,
       ),
     );
-    this.streamPdf(res, result, 'eficiencia-concentrada.pdf');
+    await this.streamPdf(res, result, 'eficiencia-concentrada.pdf');
   }
 
-  private streamPdf(res: Response, result: any, filename: string): void {
+  private async streamPdf(
+    res: Response,
+    result: any,
+    filename: string,
+  ): Promise<void> {
     if (!result.isSuccess) {
       res.status(422).json({
         type: result.error.type,
@@ -82,6 +91,6 @@ export class GeneralReportController {
     }
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
-    result.value.pipe(res);
+    await pipePdfStream(result.value, res);
   }
 }
