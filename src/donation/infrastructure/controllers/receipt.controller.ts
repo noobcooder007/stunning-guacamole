@@ -175,6 +175,37 @@ export class ReceiptController {
     await pipePdfStream(pdfStream, res);
   }
 
+  @Throttle({ default: { limit: 30, ttl: minutes(1) } })
+  @Get('/:folio/pdf')
+  @Auth(PermissionNames.PRINT_INVOICE)
+  async printReceiptByFolio(
+    @Param('folio') folio: string,
+    @Res() res: Response,
+    @GetUser() user: any,
+  ) {
+    const response = await this.commandBus.execute(
+      new PrintReceiptsByCollectorCommand({ folio }, user.id),
+    );
+    if (!response.isSuccess) {
+      res.status(422).json({
+        type: response.error.type,
+        message: response.error.message,
+      });
+      return;
+    }
+    const pdfStream = response.value;
+    if (!pdfStream) {
+      res.status(404).json({
+        type: 'NOT_FOUND',
+        message: 'Receipt not found',
+      });
+      return;
+    }
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=${folio}.pdf`);
+    await pipePdfStream(pdfStream, res);
+  }
+
   @Put('/:folio/cancel')
   @Auth(PermissionNames.VOID_INVOICE)
   async cancelReceipt(

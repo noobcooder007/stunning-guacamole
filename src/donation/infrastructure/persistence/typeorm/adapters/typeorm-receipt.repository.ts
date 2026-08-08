@@ -116,6 +116,9 @@ export class TypeORMReceiptRepository
     if (filters.type) {
       qb.andWhere('r.type = :type', { type: filters.type });
     }
+    if (filters.folio) {
+      qb.andWhere('r.folio = :folio', { folio: filters.folio });
+    }
 
     qb.orderBy('c.collectorNumber', 'ASC')
       .addOrderBy('r.periodYear', 'ASC')

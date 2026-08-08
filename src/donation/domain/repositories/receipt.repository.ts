@@ -13,6 +13,7 @@ export interface PrintReceiptFilters {
   month?: number;
   year?: number;
   type?: PrintReceiptType;
+  folio?: string;
 }
 
 export interface PrintReceiptRangeFilters {
