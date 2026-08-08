@@ -22,7 +22,7 @@ export class ReceiptSchema implements IReceiptPersistence {
   id: string;
 
   @Column('enum', {
-    enum: ['PENDING', 'PAID', 'CANCELLED'],
+    enum: ['PENDING', 'PAID', 'CANCELLED', 'SCHEDULED'],
   })
   status: string;
 

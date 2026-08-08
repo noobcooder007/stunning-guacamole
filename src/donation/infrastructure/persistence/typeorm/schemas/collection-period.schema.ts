@@ -6,6 +6,11 @@ import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
   unique: true,
   where: "status = 'OPEN'",
 })
+// Partial unique index: only one SCHEDULED (not yet open) period at a time
+@Index('UQ_ONE_SCHEDULED_PERIOD', ['status'], {
+  unique: true,
+  where: "status = 'SCHEDULED'",
+})
 export class CollectionPeriodSchema {
   @PrimaryColumn('uuid')
   id: string;
@@ -16,7 +21,7 @@ export class CollectionPeriodSchema {
   @Column('integer')
   year: number;
 
-  @Column('enum', { enum: ['OPEN', 'CLOSED'] })
+  @Column('enum', { enum: ['OPEN', 'CLOSED', 'SCHEDULED'] })
   status: string;
 
   @Column('timestamp with time zone', { nullable: true })

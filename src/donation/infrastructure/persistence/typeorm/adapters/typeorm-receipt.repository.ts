@@ -78,7 +78,9 @@ export class TypeORMReceiptRepository
       .leftJoinAndSelect('b.profile', 'bProfile')
       .leftJoinAndSelect('r.collector', 'c')
       .leftJoinAndSelect('c.profile', 'cProfile')
-      .where('r.status = :status', { status: 'PENDING' });
+      // Pendiente o pagado se puede imprimir/reimprimir igual: el printCount
+      // y la marca de agua distinguen el original de una reimpresión.
+      .where('r.status != :status', { status: 'CANCELLED' });
 
     if (filters.collectorId) {
       qb.andWhere('r.collectorId = :collectorId', {
@@ -134,7 +136,9 @@ export class TypeORMReceiptRepository
       .leftJoinAndSelect('b.profile', 'bProfile')
       .leftJoinAndSelect('r.collector', 'c')
       .leftJoinAndSelect('c.profile', 'cProfile')
-      .where('r.status = :status', { status: 'PENDING' })
+      // Pendiente o pagado se puede imprimir/reimprimir igual: el printCount
+      // y la marca de agua distinguen el original de una reimpresión.
+      .where('r.status != :status', { status: 'CANCELLED' })
       .andWhere('r.type = :type', { type: 'RECURRING' })
       .andWhere('r.periodMonth = :month', { month: filters.month })
       .andWhere('r.periodYear = :year', { year: filters.year })
