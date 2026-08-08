@@ -119,4 +119,58 @@ describe('PromiseDonationMapper', () => {
       expect(promise.instructions).toEqual(instructions);
     });
   });
+
+  describe('toResponseWithBeneficient()', () => {
+    function makeSchema(): any {
+      return {
+        id: PROMISE_ID,
+        beneficient: {
+          id: BID,
+          beneficientNumber: 12,
+          profile: {
+            firstname: 'María',
+            firstLastname: 'López',
+            secondLastname: null,
+          },
+        },
+        promiseAmount: 200,
+        currency: 'MXN',
+        method: 'CASH',
+        startDate: new Date('2026-01-15'),
+        recurring: true,
+        recurrence: 1,
+        lastDonation: null,
+        nextDonation: new Date('2026-01-15'),
+        isActive: true,
+        reasonDeactivate: null,
+        createdAt: now,
+        updatedAt: now,
+        instructions: undefined,
+      };
+    }
+
+    it('debería incluir el número de colector cuando se provee', () => {
+      const response = PromiseDonationMapper.toResponseWithBeneficient(
+        makeSchema(),
+        7,
+      );
+
+      expect(response.collectorNumber).toBe(7);
+    });
+
+    it('debería incluir el número de bienhechor', () => {
+      const response = PromiseDonationMapper.toResponseWithBeneficient(
+        makeSchema(),
+      );
+
+      expect(response.beneficient.beneficientNumber).toBe(12);
+    });
+
+    it('debería devolver null cuando no se provee número de colector', () => {
+      const response =
+        PromiseDonationMapper.toResponseWithBeneficient(makeSchema());
+
+      expect(response.collectorNumber).toBeNull();
+    });
+  });
 });

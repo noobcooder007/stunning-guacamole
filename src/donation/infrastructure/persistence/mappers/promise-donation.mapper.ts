@@ -79,11 +79,14 @@ export class PromiseDonationMapper {
 
   static toResponseWithBeneficient(
     promiseDonation: PromiseDonationSchema,
+    collectorNumber: number | null = null,
   ): PromiseDonationWithBeneficientsResponse {
     const response = new PromiseDonationWithBeneficientsResponse();
     response.id = promiseDonation.id;
     const beneficientResponse = new PromiseDonationBeneficientResponse();
     beneficientResponse.id = promiseDonation.beneficient.id;
+    beneficientResponse.beneficientNumber =
+      promiseDonation.beneficient.beneficientNumber;
     beneficientResponse.firstname =
       promiseDonation.beneficient.profile.firstname;
     beneficientResponse.firstLastname =
@@ -91,6 +94,7 @@ export class PromiseDonationMapper {
     beneficientResponse.secondLastname =
       promiseDonation.beneficient.profile.secondLastname;
     response.beneficient = beneficientResponse;
+    response.collectorNumber = collectorNumber;
     response.promiseAmount = promiseDonation.promiseAmount;
     response.currency = promiseDonation.currency;
     response.method = promiseDonation.method;

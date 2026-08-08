@@ -6,6 +6,8 @@ export class PromiseDonationBeneficientResponse {
   @Expose()
   id: string;
   @Expose()
+  beneficientNumber: number;
+  @Expose()
   firstname: string;
   @Expose()
   firstLastname: string;
@@ -20,6 +22,8 @@ export class PromiseDonationWithBeneficientsResponse {
   @Expose()
   @Type(() => PromiseDonationBeneficientResponse)
   beneficient: PromiseDonationBeneficientResponse;
+  @Expose()
+  collectorNumber: number | null;
   @Expose()
   promiseAmount: number;
   @Expose()

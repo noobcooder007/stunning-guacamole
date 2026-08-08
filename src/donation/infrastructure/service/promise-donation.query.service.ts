@@ -37,6 +37,14 @@ export class PromiseDonationQueryService extends BaseQueryService {
     const qb = this.getQueryBuilder(PromiseDonationSchema, 'promise');
     qb.leftJoinAndSelect('promise.beneficient', 'beneficient');
     qb.leftJoinAndSelect('beneficient.profile', 'profile');
+    // Filtrado en el ON (no en WHERE) para no descartar promesas cuyo
+    // bienhechor no tenga una asignación activa (o ninguna asignación).
+    qb.leftJoinAndSelect(
+      'beneficient.assignation',
+      'assignation',
+      'assignation.isActive = true',
+    );
+    qb.leftJoinAndSelect('assignation.collector', 'collector');
     this.applyFilters(qb, 'promise', filters);
     this.applyPagination(qb, page, limit);
     const [items, total] = await qb.getManyAndCount();
@@ -44,7 +52,10 @@ export class PromiseDonationQueryService extends BaseQueryService {
     const meta = new PaginationMetaDto(page, limit, total);
     return new Paginated(
       items.map((item) =>
-        PromiseDonationMapper.toResponseWithBeneficient(item),
+        PromiseDonationMapper.toResponseWithBeneficient(
+          item,
+          item.beneficient.assignation?.collector?.collectorNumber ?? null,
+        ),
       ),
       meta,
     );
