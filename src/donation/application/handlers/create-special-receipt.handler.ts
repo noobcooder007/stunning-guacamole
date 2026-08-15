@@ -189,7 +189,11 @@ export class CreateSpecialReceiptHandler extends BaseCommandHandler<
       const docDefinition = receiptTemplate(Array.from([receiptToPrint]));
       const pdfStream = await this.pdfService.print(docDefinition);
       return Result.ok(pdfStream);
-    } catch {
+    } catch (err) {
+      this.logger.error(
+        `No se pudo generar el PDF del recibo especial ${specialReceipt.folio.unpack()} (ya creado)`,
+        err instanceof Error ? err.stack : String(err),
+      );
       return Result.fail({
         type: ErrorType.PDF_GENERATION_FAILED,
         message: `El recibo especial ${specialReceipt.folio.unpack()} se creó correctamente, pero no se pudo generar el PDF. Puedes reimprimirlo más tarde.`,
