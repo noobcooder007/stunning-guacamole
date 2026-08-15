@@ -79,8 +79,11 @@ export class TypeORMReceiptRepository
       .leftJoinAndSelect('r.collector', 'c')
       .leftJoinAndSelect('c.profile', 'cProfile')
       // Pendiente o pagado se puede imprimir/reimprimir igual: el printCount
-      // y la marca de agua distinguen el original de una reimpresión.
-      .where('r.status != :status', { status: 'CANCELLED' });
+      // y la marca de agua distinguen el original de una reimpresión. Un
+      // recibo SCHEDULED es de un periodo que ni siquiera ha abierto (no
+      // puede pagarse todavía, ver Receipt.markAsPaid) y no debe poder
+      // imprimirse/entregarse como si ya fuera exigible.
+      .where('r.status IN (:...statuses)', { statuses: ['PENDING', 'PAID'] });
 
     if (filters.collectorId) {
       qb.andWhere('r.collectorId = :collectorId', {
@@ -140,8 +143,11 @@ export class TypeORMReceiptRepository
       .leftJoinAndSelect('r.collector', 'c')
       .leftJoinAndSelect('c.profile', 'cProfile')
       // Pendiente o pagado se puede imprimir/reimprimir igual: el printCount
-      // y la marca de agua distinguen el original de una reimpresión.
-      .where('r.status != :status', { status: 'CANCELLED' })
+      // y la marca de agua distinguen el original de una reimpresión. Un
+      // recibo SCHEDULED es de un periodo que ni siquiera ha abierto (no
+      // puede pagarse todavía, ver Receipt.markAsPaid) y no debe poder
+      // imprimirse/entregarse como si ya fuera exigible.
+      .where('r.status IN (:...statuses)', { statuses: ['PENDING', 'PAID'] })
       .andWhere('r.type = :type', { type: 'RECURRING' })
       .andWhere('r.periodMonth = :month', { month: filters.month })
       .andWhere('r.periodYear = :year', { year: filters.year })
