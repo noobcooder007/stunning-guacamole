@@ -234,15 +234,18 @@ PeriodoCobranza (1) ──< (N) LiquidaciónColector (N) >── (1) Colector
 
 ### Ciclo de vida del Recibo
 ```
-PENDING → PAID      (markAsPaid: enlaza al periodo abierto actual)
-PENDING → CANCELLED (cancel: requiere motivo y userId)
+PENDING → PAID        (markAsPaid: enlaza al periodo abierto actual)
+PENDING → CANCELLED   (cancel: requiere motivo y userId)
+SCHEDULED → PENDING   (markAsPending: al activarse el periodo SCHEDULED al que pertenece)
 ```
+Un recibo generado de forma anticipada contra un `CollectionPeriod` `SCHEDULED` nace en estado `SCHEDULED` y no puede cobrarse (`markAsPaid`) hasta pasar por `markAsPending` cuando ese periodo se activa.
 
 ### Ciclo de vida del Periodo de Cobranza
 ```
-OPEN → CLOSED  (close: calcula totales y genera CollectorSettlements)
+SCHEDULED → OPEN   (activate: solo válido si el periodo está SCHEDULED)
+OPEN → CLOSED       (close: calcula totales y genera CollectorSettlements)
 ```
-Solo puede existir un periodo `OPEN` a la vez (índice único parcial en PostgreSQL: `WHERE status = 'OPEN'`).
+Un periodo puede crearse directamente `OPEN` o como `SCHEDULED` (`schedule`, generado por anticipado antes de que abra). Solo puede existir un periodo `OPEN` a la vez y un periodo `SCHEDULED` a la vez (índices únicos parciales en PostgreSQL: `WHERE status = 'OPEN'` y `WHERE status = 'SCHEDULED'`).
 
 ---
 
@@ -342,6 +345,15 @@ Solo puede existir un periodo `OPEN` a la vez (índice único parcial en Postgre
 | POST | `/settlements/:settlementId/payments` | `edit:invoice` | Registrar pago individual de liquidación |
 | POST | `/:periodId/payments/bulk` | `edit:invoice` | Registrar pagos en lote del periodo |
 | GET | `/settlements/:settlementId/payments` | `view:invoice` | Pagos de una liquidación |
+
+### Reportes (`/api/reports`)
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| POST | `/general/quantity-difference` | `view:report` | Diferencia entre lo asignado y lo cobrado por colector (PDF) |
+| POST | `/general/efficiency` | `view:report` | Eficiencia de cobranza por colector (PDF) |
+| POST | `/general/efficiency-concentrated` | `view:report` | Eficiencia de cobranza concentrada (PDF) |
+| GET | `/beneficients-by-collector` | `view:report` | Bienhechores por colector: donación recurrente/especial por periodo dentro de un rango, marcando pagos retrasados (JSON) |
+| GET | `/beneficients-by-collector/pdf` | `view:report` | Bienhechores por colector (PDF) |
 
 ### Permisos (`/api/permissions`)
 | Método | Ruta | Auth | Descripción |

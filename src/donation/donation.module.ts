@@ -62,6 +62,10 @@ import { PrintEfficiencyReportHandler } from '@/donation/application/handlers/pr
 import { EfficiencyReportQueryService } from '@/donation/infrastructure/service/efficiency-report.query.service';
 import { PrintEfficiencyConcentratedReportHandler } from '@/donation/application/handlers/print-efficiency-concentrated-report.handler';
 import { EfficiencyConcentratedReportQueryService } from '@/donation/infrastructure/service/efficiency-concentrated-report.query.service';
+import { BeneficientsByCollectorReportController } from '@/donation/infrastructure/controllers/beneficients-by-collector-report.controller';
+import { GetBeneficientsByCollectorReportHandler } from '@/donation/application/handlers/get-beneficients-by-collector-report.handler';
+import { PrintBeneficientsByCollectorReportHandler } from '@/donation/application/handlers/print-beneficients-by-collector-report.handler';
+import { BeneficientsByCollectorReportQueryService } from '@/donation/infrastructure/service/beneficients-by-collector-report.query.service';
 
 @Module({
   imports: [
@@ -82,6 +86,7 @@ import { EfficiencyConcentratedReportQueryService } from '@/donation/infrastruct
     ReceiptController,
     CollectionPeriodController,
     GeneralReportController,
+    BeneficientsByCollectorReportController,
   ],
   providers: [
     CreatePromiseDonationHandler,
@@ -131,6 +136,9 @@ import { EfficiencyConcentratedReportQueryService } from '@/donation/infrastruct
     RegisterCollectorPaymentHandler,
     RegisterBulkCollectorPaymentsHandler,
     GetSettlementPaymentsHandler,
+    GetBeneficientsByCollectorReportHandler,
+    PrintBeneficientsByCollectorReportHandler,
+    BeneficientsByCollectorReportQueryService,
   ],
 })
 export class DonationModule {}
