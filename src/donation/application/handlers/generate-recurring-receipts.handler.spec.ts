@@ -217,4 +217,29 @@ describe('GenerateRecurringReceiptsHandler', () => {
     expect(julyReceipt.collectionPeriodId).toBe(SCHEDULED_PERIOD_ID);
     expect(julyReceipt.status).toBe('SCHEDULED');
   });
+
+  it('debería ligar al targetPeriod un recibo de rezago cuyo mes no coincide con OPEN ni SCHEDULED', async () => {
+    // La promesa debe un recibo de MAYO, que no coincide con OPEN (JUN) ni
+    // con ningún periodo SCHEDULED (no hay uno en este escenario): no debe
+    // quedar sin collectionPeriodId, sino ligado al periodo contra el que se
+    // corrió esta generación (OPEN_PERIOD).
+    const promiseRow = makePromiseRow({
+      nextDonation: new Date(2026, 4, 1), // MAY 2026
+    });
+    const { handler, receiptRepository } = makeHandlerDeps({
+      searchWithActiveAssignments: jest.fn().mockResolvedValue([promiseRow]),
+    });
+
+    const result = await handler.execute(
+      new GenerateRecurringReceiptsCommand(USER_ID),
+    );
+
+    expect(result.isSuccess).toBe(true);
+    expect(receiptRepository.save).toHaveBeenCalledTimes(2);
+    const [mayReceipt] = receiptRepository.save.mock.calls[0];
+    const [juneReceipt] = receiptRepository.save.mock.calls[1];
+    expect(mayReceipt.collectionPeriodId).toBe(OPEN_PERIOD_ID);
+    expect(mayReceipt.status).toBe('PENDING');
+    expect(juneReceipt.collectionPeriodId).toBe(OPEN_PERIOD_ID);
+  });
 });

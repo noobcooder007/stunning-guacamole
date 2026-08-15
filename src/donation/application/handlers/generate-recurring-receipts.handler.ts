@@ -64,11 +64,13 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<
     );
 
     // Cada recibo generado (incluido el rezago de una promesa) se liga al
-    // periodo cuyo mes/año coincida con el suyo, no siempre al targetPeriod.
-    const resolveCollectionPeriodId = (
-      month: number,
-      year: number,
-    ): string | undefined => {
+    // periodo cuyo mes/año coincida con el suyo. Un recibo de rezago más
+    // atrasado que no coincide con OPEN ni con SCHEDULED (ej. una promesa que
+    // debía dos meses) no se deja sin periodo: se liga a targetPeriod, el
+    // periodo contra el que realmente se está corriendo esta generación, para
+    // que siga siendo visible en ClosePeriodHandler.findByCollectionPeriodId
+    // y en los reportes de eficiencia por periodo.
+    const resolveCollectionPeriodId = (month: number, year: number): string => {
       if (
         openPeriod &&
         openPeriod.month === month &&
@@ -83,7 +85,7 @@ export class GenerateRecurringReceiptsHandler implements ICommandHandler<
       ) {
         return scheduledPeriod._id.unpack();
       }
-      return undefined;
+      return targetPeriod._id.unpack();
     };
 
     await this.uow.runInTransaction(async () => {
